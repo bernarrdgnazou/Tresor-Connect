@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="{{ lang }}">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}{% endblock %}</title>
+  <!-- Bootstrap CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <!-- Font Awesome -->
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+  <!-- Google Fonts -->
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Share+Tech+Mono&family=VT323&family=Courier+Prime&family=Inconsolata:wght@400;700&family=Audiowide&family=Exo+2:wght@400;700&display=swap">
+  <!-- Custom CSS -->
+  <link href="{{ url_for('static', filename='css/base.css') }}" rel="stylesheet">
+  {% block style %}{% endblock %}
+</head>
+<body>
+  <!-- Header -->
+  <header class="bg-dark text-white py-3">
+    <div class="container">
+      <nav class="navbar navbar-expand-lg navbar-dark">
+        <!-- Brand with animated dot -->
+        <a class="navbar-brand 
+          {% if request.endpoint.endswith('home') %}home-title
+          {% elif request.endpoint.endswith('fonction') %}fonction-title
+          {% elif request.endpoint.endswith('traitement') %}traitement-title
+          {% elif request.endpoint.endswith('faq') %}faq-title
+          {% endif %}" 
+          href="{{ url_for('home') }}" style="font-size: 1.4rem">
+          TRÉSOR CONNECT
+          <span class="live-dot ms-2"></span>
+        </a>
+
+        <!-- Mobile toggle -->
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <!-- Main navigation -->
+        <div class="collapse navbar-collapse" id="navbarNav">
+          <ul class="navbar-nav ms-auto">
+            <li class="nav-item">
+              <a class="nav-link" 
+                 href="{{ url_for('home') }}">Accueil</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" 
+                 href="{{ url_for('fonction') }}">Fonctionnement</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" 
+                 href="{{ url_for('traitement') }}">Traitement</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" 
+                 href="{{ url_for('faq') }}">FAQ</a>
+            </li>
+            
+          </ul>
+        </div>
+      </nav>
+    </div>
+  </header>
+
+  <!-- Main content -->
+  <main>
+    {% block content %}{% endblock %}
+  </main>
+
+<!-- Footer -->
+<footer class="bg-dark text-white py-4 mt-auto">
+  <div class="container">
+    <div class="d-flex justify-content-between align-items-center">
+      <div>
+        <p class="mb-0">TRÉSOR CONNECT &copy; - </p>
+      </div>
+    </div>
+  </div>
+</footer>
+
+  <!-- Bootstrap JS -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <!-- Three.js -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r134/three.min.js"></script>
+  <!-- Custom JS -->
+  <script src="{{ url_for('static', filename='js/base.js') }}"></script>
+  {% block scripts %}{% endblock %}
+</body>
+</html>

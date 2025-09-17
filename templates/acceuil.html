@@ -1,0 +1,698 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trésor Connect - Trésorerie Générale de Divo</title>
+    <link rel="stylesheet" href="../static/css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <!-- Cercles décoratifs -->
+    <div class="accent-circle primary"></div>
+    <div class="accent-circle secondary"></div>
+
+    <div class="container">
+        <!-- Header / Navigation -->
+        <header class="header">
+            <a href="#" class="brand">
+                <div class="logo">
+                    <i class="fas fa-coins"></i>
+                </div>
+                <span>Trésor Connect</span>
+            </a>
+            
+            <nav class="tabs">
+                <button class="tab-btn active" data-tab="accueil">Accueil</button>
+                <button class="tab-btn" data-tab="fonctionnement">Fonctionnement</button>
+                <button class="tab-btn" data-tab="traitement">Traitement</button>
+                <button class="tab-btn" data-tab="faq">FAQ</button>
+            </nav>
+        </header>
+
+        <!-- Contenu principal avec onglets -->
+        <main>
+            <!-- Onglet Accueil -->
+            <section id="accueil" class="tab-content active">
+                <div class="hero">
+                    <div class="hero-left">
+                        <h1>Bienvenue sur Trésor Connect</h1>
+                        <p class="lead">Votre plateforme de prise d'information sur les services du trésor public</p>
+                        
+                        <div class="cta-row">
+                            <button id="play-audio" class="btn btn-primary">
+                                <i class="fas fa-volume-up"></i> Écouter la présentation
+                            </button>
+                            <a href="#fonctionnement" class="btn btn-ghost tab-link" data-tab="fonctionnement">
+                                Explorer les services <i class="fas fa-arrow-right"></i>
+                            </a>
+                        </div>
+                    </div>
+                    
+                    <div class="hero-right">
+                        <div class="card profile-card float">
+                            <div class="logo large pulse">
+                                <img src="logo-tresorci.png" alt="Logo Trésor Public Côte d'Ivoire" style="width:80px;height:80px;object-fit:contain;">
+                            </div>
+                            <h3>Trésorerie Générale de Divo</h3>
+                            <span class="tag-success">Service en ligne</span>
+                            <p>Plateforme innovante pour suivre vos mandats</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="timeline-section">
+                    <h2>Nos services</h2>
+                    <div class="timeline">
+                        <div class="timeline-item active">
+                            <div class="timeline-marker">
+                                <i class="fas fa-cogs"></i>
+                            </div>
+                            <div class="timeline-content">
+                                <h3>Fonctionnement</h3>
+                                <p>Découvrez comment les services du trésor public sont organisés et fonctionnent</p>
+                                <button class="btn btn-ghost tab-link" data-tab="fonctionnement">
+                                    En savoir plus <i class="fas fa-arrow-right"></i>
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div class="timeline-item">
+                            <div class="timeline-marker">
+                                <i class="fas fa-tasks"></i>
+                            </div>
+                            <div class="timeline-content">
+                                <h3>Traitement</h3>
+                                <p>Suivez le parcours de vos mandats depuis leur arrivée jusqu'au paiement</p>
+                                <button class="btn btn-ghost tab-link" data-tab="traitement">
+                                    En savoir plus <i class="fas fa-arrow-right"></i>
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div class="timeline-item">
+                            <div class="timeline-marker">
+                                <i class="fas fa-question-circle"></i>
+                            </div>
+                            <div class="timeline-content">
+                                <h3>FAQ</h3>
+                                <p>Trouvez des réponses à vos questions et posez vos préoccupations</p>
+                                <button class="btn btn-ghost tab-link" data-tab="faq">
+                                    En savoir plus <i class="fas fa-arrow-right"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Onglet Fonctionnement -->
+            <section id="fonctionnement" class="tab-content">
+                <div class="hero">
+                    <div class="hero-left">
+                        <h1>Fonctionnement des services</h1>
+                        <p class="lead">Découvrez l'organisation, les rôles et le fonctionnement de la Trésorerie Générale de Divo</p>
+                        
+                        <div class="cta-row">
+                            <button class="btn btn-primary play-section-audio">
+                                <i class="fas fa-volume-up"></i> Écouter la présentation
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="services-container">
+                    <div class="service-item">
+                        <div class="service-header">
+                            <h3>Service de la Comptabilité</h3>
+                            <button class="toggle-service">
+                                <i class="fas fa-chevron-down"></i>
+                            </button>
+                        </div>
+                        <div class="service-content">
+                            <p>Gère la comptabilité générale de la trésorerie, enregistre les opérations budgétaires et assure la coordination avec la comptabilité de l'État.</p>
+                            <div class="kpi">
+                                <div class="num">12</div>
+                                <div class="label">Agents spécialisés</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="service-item">
+                        <div class="service-header">
+                            <h3>Service du Trésor</h3>
+                            <button class="toggle-service">
+                                <i class="fas fa-chevron-down"></i>
+                            </button>
+                        </div>
+                        <div class="service-content">
+                            <p>Assure la gestion de la trésorerie de l'État, le financement des dépenses publiques et la gestion de la dette.</p>
+                            <div class="kpi">
+                                <div class="num">8</div>
+                                <div class="label">Experts financiers</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="service-item">
+                        <div class="service-header">
+                            <h3>Service des Impôts</h3>
+                            <button class="toggle-service">
+                                <i class="fas fa-chevron-down"></i>
+                            </button>
+                        </div>
+                        <div class="service-content">
+                            <p>Charge de l'assiette, du contrôle et du recouvrement des impôts et taxes de l'État.</p>
+                            <div class="kpi">
+                                <div class="num">15</div>
+                                <div class="label">Agents fiscaux</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="service-item">
+                        <div class="service-header">
+                            <h3>Service des Mandats</h3>
+                            <button class="toggle-service">
+                                <i class="fas fa-chevron-down"></i>
+                            </button>
+                        </div>
+                        <div class="service-content">
+                            <p>Traite les mandats de paiement, vérifie leur conformité et assure leur transmission aux services compétents.</p>
+                            <div class="kpi">
+                                <div class="num">10</div>
+                                <div class="label">Agents de traitement</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Onglet Traitement -->
+            <section id="traitement" class="tab-content">
+                <div class="hero">
+                    <div class="hero-left">
+                        <h1>Traitement des mandats</h1>
+                        <p class="lead">Suivez le parcours de vos mandats depuis leur arrivée jusqu'à leur paiement</p>
+                        
+                        <div class="cta-row">
+                            <button class="btn btn-primary play-section-audio">
+                                <i class="fas fa-volume-up"></i> Écouter la présentation
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="process-timeline">
+                    <div class="process-step active">
+                        <div class="step-number">1</div>
+                        <div class="step-content">
+                            <h3>Réception du mandat</h3>
+                            <p>Votre mandat est enregistré dans notre système et reçoit un numéro de référence unique.</p>
+                        </div>
+                    </div>
+                    
+                    <div class="process-step">
+                        <div class="step-number">2</div>
+                        <div class="step-content">
+                            <h3>Vérification de conformité</h3>
+                            <p>Nos agents vérifient que votre mandat est complet et conforme aux exigences réglementaires.</p>
+                        </div>
+                    </div>
+                    
+                    <div class="process-step">
+                        <div class="step-number">3</div>
+                        <div class="step-content">
+                            <h3>Contrôle budgétaire</h3>
+                            <p>Le service budgétaire s'assure de la disponibilité des crédits nécessaires au paiement.</p>
+                        </div>
+                    </div>
+                    
+                    <div class="process-step">
+                        <div class="step-number">4</div>
+                        <div class="step-content">
+                            <h3>Ordonnancement</h3>
+                            <p>L'ordonnateur donne son accord pour le paiement du mandat.</p>
+                        </div>
+                    </div>
+                    
+                    <div class="process-step">
+                        <div class="step-number">5</div>
+                        <div class="step-content">
+                            <h3>Paiement</h3>
+                            <p>Le service de la trésorerie procède au paiement effectif du mandat.</p>
+                        </div>
+                    </div>
+                    
+                    <div class="process-step">
+                        <div class="step-number">6</div>
+                        <div class="step-content">
+                            <h3>Archivage</h3>
+                            <p>Votre mandat est archivé numériquement pour référence future.</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Onglet FAQ -->
+            <section id="faq" class="tab-content">
+                <div class="hero">
+                    <div class="hero-left">
+                        <h1>Foire Aux Questions</h1>
+                        <p class="lead">Trouvez des réponses aux questions fréquentes et posez vos propres questions</p>
+                        
+                        <div class="cta-row">
+                            <button class="btn btn-primary play-section-audio">
+                                <i class="fas fa-volume-up"></i> Écouter la présentation
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="faq-container">
+                    <div class="faq-item">
+                        <div class="faq-question">
+                            <h3>Quels sont les délais de traitement d'un mandat ?</h3>
+                            <button class="toggle-faq">
+                                <i class="fas fa-chevron-down"></i>
+                            </button>
+                        </div>
+                        <div class="faq-answer">
+                            <p>Le délai moyen de traitement est de 5 à 10 jours ouvrables, selon la complexité du dossier et la période de l'année.</p>
+                        </div>
+                    </div>
+                    
+                    <div class="faq-item">
+                        <div class="faq-question">
+                            <h3>Comment suivre l'état d'avancement de mon mandat ?</h3>
+                            <button class="toggle-faq">
+                                <i class="fas fa-chevron-down"></i>
+                            </button>
+                        </div>
+                        <div class="faq-answer">
+                            <p>Vous pouvez suivre l'état de votre mandat en nous contactant au 27 XX XX XX XX ou en venant directement à la trésorerie avec votre numéro de référence.</p>
+                        </div>
+                    </div>
+                    
+                    <div class="faq-item">
+                        <div class="faq-question">
+                            <h3>Quels documents faut-il pour soumettre un mandat ?</h3>
+                            <button class="toggle-faq">
+                                <i class="fas fa-chevron-down"></i>
+                            </button>
+                        </div>
+                        <div class="faq-answer">
+                            <p>Les documents requis sont : le mandat original, la facture correspondante, le bon de livraison et tout justificatif nécessaire selon la nature de la dépense.</p>
+                        </div>
+                    </div>
+                    
+                    <div class="faq-item">
+                        <div class="faq-question">
+                            <h3>Que faire en cas d'erreur sur un mandat ?</h3>
+                            <button class="toggle-faq">
+                                <i class="fas fa-chevron-down"></i>
+                            </button>
+                        </div>
+                        <div class="faq-answer">
+                            <p>En cas d'erreur, contactez immédiatement le service des mandats qui vous indiquera la procédure à suivre pour régulariser la situation.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="ask-question">
+                    <h2>Vous avez une question ?</h2>
+                    <form class="question-form">
+                        <div class="form-group">
+                            <label for="question">Votre question</label>
+                            <textarea id="question" rows="4" placeholder="Posez votre question ici..."></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label for="email">Votre email</label>
+                            <input type="email" id="email" placeholder="votre@email.com">
+                        </div>
+                        <button type="submit" class="btn btn-success">Envoyer la question</button>
+                    </form>
+                </div>
+            </section>
+        </main>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <div class="footer-section">
+                <h4>Trésorerie Générale de Divo</h4>
+                <p>Au service des citoyens et des partenaires</p>
+                <p>©  Artemix</p>
+            </div>
+            
+            <div class="footer-section">
+                <h4>Contacts</h4>
+                <p><i class="fas fa-phone"></i> 0000</p>
+                <p><i class="fas fa-envelope"></i> tresorerie.divo@finances.gouv.ci</p>
+                <p><i class="fas fa-map-marker-alt"></i> Avenue principale, Divo</p>
+            </div>
+            
+            <div class="footer-section">
+                <h4>Horaires d'ouverture</h4>
+                <p>Lundi - Vendredi: 7h30 - 15h30</p>
+                <p>Samedi: 8h - 12h</p>
+            </div>
+        </footer>
+    </div>
+
+    <!-- Audio pour la synthèse vocale (caché) -->
+    <audio id="audio-player" style="display: none;"></audio>
+
+    <script>
+        // Script pour la gestion des onglets
+        document.querySelectorAll('.tab-btn').forEach(button => {
+            button.addEventListener('click', () => {
+                // Désactiver tous les onglets
+                document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+                document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+                
+                // Activer l'onglet cliqué
+                button.classList.add('active');
+                const tabId = button.getAttribute('data-tab');
+                document.getElementById(tabId).classList.add('active');
+            });
+        });
+
+        // Script pour les liens entre onglets
+        document.querySelectorAll('.tab-link').forEach(link => {
+            link.addEventListener('click', (e) => {
+                e.preventDefault();
+                const tabId = link.getAttribute('data-tab');
+                
+                // Désactiver tous les onglets
+                document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+                document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+                
+                // Activer l'onglet cible
+                document.querySelector(`.tab-btn[data-tab="${tabId}"]`).classList.add('active');
+                document.getElementById(tabId).classList.add('active');
+            });
+        });
+
+        // Script pour les éléments dépliants (services et FAQ)
+        document.querySelectorAll('.toggle-service, .toggle-faq').forEach(toggle => {
+            toggle.addEventListener('click', () => {
+                const parent = toggle.closest('.service-item, .faq-item');
+                const content = parent.querySelector('.service-content, .faq-answer');
+                const icon = toggle.querySelector('i');
+                
+                content.classList.toggle('active');
+                if (content.classList.contains('active')) {
+                    icon.classList.remove('fa-chevron-down');
+                    icon.classList.add('fa-chevron-up');
+                } else {
+                    icon.classList.remove('fa-chevron-up');
+                    icon.classList.add('fa-chevron-down');
+                }
+            });
+        });
+
+        // Simulation de la synthèse vocale (pour démonstration)
+        document.getElementById('play-audio').addEventListener('click', () => {
+            alert("Fonctionnalité de synthèse vocale activée : Bienvenue sur Trésor Connect, votre plateforme de prise d'information sur les services du trésor public...");
+        });
+
+        document.querySelectorAll('.play-section-audio').forEach(button => {
+            button.addEventListener('click', () => {
+                const section = button.closest('.tab-content').id;
+                let message = "";
+                
+                switch(section) {
+                    case 'fonctionnement':
+                        message = "Onglet Fonctionnement : vous permettra de savoir comment les services du trésor...";
+                        break;
+                    case 'traitement':
+                        message = "Onglet Traitement : vous permettra de prendre connaissance des traitements qui sont effectués sur vos mandats...";
+                        break;
+                    case 'faq':
+                        message = "Onglet FAQ : vous permettra de prendre connaissance des réponses aux questions posées...";
+                        break;
+                }
+                
+                alert("Fonctionnalité de synthèse vocale activée : " + message);
+            });
+        });
+
+        // Animation automatique de la timeline
+        function animateTimeline() {
+            const items = document.querySelectorAll('.timeline-item');
+            let index = 0;
+            
+            setInterval(() => {
+                items.forEach(item => item.classList.remove('active'));
+                items[index].classList.add('active');
+                index = (index + 1) % items.length;
+            }, 5000);
+        }
+        
+        // Animation automatique des étapes de traitement
+        function animateProcess() {
+            const steps = document.querySelectorAll('.process-step');
+            let index = 0;
+            
+            setInterval(() => {
+                steps.forEach(step => step.classList.remove('active'));
+                steps[index].classList.add('active');
+                index = (index + 1) % steps.length;
+            }, 4000);
+        }
+        
+        // Démarrer les animations lorsque la page est chargée
+        window.addEventListener('load', () => {
+            animateTimeline();
+            animateProcess();
+        });
+    </script>
+
+    <style>
+        /* Styles supplémentaires pour compléter le CSS existant */
+        .tabs {
+            display: flex;
+            gap: 0.5rem;
+            background: var(--glass);
+            padding: 0.5rem;
+            border-radius: var(--radius);
+            backdrop-filter: blur(6px);
+        }
+        
+        .tab-btn {
+            padding: 0.6rem 1rem;
+            border: none;
+            background: transparent;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: var(--transition);
+        }
+        
+        .tab-btn.active {
+            background: var(--primary);
+            color: #0f1720;
+        }
+        
+        .tab-content {
+            display: none;
+        }
+        
+        .tab-content.active {
+            display: block;
+            animation: fadeIn 0.5s ease;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .logo.large {
+            width: 80px;
+            height: 80px;
+            font-size: 2rem;
+        }
+        
+        .timeline-section {
+            margin-top: 3rem;
+        }
+        
+        .timeline {
+            display: grid;
+            gap: 1.5rem;
+            margin-top: 1.5rem;
+        }
+        
+        .timeline-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 1rem;
+            opacity: 0.6;
+            transition: var(--transition);
+        }
+        
+        .timeline-item.active {
+            opacity: 1;
+        }
+        
+        .timeline-marker {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: var(--accent-grad);
+            display: grid;
+            place-items: center;
+            font-size: 1.2rem;
+            color: var(--secondary);
+            flex-shrink: 0;
+        }
+        
+        .timeline-content {
+            background: var(--glass);
+            padding: 1rem;
+            border-radius: var(--radius);
+            flex-grow: 1;
+        }
+        
+        .services-container, .faq-container, .process-timeline {
+            margin-top: 2rem;
+            display: grid;
+            gap: 1rem;
+        }
+        
+        .service-item, .faq-item {
+            background: var(--glass);
+            border-radius: var(--radius);
+            overflow: hidden;
+            transition: var(--transition);
+        }
+        
+        .service-header, .faq-question {
+            padding: 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+        }
+        
+        .service-content, .faq-answer {
+            padding: 0 1rem;
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease;
+        }
+        
+        .service-content.active, .faq-answer.active {
+            max-height: 300px;
+            padding: 0 1rem 1rem;
+        }
+        
+        .process-step {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            opacity: 0.6;
+            transition: var(--transition);
+        }
+        
+        .process-step.active {
+            opacity: 1;
+        }
+        
+        .step-number {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--accent-grad);
+            display: grid;
+            place-items: center;
+            font-weight: bold;
+            color: var(--secondary);
+            flex-shrink: 0;
+        }
+        
+        .step-content {
+            background: var(--glass);
+            padding: 1rem;
+            border-radius: var(--radius);
+            flex-grow: 1;
+        }
+        
+        .ask-question {
+            margin-top: 3rem;
+            background: var(--glass);
+            padding: 2rem;
+            border-radius: var(--radius);
+        }
+        
+        .form-group {
+            margin-bottom: 1rem;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+        }
+        
+        .form-group input, .form-group textarea {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid rgba(0,0,0,0.1);
+            border-radius: 8px;
+            background: var(--glass);
+        }
+        
+        .footer {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+            margin-top: 4rem;
+            padding-top: 2rem;
+            border-top: 1px solid rgba(0,0,0,0.1);
+        }
+        
+        .footer-section h4 {
+            margin-bottom: 1rem;
+            color: #0f1720;
+        }
+        
+        .footer-section p {
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        @media (max-width: 768px) {
+            .header {
+                flex-direction: column;
+            }
+            
+            .tabs {
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+            
+            .hero {
+                grid-template-columns: 1fr !important;
+                text-align: center;
+            }
+            
+            .cta-row {
+                justify-content: center;
+            }
+            
+            .footer {
+                grid-template-columns: 1fr;
+                text-align: center;
+            }
+            
+            .footer-section p {
+                justify-content: center;
+            }
+        }
+    </style>
+</body>
+</html>
