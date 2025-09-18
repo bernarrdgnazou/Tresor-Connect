@@ -49,6 +49,9 @@
               <a class="nav-link {% if request.endpoint.endswith('traitement') %}active{% endif %}" href="{{ url_for('traitement') }}">Traitement</a>
             </li>
             <li class="nav-item">
+              <a class="nav-link {% if request.endpoint.endswith('evenements') %}active{% endif %}" href="{{ url_for('evenements') }}">Évenements</a>
+            </li>
+            <li class="nav-item">
               <a class="nav-link {% if request.endpoint.endswith('faq') %}active{% endif %}" href="{{ url_for('faq') }}">FAQ</a>
             </li>
           </ul>
@@ -63,11 +66,65 @@
   </main>
 
   <!-- Footer -->
-  <footer class="footer-custom">
-    <div class="container">
-      <p>TRÉSOR CONNECT &copy; - Tous droits réservés</p>
+  <!-- Footer -->
+<footer class="footer-custom text-white pt-5 pb-3">
+  <div class="container">
+    <div class="row gy-4">
+      
+      <!-- Logo + Description -->
+      <div class="col-lg-4 col-md-6">
+        <h4 class="fw-bold mb-3">
+          <i class="fas fa-gem text-warning"></i> TRÉSOR CONNECT
+        </h4>
+        <p class="small">
+          Une plateforme intelligente pour la gestion et la modernisation du Trésor Public. 
+          Transparence, innovation et efficacité pour chaque citoyen.
+        </p>
+        <div class="d-flex gap-3 mt-3">
+          <a href="#" class="text-white fs-5"><i class="fab fa-facebook"></i></a>
+          <a href="#" class="text-white fs-5"><i class="fab fa-twitter"></i></a>
+          <a href="#" class="text-white fs-5"><i class="fab fa-linkedin"></i></a>
+        </div>
+      </div>
+
+      <!-- Liens rapides -->
+      <div class="col-lg-2 col-md-6">
+        <h5 class="text-uppercase mb-3">Navigation</h5>
+        <ul class="list-unstyled">
+          <li><a href="{{ url_for('home') }}" class="footer-link">Accueil</a></li>
+          <li><a href="{{ url_for('fonction') }}" class="footer-link">Fonctionnement</a></li>
+          <li><a href="{{ url_for('traitement') }}" class="footer-link">Traitement</a></li>
+          <li><a href="{{ url_for('faq') }}" class="footer-link">FAQ</a></li>
+        </ul>
+      </div>
+
+      <!-- Régions -->
+      <div class="col-lg-3 col-md-6">
+        <h5 class="text-uppercase mb-3">Trésoreries régionales</h5>
+        <ul class="list-unstyled">
+          <li><a href="#" class="footer-link">Trésorerie de Hiré</a></li>
+          <li><a href="#" class="footer-link">Trésorerie de Guitry</a></li>
+          <li><a href="#" class="footer-link">Trésorerie de Lakota</a></li>
+        </ul>
+      </div>
+
+      <!-- Contact -->
+      <div class="col-lg-3 col-md-6">
+        <h5 class="text-uppercase mb-3">Contact</h5>
+        <p class="small mb-1"><i class="fas fa-map-marker-alt me-2 text-warning"></i> Abidjan, Côte d’Ivoire</p>
+        <p class="small mb-1"><i class="fas fa-envelope me-2 text-warning"></i> support@tresorconnect.ci</p>
+        <p class="small"><i class="fas fa-phone me-2 text-warning"></i> +225 07 00 00 00</p>
+      </div>
     </div>
-  </footer>
+
+    <!-- Bas de page -->
+    <hr class="border-light">
+    <div class="text-center small">
+      © 2025 TRÉSOR CONNECT - Tous droits réservés
+    </div>
+  </div>
+</footer>
+
 
   <!-- Bootstrap JS -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>

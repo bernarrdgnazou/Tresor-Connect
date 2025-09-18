@@ -18,6 +18,10 @@ def fonction():
 def traitement():
     return render_template('traitement.html')
 
+@app.route('/events')
+def evenements():
+    return render_template('events.html')
+
 @app.route('/faq')
 def faq():
     return render_template('faq.html',)
