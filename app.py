@@ -6,7 +6,7 @@ app = Flask(__name__)
 app.secret_key = os.environ.get('SECRET_KEY', 'fallback_secret_key_for_development')
 
 # Routes françaises
-@app.route('/index')
+@app.route('/')
 def home():
     return render_template('index.html')
 
