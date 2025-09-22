@@ -1,20 +1,439 @@
 {% extends "base.html" %}
 {% block title%}Fonctionnement - TRÉSOR CONNECT{% endblock %}
 {% block style %}
-	<link href="{{ url_for('static', filename='css/styl.css') }}" rel="stylesheet">
+<link href="{{ url_for('static', filename='css/fonction.css') }}" rel="stylesheet">
 {% endblock %}
 {% block content %}
 
-<!-- Section Hero -->
 <section class="hero text-center py-5 bg-galaxy">
   <div class="container">
-    <h1 class="display-4 fw-bold neon-text">TRESOR CONNECT</h1>
-    <p class="lead mt-3 neon-text">TRESORERIE GÉNÉRAL FONCTIONNEMENT</p>
+    <h1 class="display-4 fw-bold neon-text">Fonctionnement des Services</h1>
+    <p class="lead mt-3 neon-text">Fonctionnement des services de la Trésorerie : rôles, missions et responsabilités.</p>
   </div>
 </section>
 
+<section class="container my-5" id="services">
 
-  <script>
-  </script>
+  <article class="glass gradient-border p-4 mb-4 reveal">
+    <div class="row g-3">
+      <div class="col-lg-8">
+        <h3 class="service-title">Secrétariat</h3>
+        <p class="text-muted">Le secrétariat est la première étape du circuit des mandats. Il gère l'accueil des documents et leur enregistrement formel.</p>
+        <h4 class="mt-4">Rôles et missions</h4>
+        <ol class="service-steps">
+          <li><strong>Réception et décharge :</strong> Réception des mandats et autres documents et remise d'une décharge à l'agent de la commune.</li>
+          <li><strong>Tri et enregistrement :</strong> Tri des dossiers selon le service de destination et enregistrement dans le registre d'arrivée.</li>
+          <li><strong>Affectation :</strong> Attribution d'un numéro d'ordre et d'une date d'arrivée, puis transmission au service concerné.</li>
+        </ol>
+        <h4 class="mt-4">Responsabilités sur les mandats</h4>
+        <p class="text-muted">La principale responsabilité du secrétariat est d'assurer la **traçabilité des documents** dès leur réception et de garantir qu'ils sont transmis au bon service dans les délais.</p>
+        <div class="mt-3">
+          <button class="btn btn-outline-success btn-sm details-toggle" type="button" data-bs-toggle="collapse" data-bs-target="#secretariat-details" aria-expanded="false" aria-controls="secretariat-details">
+            Documents et Processus
+          </button>
+        </div>
+      </div>
+      <div class="col-lg-4 align-self-center text-lg-end">
+        <div class="kpi">
+          <div class="badge">Secrétariat</div>
+          <div class="kpi mt-2"><div class="num">Accueil</div><div class="label">Traçabilité</div></div>
+        </div>
+      </div>
+    </div>
+    <div id="secretariat-details" class="collapse mt-3">
+      <div class="card card-body">
+        <h5>Documents et Processus</h5>
+        <p>Le secrétariat s'appuie sur un registre de décharge et des fiches de suivi pour chaque mandat reçu. Il agit comme un point de contrôle initial pour l'entrée des documents financiers.</p>
+      </div>
+    </div>
+  </article>
 
+  <article class="glass gradient-border p-4 mb-4 reveal">
+    <div class="row g-3">
+      <div class="col-lg-8">
+        <h3 class="service-title">Service communal</h3>
+        <p class="text-muted">Le service communal est le centre névralgique pour le traitement des dossiers de la commune. Il effectue les contrôles initiaux et la vérification des pièces.</p>
+        <h4 class="mt-4">Rôles et missions</h4>
+        <ol class="service-steps">
+          <li><strong>Vérification formelle :</strong> Il s'assure de la conformité et de la complétude du mandat et des pièces justificatives.</li>
+          <li><strong>Instruction :</strong> Il analyse la nature de la dépense et prépare le dossier pour l'étape suivante.</li>
+          <li><strong>Suivi :</strong> Il assure le suivi du dossier et est l'interlocuteur privilégié de la commune.</li>
+        </ol>
+        <h4 class="mt-4">Responsabilités sur les mandats</h4>
+        <p class="text-muted">La principale responsabilité du service est d'effectuer un **contrôle de complétude et de conformité** avant de transmettre le mandat. Un mandat incomplet ou non conforme peut être rejeté à ce stade.</p>
+        <div class="mt-3">
+          <button class="btn btn-outline-success btn-sm details-toggle" type="button" data-bs-toggle="collapse" data-bs-target="#communal-details" aria-expanded="false" aria-controls="communal-details">
+            Détails des documents requis
+          </button>
+        </div>
+      </div>
+      <div class="col-lg-4 align-self-center text-lg-end">
+        <div class="kpi">
+          <div class="badge">Communal</div>
+          <div class="kpi mt-2"><div class="num">Porte d'entrée</div><div class="label">Contrôle initial</div></div>
+        </div>
+      </div>
+    </div>
+    <div id="communal-details" class="collapse mt-3">
+      <div class="card card-body">
+        <h5>Documents usuels</h5>
+        <ul>
+          <li>Mandat signé par l'autorité compétente</li>
+          <li>Facture ou justificatif de dépense</li>
+          <li>Pièce d'identité ou RIB du bénéficiaire</li>
+          <li>Tout autre document technique requis pour le dossier</li>
+        </ul>
+      </div>
+    </div>
+  </article>
+
+  <article class="glass gradient-border p-4 mb-4 reveal">
+    <div class="row g-3">
+      <div class="col-lg-8">
+        <h3 class="service-title">Service dépense</h3>
+        <p class="text-muted">Le service dépense a pour rôle de contrôler les mandats de paiement, de vérifier la disponibilité des fonds et d'autoriser les paiements pour le compte de la commune.</p>
+        <h4 class="mt-4">Rôles et missions</h4>
+        <ol class="service-steps">
+          <li><strong>Vérification budgétaire :</strong> Il s'assure que les dépenses sont imputées sur les lignes budgétaires appropriées et que les crédits sont disponibles.</li>
+          <li><strong>Contrôle de validité :</strong> Il vérifie la légalité et la conformité des mandats au regard des procédures financières et des marchés publics.</li>
+          <li><strong>Autorisation de paiement :</strong> Une fois le mandat validé, il est transféré pour traitement final par le service comptable.</li>
+        </ol>
+        <h4 class="mt-4">Responsabilités sur les mandats</h4>
+        <p class="text-muted">Le service dépense est responsable du **contrôle de la régularité budgétaire et de l'engagement des fonds**. C'est ici que les mandats peuvent être rejetés s'ils ne correspondent pas aux crédits budgétaires ou si des pièces justificatives manquent pour valider l'engagement financier.</p>
+        <div class="mt-3">
+          <button class="btn btn-outline-success btn-sm details-toggle" type="button" data-bs-toggle="collapse" data-bs-target="#depense-details" aria-expanded="false" aria-controls="depense-details">
+            Points de contrôle
+          </button>
+        </div>
+      </div>
+      <div class="col-lg-4 align-self-center text-lg-end">
+        <div class="kpi">
+          <div class="badge">Dépense</div>
+          <div class="kpi mt-2"><div class="num">Sécurité</div><div class="label">Engagement & conformité</div></div>
+        </div>
+      </div>
+    </div>
+    <div id="depense-details" class="collapse mt-3">
+      <div class="card card-body">
+        <h5>Points de contrôle</h5>
+        <ul>
+          <li>Conformité du mandat (signatures, dates)</li>
+          <li>Respect des marchés publics et des contrats</li>
+          <li>Vérification des engagements budgétaires antérieurs</li>
+        </ul>
+      </div>
+    </div>
+  </article>
+
+  <article class="glass gradient-border p-4 mb-4 reveal">
+    <div class="row g-3">
+      <div class="col-lg-8">
+        <h3 class="service-title">Service recouvrement</h3>
+        <p class="text-muted">Le service recouvrement gère la perception des recettes publiques. Il est chargé de collecter les créances non soldées et d'engager les procédures nécessaires, dans le respect de la loi.</p>
+        <h4 class="mt-4">Rôles et missions</h4>
+        <ol class="service-steps">
+          <li><strong>Identification des créances :</strong> Il identifie les recettes impayées et les notifie aux débiteurs.</li>
+          <li><strong>Négociation et assistance :</strong> Il propose des solutions amiables, comme les échéanciers de paiement.</li>
+          <li><strong>Procédures légales :</strong> En cas de non-paiement, il met en œuvre les procédures de recouvrement forcé.</li>
+        </ol>
+        <h4 class="mt-4">Responsabilités sur les mandats</h4>
+        <p class="text-muted">Le service de recouvrement est responsable de l'**exécution des titres de recettes** qui servent de base à l'encaissement. Il joue un rôle essentiel pour garantir que les fonds publics dus sont bien perçus.</p>
+        <div class="mt-3">
+          <button class="btn btn-outline-success btn-sm details-toggle" type="button" data-bs-toggle="collapse" data-bs-target="#recouvrement-details" aria-expanded="false" aria-controls="recouvrement-details">
+            Procédures légales
+          </button>
+        </div>
+      </div>
+      <div class="col-lg-4 align-self-center text-lg-end">
+        <div class="kpi">
+          <div class="badge">Recouvrement</div>
+          <div class="kpi mt-2"><div class="num">Recettes</div><div class="label">Paiements dus</div></div>
+        </div>
+      </div>
+    </div>
+    <div id="recouvrement-details" class="collapse mt-3">
+      <div class="card card-body">
+        <h5>Étapes légales</h5>
+        <p class="small">Les délais de procédure et les recours légaux applicables sont définis par la réglementation nationale et les textes budgétaires.</p>
+      </div>
+    </div>
+  </article>
+
+  <article class="glass gradient-border p-4 mb-4 reveal">
+    <div class="row g-3">
+      <div class="col-lg-8">
+        <h3 class="service-title">Service Comptabilité</h3>
+        <p class="text-muted">La comptabilité assure l'exactitude des écritures et la gestion des flux financiers. C'est le service qui transforme les mandats validés en ordres de paiement effectifs.</p>
+        <h4 class="mt-4">Rôles et missions</h4>
+        <ol class="service-steps">
+          <li><strong>Saisie et imputation :</strong> Saisie des données dans le système comptable, imputations budgétaires finales.</li>
+          <li><strong>Rapprochement bancaire :</strong> Comparaison des paiements effectués avec les relevés bancaires.</li>
+          <li><strong>Clôture :</strong> Archivage du dossier pour l'audit et la vérification.</li>
+        </ol>
+        <h4 class="mt-4">Responsabilités sur les mandats</h4>
+        <p class="text-muted">Le service comptable est responsable de la **saisie comptable finale et de la préparation du paiement**. Un mandat ne peut être mis en paiement sans la validation et l'enregistrement de ce service.</p>
+        <div class="mt-3">
+          <button class="btn btn-outline-success btn-sm details-toggle" type="button" data-bs-toggle="collapse" data-bs-target="#comptabilite-details" aria-expanded="false" aria-controls="comptabilite-details">
+            Processus et Rapports
+          </button>
+        </div>
+      </div>
+      <div class="col-lg-4 align-self-center text-lg-end">
+        <div class="kpi">
+          <div class="badge">Comptabilité</div>
+          <div class="kpi mt-2"><div class="num">Précision</div><div class="label">Écritures & Paiements</div></div>
+        </div>
+      </div>
+    </div>
+    <div id="comptabilite-details" class="collapse mt-3">
+      <div class="card card-body">
+        <h5>Processus et Rapports</h5>
+        <p>Le service de comptabilité s'appuie sur des journaux de comptes, des balances et des rapports d'audit pour garantir l'exactitude financière.</p>
+      </div>
+    </div>
+  </article>
+
+  <article class="glass gradient-border p-4 mb-4 reveal">
+    <div class="row g-3">
+      <div class="col-lg-8">
+        <h3 class="service-title">Service Qualité</h3>
+        <p class="text-muted">Le service qualité est responsable de l'audit interne des dossiers. Il s'assure que le traitement des mandats est conforme aux procédures et aux normes en vigueur.</p>
+        <h4 class="mt-4">Rôles et missions</h4>
+        <ol class="service-steps">
+          <li><strong>Contrôle aléatoire :</strong> Il effectue des vérifications ponctuelles sur les mandats déjà traités.</li>
+          <li><strong>Audit de procédure :</strong> Il évalue le respect des délais et des circuits de validation.</li>
+          <li><strong>Amélioration continue :</strong> Il émet des recommandations pour optimiser le processus et réduire les risques d'erreurs.</li>
+        </ol>
+        <h4 class="mt-4">Responsabilités sur les mandats</h4>
+        <p class="text-muted">Le service qualité ne traite pas les mandats au quotidien, mais il a une responsabilité de **contrôle a posteriori** pour garantir l'efficacité et la conformité du système entier.</p>
+        <div class="mt-3">
+          <button class="btn btn-outline-success btn-sm details-toggle" type="button" data-bs-toggle="collapse" data-bs-target="#qualite-details" aria-expanded="false" aria-controls="qualite-details">
+            Méthodes de Contrôle
+          </button>
+        </div>
+      </div>
+      <div class="col-lg-4 align-self-center text-lg-end">
+        <div class="kpi">
+          <div class="badge">Qualité</div>
+          <div class="kpi mt-2"><div class="num">Audit</div><div class="label">Conformité des process</div></div>
+        </div>
+      </div>
+    </div>
+    <div id="qualite-details" class="collapse mt-3">
+      <div class="card card-body">
+        <h5>Méthodes de Contrôle</h5>
+        <p>Ce service utilise des checklists, des plans d'audit internes et des rapports de non-conformité pour identifier et corriger les faiblesses du processus de traitement des mandats.</p>
+      </div>
+    </div>
+  </article>
+
+  <article class="glass gradient-border p-4 mb-4 reveal">
+    <div class="row g-3">
+      <div class="col-lg-8">
+        <h3 class="service-title">Service Appurement</h3>
+        <p class="text-muted">Le service d'appurement est responsable de la réconciliation finale des comptes. Il s'assure que les dépenses et les recettes sont correctement enregistrées et qu'il n'y a pas d'écart.</p>
+        <h4 class="mt-4">Rôles et missions</h4>
+        <ol class="service-steps">
+          <li><strong>Rapprochement des comptes :</strong> Il s'assure que les soldes des mandats correspondent aux transactions bancaires.</li>
+          <li><strong>Détection des anomalies :</strong> Il recherche les erreurs, les paiements en double ou les écarts de montants.</li>
+          <li><strong>Clôture des dossiers :</strong> Il valide la clôture comptable des mandats une fois que toutes les vérifications sont faites.</li>
+        </ol>
+        <h4 class="mt-4">Responsabilités sur les mandats</h4>
+        <p class="text-muted">Le service d'appurement est responsable de la **certification des comptes**. Son rôle est crucial pour garantir l'intégrité et l'exactitude des registres financiers.</p>
+        <div class="mt-3">
+          <button class="btn btn-outline-success btn-sm details-toggle" type="button" data-bs-toggle="collapse" data-bs-target="#appurement-details" aria-expanded="false" aria-controls="appurement-details">
+            Outils et Procédures
+          </button>
+        </div>
+      </div>
+      <div class="col-lg-4 align-self-center text-lg-end">
+        <div class="kpi">
+          <div class="badge">Appurement</div>
+          <div class="kpi mt-2"><div class="num">Certification</div><div class="label">Rapprochement de comptes</div></div>
+        </div>
+      </div>
+    </div>
+    <div id="appurement-details" class="collapse mt-3">
+      <div class="card card-body">
+        <h5>Outils et Procédures</h5>
+        <p>Ce service utilise des logiciels de rapprochement automatique, des états de synthèse et des rapports de vérification pour s'assurer que les comptes sont équilibrés.</p>
+      </div>
+    </div>
+  </article>
+
+  <article class="glass gradient-border p-4 mb-4 reveal">
+    <div class="row g-3">
+      <div class="col-lg-8">
+        <h3 class="service-title">Payerie</h3>
+        <p class="text-muted">La Payerie est en charge de l'exécution matérielle des paiements. C'est le point de passage final des fonds avant qu'ils ne soient versés aux bénéficiaires.</p>
+        <h4 class="mt-4">Rôles et missions</h4>
+        <ol class="service-steps">
+          <li><strong>Exécution :</strong> Paiement effectif des mandats par virement, chèque ou en espèces.</li>
+          <li><strong>Contrôle des ordres :</strong> Vérification finale des ordres de paiement reçus de la comptabilité.</li>
+          <li><strong>Suivi des paiements :</strong> S'assurer que les paiements sont correctement exécutés et enregistrés.</li>
+        </ol>
+        <h4 class="mt-4">Responsabilités sur les mandats</h4>
+        <p class="text-muted">La Payerie est responsable de la **bonne exécution des ordres de paiement** qui lui sont transmis. Toute erreur de montant ou de bénéficiaire à ce stade relève de sa responsabilité.</p>
+        <div class="mt-3">
+          <button class="btn btn-outline-success btn-sm details-toggle" type="button" data-bs-toggle="collapse" data-bs-target="#payerie-details" aria-expanded="false" aria-controls="payerie-details">
+            Types de Paiements
+          </button>
+        </div>
+      </div>
+      <div class="col-lg-4 align-self-center text-lg-end">
+        <div class="kpi">
+          <div class="badge">Payerie</div>
+          <div class="kpi mt-2"><div class="num">Exécution</div><div class="label">Paiements & Encaissements</div></div>
+        </div>
+      </div>
+    </div>
+    <div id="payerie-details" class="collapse mt-3">
+      <div class="card card-body">
+        <h5>Types de Paiements</h5>
+        <p>La payerie gère les virements bancaires (la majorité des cas), les chèques pour des cas spécifiques, et les transactions en espèces.</p>
+      </div>
+    </div>
+  </article>
+
+  <article class="glass gradient-border p-4 mb-4 reveal">
+    <div class="row g-3">
+      <div class="col-lg-8">
+        <h3 class="service-title">La Caisse</h3>
+        <p class="text-muted">La caisse gère les liquidités et les transactions en espèces. C'est un point de contact direct avec le public pour les encaissements ou les paiements en numéraire.</p>
+        <h4 class="mt-4">Rôles et missions</h4>
+        <ol class="service-steps">
+          <li><strong>Encaissement :</strong> Réception des paiements en espèces des citoyens ou des entreprises.</li>
+          <li><strong>Gestion des fonds :</strong> Comptage, sécurisation et dépôt des liquidités.</li>
+          <li><strong>Règlement des mandats :</strong> Paiement en espèces de certains petits mandats, le cas échéant.</li>
+        </ol>
+        <h4 class="mt-4">Responsabilités sur les mandats</h4>
+        <p class="text-muted">La caisse est responsable de la **sécurisation des fonds** et de la conformité des transactions en espèces avec les registres de paiement.</p>
+        <div class="mt-3">
+          <button class="btn btn-outline-success btn-sm details-toggle" type="button" data-bs-toggle="collapse" data-bs-target="#caisse-details" aria-expanded="false" aria-controls="caisse-details">
+            Procédures de Caisse
+          </button>
+        </div>
+      </div>
+      <div class="col-lg-4 align-self-center text-lg-end">
+        <div class="kpi">
+          <div class="badge">Caisse</div>
+          <div class="kpi mt-2"><div class="num">Liquidités</div><div class="label">Transactions en espèces</div></div>
+        </div>
+      </div>
+    </div>
+    <div id="caisse-details" class="collapse mt-3">
+      <div class="card card-body">
+        <h5>Procédures de Caisse</h5>
+        <p>Le service suit des procédures strictes de comptage et de rapprochement quotidien pour garantir l'exactitude des fonds en caisse et prévenir les erreurs.</p>
+      </div>
+    </div>
+  </article>
+
+  <article class="glass gradient-border p-4 mb-4 reveal">
+    <div class="row g-3">
+      <div class="col-lg-8">
+        <h3 class="service-title">Fondé de pouvoir</h3>
+        <p class="text-muted">Le Fondé de pouvoir est un agent de l'État qui reçoit une délégation d'autorité du Trésorier pour signer et valider des actes financiers en son nom.</p>
+        <h4 class="mt-4">Rôles et missions</h4>
+        <ol class="service-steps">
+          <li><strong>Délégation :</strong> Il agit en tant que représentant légal du Trésorier pour certaines opérations.</li>
+          <li><strong>Validation :</strong> Il valide des paiements, des encaissements ou des transferts de fonds.</li>
+          <li><strong>Supervision :</strong> Il peut être amené à superviser le travail des services sous sa responsabilité.</li>
+        </ol>
+        <h4 class="mt-4">Responsabilités sur les mandats</h4>
+        <p class="text-muted">Le Fondé de pouvoir a une responsabilité directe sur les mandats qu'il signe. Il est le **dernier maillon de validation** avant le Trésorier, et sa signature engage la Trésorerie.</p>
+        <div class="mt-3">
+          <button class="btn btn-outline-success btn-sm details-toggle" type="button" data-bs-toggle="collapse" data-bs-target="#fonde-details" aria-expanded="false" aria-controls="fonde-details">
+            Cadre Législatif
+          </button>
+        </div>
+      </div>
+      <div class="col-lg-4 align-self-center text-lg-end">
+        <div class="kpi">
+          <div class="badge">Fondé de pouvoir</div>
+          <div class="kpi mt-2"><div class="num">Délégation</div><div class="label">Validation finale</div></div>
+        </div>
+      </div>
+    </div>
+    <div id="fonde-details" class="collapse mt-3">
+      <div class="card card-body">
+        <h5>Cadre Législatif</h5>
+        <p>Le rôle et les pouvoirs du Fondé de pouvoir sont strictement définis par les textes de loi et les circulaires ministérielles qui encadrent les opérations des Trésoreries.</p>
+      </div>
+    </div>
+  </article>
+
+  <article class="glass gradient-border p-4 mb-4 reveal">
+    <div class="row g-3">
+      <div class="col-lg-8">
+        <h3 class="service-title">Le Trésorier</h3>
+        <p class="text-muted">Le Trésorier est le chef de l'administration et le garant de la régularité des opérations financières de la Trésorerie. Il a la responsabilité ultime.</p>
+        <h4 class="mt-4">Rôles et missions</h4>
+        <ol class="service-steps">
+          <li><strong>Direction :</strong> Il dirige et supervise l'ensemble des services.</li>
+          <li><strong>Garant :</strong> Il est responsable de la sécurité des fonds et du respect des lois et des règlements financiers.</li>
+          <li><strong>Responsabilité finale :</strong> Il est le seul à pouvoir valider les opérations financières majeures.</li>
+        </ol>
+        <h4 class="mt-4">Responsabilités sur les mandats</h4>
+        <p class="text-muted">Le Trésorier a la **responsabilité finale et souveraine** sur toutes les transactions. C'est lui qui signe et autorise les paiements les plus importants, et sa signature valide l'ensemble du processus de traitement des mandats.</p>
+        <div class="mt-3">
+          <button class="btn btn-outline-success btn-sm details-toggle" type="button" data-bs-toggle="collapse" data-bs-target="#tresorier-details" aria-expanded="false" aria-controls="tresorier-details">
+            Rôle de Supervision
+          </button>
+        </div>
+      </div>
+      <div class="col-lg-4 align-self-center text-lg-end">
+        <div class="kpi">
+          <div class="badge">Trésorier</div>
+          <div class="kpi mt-2"><div class="num">Chef</div><div class="label">Responsabilité suprême</div></div>
+        </div>
+      </div>
+    </div>
+    <div id="tresorier-details" class="collapse mt-3">
+      <div class="card card-body">
+        <h5>Rôle de Supervision</h5>
+        <p>Le Trésorier s'appuie sur les rapports des chefs de service et des auditeurs pour prendre ses décisions. Sa fonction est plus stratégique que technique, centrée sur la conformité et la gouvernance financière.</p>
+      </div>
+    </div>
+  </article>
+
+</section>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/base.js') }}"></script>
+<script>
+/* small page script: toggle details and animate step highlight */
+document.addEventListener('DOMContentLoaded', () => {
+  // Toggle detail buttons (bootstrap collapse)
+  document.querySelectorAll('.details-toggle').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const target = btn.getAttribute('data-bs-target');
+      const el = document.querySelector(target);
+      if (!el) return;
+      const exp = btn.getAttribute('aria-expanded') === 'true';
+      btn.setAttribute('aria-expanded', !exp);
+      if (typeof bootstrap !== 'undefined' && bootstrap.Collapse) {
+        new bootstrap.Collapse(el, { toggle: true });
+      } else {
+        el.classList.toggle('show');
+      }
+    });
+  });
+
+  // IntersectionObserver for reveal animation
+  const revealElements = document.querySelectorAll('.reveal');
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('active');
+        observer.unobserve(entry.target);
+      }
+    });
+  }, {
+    threshold: 0.1
+  });
+  revealElements.forEach(el => observer.observe(el));
+});
+</script>
 {% endblock %}

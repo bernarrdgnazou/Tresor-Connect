@@ -49,11 +49,12 @@
               <a class="nav-link {% if request.endpoint.endswith('traitement') %}active{% endif %}" href="{{ url_for('traitement') }}">Traitement</a>
             </li>
             <li class="nav-item">
-              <a class="nav-link {% if request.endpoint.endswith('evenements') %}active{% endif %}" href="{{ url_for('evenements') }}">Évenements</a>
-            </li>
-            <li class="nav-item">
               <a class="nav-link {% if request.endpoint.endswith('faq') %}active{% endif %}" href="{{ url_for('faq') }}">FAQ</a>
             </li>
+            <li class="nav-item">
+              <a class="nav-link {% if request.endpoint.endswith('connexion') %}active{% endif %}" href="{{ url_for('connexion') }}">Aller plus loin -></a>
+            </li>
+            
           </ul>
         </div>
       </nav>

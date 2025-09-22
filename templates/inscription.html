@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+{% block title %}Inscription - TRÉSOR CONNECT{% endblock %}
+
+{% block style %}
+<link href="{{ url_for('static', filename='css/style.css') }}" rel="stylesheet">
+<link href="{{ url_for('static', filename='css/forms.css') }}" rel="stylesheet">
+
+{% endblock %}
+
+{% block content %}
+<div class="login-container">
+  <div class="login-card">
+    <h2 class="login-title">📝 Inscription</h2>
+    <form action="#" method="post" autocomplete="off">
+
+      <!-- Nom complet -->
+      <div class="form-group">
+        <label for="fullname"><i class="fas fa-user"></i> Nom complet</label>
+        <input type="text" id="fullname" name="fullname" placeholder="Votre nom complet" required>
+      </div>
+
+      <!-- Email -->
+      <div class="form-group">
+        <label for="mail"><i class="fas fa-envelope"></i> Email</label>
+        <input type="email" id="mail" name="mail" placeholder="Votre email" required>
+      </div>
+
+      <!-- Mot de passe -->
+      <div class="form-group">
+        <label for="password"><i class="fas fa-lock"></i> Mot de passe</label>
+        <input type="password" id="password" name="password" placeholder="********" required>
+      </div>
+
+      <!-- Confirmation mot de passe -->
+      <div class="form-group">
+        <label for="confirm_password"><i class="fas fa-lock"></i> Confirmer le mot de passe</label>
+        <input type="password" id="confirm_password" name="confirm_password" placeholder="********" required>
+      </div>
+
+      <!-- Bouton -->
+      <button type="submit" class="btn-login">Créer mon compte</button>
+
+      <!-- Liens -->
+      <p class="signup-link mt-3">
+        Déjà inscrit ? <a href="{{ url_for('connexion') }}">Connectez-vous ici</a>
+      </p>
+    </form>
+  </div>
+</div>
+<script src="{{ url_for('static', filename='js/forms.js') }}"></script>
+
+{% endblock %}

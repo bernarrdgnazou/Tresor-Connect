@@ -18,13 +18,21 @@ def fonction():
 def traitement():
     return render_template('traitement.html')
 
-@app.route('/events')
-def evenements():
-    return render_template('events.html')
-
 @app.route('/faq')
 def faq():
-    return render_template('faq.html',)
+    return render_template('faq.html')
+
+@app.route('/connexion')
+def connexion():
+    return render_template('connexion.html')
+
+@app.route('/inscription')
+def inscription():
+    return render_template('inscription.html')
+
+@app.route('/resetpasswd')
+def resetpasswd():
+    return render_template('resetpasswd.html')
 
 # @app.route('/fr/contact', methods=['GET', 'POST'])
 # def fr_contact():

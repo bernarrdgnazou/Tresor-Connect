@@ -1,0 +1,119 @@
+/* Section FAQ */
+#faq {
+  padding: 40px 20px;
+  border-radius: 5px;
+  background: linear-gradient(
+    145deg, 
+    rgba(255, 127, 17, 0.2),
+    rgba(11, 218, 81, 0.2)
+  );
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+
+
+
+.faq-title {
+  text-align: center;
+  font-size: 2.2rem;
+  margin-bottom: 10px;
+  color: #333;
+}
+
+.faq-list {
+  max-width: 800px;
+  margin: 0 auto 40px;
+}
+
+.faq-item {
+  margin-bottom: 15px;
+  border-radius: 10px;
+  overflow: hidden;
+  background: #fff;
+  box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+}
+
+.faq-question {
+  padding: 15px 20px;
+  font-weight: bold;
+  cursor: pointer;
+  background: #f1f1f1;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.faq-toggle {
+  font-size: 1.2rem;
+  transition: transform 0.3s ease;
+}
+
+.faq-answer {
+  padding: 0 20px;
+  max-height: 0;
+  overflow: hidden;
+  background: #fff;
+  transition: max-height 0.4s ease, padding 0.3s ease;
+}
+
+.faq-item.active .faq-answer {
+  max-height: 200px;
+  padding: 15px 20px;
+}
+
+.faq-item.active .faq-toggle {
+  transform: rotate(45deg);
+}
+
+/* Formulaire FAQ */
+.faq-form {
+  max-width: 600px;
+  margin: 0 auto;
+  background: #fff;
+  padding: 25px;
+  border-radius: 12px;
+  box-shadow: 0 3px 15px rgba(0,0,0,0.1);
+}
+
+.faq-form h4 {
+  margin-bottom: 15px;
+  color: #333;
+}
+
+.faq-form .form-group {
+  margin-bottom: 15px;
+}
+
+.faq-form input, 
+.faq-form textarea {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  outline: none;
+}
+
+.btn-faq {
+  background: linear-gradient(45deg, #ff7f11, #0bda51);
+  color: white;
+  padding: 12px 20px;
+  border: none;
+  border-radius: 8px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: transform 0.2s ease;
+}
+
+.btn-faq:hover {
+  transform: scale(1.05);
+}
+
+/* Confirmation */
+.faq-confirmation {
+  display: none;
+  text-align: center;
+  margin-top: 20px;
+  font-weight: bold;
+  color: green;
+}

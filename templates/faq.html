@@ -2,19 +2,26 @@
 {% block title%}FAQ - TRÉSOR CONNECT{% endblock %}
 {% block style %}
 <link href="{{ url_for('static', filename='css/styles.css') }}" rel="stylesheet">
+<link href="{{ url_for('static', filename='css/faq.css') }}" rel="stylesheet">
 {% endblock %}
 {% block content %}
 
-<!-- Section Hero -->
-<section class="hero text-center py-5 bg-galaxy">
+<section class="hero text-center py-5">
   <div class="container">
-    <h1 class="display-4 fw-bold neon-text">TRESOR CONNECT</h1>
-    <p class="lead mt-3 neon-text">TRESORERIE GÉNÉRAL FAQ</p>
+    <h1 class="display-4 fw-bold neon-text">Foire aux Questions</h1>
+    <p class="lead mt-3 neon-text">Trouvez les réponses aux questions les plus fréquentes.</p>
   </div>
 </section>
 
-<script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
-    <script>
-  </script>
+<section class="container my-5">
+  <div class="row">
+    <div class="col-lg-8 mx-auto">
+      <h2 class="faq-title">❓ FAQ</h2>
+      <h5 class="pi">Questions fréquentes</h5>
+      <div id="faq" class="section-content mt-4">
+        </div>
+    </div>
+  </div>
+</section>
 
 {% endblock %}

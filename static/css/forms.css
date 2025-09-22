@@ -1,0 +1,125 @@
+/* Container principal */
+.login-container {
+  margin-top: 100px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 75vh;
+  background: linear-gradient(
+    135deg, 
+    rgba(255, 127, 17, 0.3),
+    rgba(255, 255, 255),
+    rgba(11, 218, 81, 0.2)
+  );
+  background-attachment: fixed; /* pour que ça reste fluide */
+  background-size: cover;  background-size: 400% 400%;
+  animation: gradientMove 12s ease infinite;
+  padding: 20px;
+}
+
+/* Carte du formulaire */
+.login-card {
+  background: #fff;
+  padding: 2.5rem;
+  border-radius: 1rem;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+  width: 100%;
+  max-width: 420px;
+  text-align: center;
+  animation: fadeIn 1s ease-in-out;
+}
+
+/* Titre */
+.login-title {
+  margin-bottom: 1.5rem;
+  font-size: 1.8rem;
+  font-weight: bold;
+  color: #ff7f11;
+}
+
+/* Champs */
+.form-group {
+  text-align: left;
+  margin-bottom: 1.2rem;
+}
+.form-group label {
+  display: block;
+  margin-bottom: .5rem;
+  font-weight: 600;
+  color: #333;
+}
+.form-group i {
+  margin-right: 6px;
+  color: #0bda51;
+}
+.form-group input {
+  width: 100%;
+  padding: 12px;
+  border: 2px solid #e6e6e6;
+  border-radius: 8px;
+  font-size: 1rem;
+  transition: border 0.3s ease;
+}
+.form-group input:focus {
+  outline: none;
+  border: 2px solid #ff7f11;
+}
+
+/* Bouton */
+.btn-login {
+  width: 100%;
+  padding: 12px;
+  background: linear-gradient(90deg, #ff7f11, #0bda51);
+  border: none;
+  border-radius: 8px;
+  color: #fff;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+.btn-login:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+}
+
+/* Liens */
+.forgot-link,
+.signup-link {
+  margin-top: 1rem;
+  font-size: 0.9rem;
+}
+.forgot-link a,
+.signup-link a {
+  color: #ff7f11;
+  text-decoration: none;
+  font-weight: 600;
+}
+.forgot-link a:hover,
+.signup-link a:hover {
+  text-decoration: underline;
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(30px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes gradientMove {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+input.invalid {
+  border: 2px solid red;
+  animation: shake 0.2s ease-in-out 0s 2;
+}
+
+@keyframes shake {
+  0% { transform: translateX(0px); }
+  25% { transform: translateX(-5px); }
+  50% { transform: translateX(5px); }
+  75% { transform: translateX(-5px); }
+  100% { transform: translateX(0px); }
+}
+

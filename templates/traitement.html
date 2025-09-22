@@ -1,20 +1,216 @@
 {% extends "base.html" %}
-{% block title%}Traitment - TRÉSOR CONNECT{% endblock %}
+{% block title%}Processus de Traitement - TRÉSOR CONNECT{% endblock %}
 {% block style %}
-<link href="{{ url_for('static', filename='css/styles.css') }}" rel="stylesheet">
+<link href="{{ url_for('static', filename='css/traitement.css') }}" rel="stylesheet">
 {% endblock %}
 {% block content %}
 
-<!-- Section Hero -->
+<!-- HERO -->
 <section class="hero text-center py-5 bg-galaxy">
   <div class="container">
-    <h1 class="display-4 fw-bold neon-text">TRESOR CONNECT</h1>
-    <p class="lead mt-3 neon-text">TRESORERIE GÉNÉRAL TRAITEMENT</p>
+    <h1 class="display-4 fw-bold neon-text">Le Circuit du Mandat</h1>
+    <p class="lead mt-3 neon-text">
+      Suivez pas à pas le <strong>processus de traitement d’un mandat</strong> : un parcours sécurisé et rigoureux, de l’entrée à la clôture.
+    </p>
   </div>
 </section>
 
-<script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
-    <script>
-  </script>
+<!-- WORKFLOW -->
+<section class="container my-5" id="workflow">
+  <div class="workflow-container">
 
+    <!-- ÉTAPE 1 -->
+    <div class="workflow-group">
+      <div class="workflow-stage" data-stage="1" id="stage-arrival">
+        <div class="stage-icon"><i class="fas fa-inbox"></i></div>
+        <div class="stage-card glass gradient-border reveal">
+          <h3 class="stage-title">1. Entrée & Traçabilité</h3>
+          <p class="stage-description">Réception et enregistrement du mandat.</p>
+          <button class="btn btn-outline-success btn-sm details-toggle" data-bs-toggle="collapse" data-bs-target="#details-arrival">
+            <i class="fas fa-chevron-down"></i> Voir les détails
+          </button>
+        </div>
+      </div>
+      <div class="collapse" id="details-arrival">
+        <div class="workflow-details p-4 my-4 glass gradient-border">
+          <h4 class="details-title"><i class="fas fa-file-alt"></i> Détails : Entrée & Traçabilité</h4>
+          <p>Cette phase garantit la <strong>prise en charge officielle</strong> du mandat et sa <strong>traçabilité complète</strong>.</p>
+          <div class="row">
+            <div class="col-md-6">
+              <h5 class="service-title">1.1. Secrétariat</h5>
+              <ul class="step-list">
+                <li><strong>Missions :</strong> Réception et décharge des mandats.</li>
+                <li><strong>Rôle :</strong> Assurer l’<strong>enregistrement initial</strong> et la traçabilité.</li>
+                <li><strong>Résultat :</strong> Mandat horodaté et inscrit au registre.</li>
+              </ul>
+            </div>
+            <div class="col-md-6">
+              <h5 class="service-title">1.2. Service Communal</h5>
+              <ul class="step-list">
+                <li><strong>Missions :</strong> Vérification des pièces justificatives.</li>
+                <li><strong>Rôle :</strong> Filtrer les dossiers pour garantir leur <strong>conformité</strong>.</li>
+                <li><strong>Résultat :</strong> Dossier validé ou rejeté.</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ÉTAPE 2 -->
+    <div class="workflow-group">
+      <div class="workflow-stage" data-stage="2" id="stage-control">
+        <div class="stage-icon"><i class="fas fa-tasks"></i></div>
+        <div class="stage-card glass gradient-border reveal">
+          <h3 class="stage-title">2. Contrôle & Validation</h3>
+          <p class="stage-description">Analyse de conformité et légalité.</p>
+          <button class="btn btn-outline-success btn-sm details-toggle" data-bs-toggle="collapse" data-bs-target="#details-control">
+            <i class="fas fa-chevron-down"></i> Voir les détails
+          </button>
+        </div>
+      </div>
+      <div class="collapse" id="details-control">
+        <div class="workflow-details p-4 my-4 glass gradient-border">
+          <h4 class="details-title"><i class="fas fa-tasks"></i> Détails : Contrôle & Validation</h4>
+          <p>Le mandat subit un <strong>contrôle rigoureux</strong> : conformité juridique et <strong>adéquation budgétaire</strong>.</p>
+          <div class="row">
+            <div class="col-md-6">
+              <h5 class="service-title">2.1. Service Dépense</h5>
+              <ul class="step-list">
+                <li><strong>Missions :</strong> Vérifier la disponibilité des crédits.</li>
+                <li><strong>Rôle :</strong> Assurer le <strong>contrôle financier</strong>.</li>
+                <li><strong>Résultat :</strong> Validation ou rejet pour non-conformité.</li>
+              </ul>
+            </div>
+            <div class="col-md-6">
+              <h5 class="service-title">2.2. Service Recouvrement</h5>
+              <ul class="step-list">
+                <li><strong>Missions :</strong> Gestion des titres et créances.</li>
+                <li><strong>Rôle :</strong> Garantir le <strong>recouvrement des recettes</strong>.</li>
+                <li><strong>Résultat :</strong> Préparation pour encaissement.</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ÉTAPE 3 -->
+    <div class="workflow-group">
+      <div class="workflow-stage" data-stage="3" id="stage-imputation">
+        <div class="stage-icon"><i class="fas fa-cogs"></i></div>
+        <div class="stage-card glass gradient-border reveal">
+          <h3 class="stage-title">3. Imputation & Saisie</h3>
+          <p class="stage-description">Transformation en écriture comptable.</p>
+          <button class="btn btn-outline-success btn-sm details-toggle" data-bs-toggle="collapse" data-bs-target="#details-imputation">
+            <i class="fas fa-chevron-down"></i> Voir les détails
+          </button>
+        </div>
+      </div>
+      <div class="collapse" id="details-imputation">
+        <div class="workflow-details p-4 my-4 glass gradient-border">
+          <h4 class="details-title"><i class="fas fa-cogs"></i> Détails : Imputation & Saisie</h4>
+          <p>Le mandat est converti en <strong>écriture comptable</strong> prête à être exécutée.</p>
+          <div class="row">
+            <div class="col-md-6">
+              <h5 class="service-title">3.1. Service Comptabilité</h5>
+              <ul class="step-list">
+                <li><strong>Missions :</strong> Saisie dans le système comptable.</li>
+                <li><strong>Rôle :</strong> Garantir la <strong>précision des écritures</strong>.</li>
+                <li><strong>Résultat :</strong> Ordre de paiement généré.</li>
+              </ul>
+            </div>
+            <div class="col-md-6">
+              <h5 class="service-title">3.2. Service Appurement</h5>
+              <ul class="step-list">
+                <li><strong>Missions :</strong> Réconciliation et détection d’anomalies.</li>
+                <li><strong>Rôle :</strong> Garantir l’<strong>exactitude des transactions</strong>.</li>
+                <li><strong>Résultat :</strong> Comptes validés.</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ÉTAPE 4 -->
+    <div class="workflow-group">
+      <div class="workflow-stage" data-stage="4" id="stage-supervision">
+        <div class="stage-icon"><i class="fas fa-user-shield"></i></div>
+        <div class="stage-card glass gradient-border reveal">
+          <h3 class="stage-title">4. Approbation & Sécurité</h3>
+          <p class="stage-description">Validation finale par les autorités compétentes.</p>
+          <button class="btn btn-outline-success btn-sm details-toggle" data-bs-toggle="collapse" data-bs-target="#details-supervision">
+            <i class="fas fa-chevron-down"></i> Voir les détails
+          </button>
+        </div>
+      </div>
+      <div class="collapse" id="details-supervision">
+        <div class="workflow-details p-4 my-4 glass gradient-border">
+          <h4 class="details-title"><i class="fas fa-user-shield"></i> Détails : Approbation & Sécurité</h4>
+          <p>Le mandat est validé par l’<strong>autorité suprême</strong> avant exécution.</p>
+          <div class="row">
+            <div class="col-md-6">
+              <h5 class="service-title">4.1. Fondé de pouvoir</h5>
+              <ul class="step-list">
+                <li><strong>Missions :</strong> Examen et signature déléguée.</li>
+                <li><strong>Rôle :</strong> Agir comme <strong>autorité de validation</strong>.</li>
+                <li><strong>Résultat :</strong> Mandat validé et engagé.</li>
+              </ul>
+            </div>
+            <div class="col-md-6">
+              <h5 class="service-title">4.2. Trésorier</h5>
+              <ul class="step-list">
+                <li><strong>Missions :</strong> Surveiller l’ensemble du processus.</li>
+                <li><strong>Rôle :</strong> Garantir l’<strong>intégrité financière</strong>.</li>
+                <li><strong>Résultat :</strong> Approbation finale donnée.</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ÉTAPE 5 -->
+    <div class="workflow-group">
+      <div class="workflow-stage" data-stage="5" id="stage-execution">
+        <div class="stage-icon"><i class="fas fa-money-bill-wave"></i></div>
+        <div class="stage-card glass gradient-border reveal">
+          <h3 class="stage-title">5. Exécution & Clôture</h3>
+          <p class="stage-description">Paiement et archivage final.</p>
+          <button class="btn btn-outline-success btn-sm details-toggle" data-bs-toggle="collapse" data-bs-target="#details-execution">
+            <i class="fas fa-chevron-down"></i> Voir les détails
+          </button>
+        </div>
+      </div>
+      <div class="collapse" id="details-execution">
+        <div class="workflow-details p-4 my-4 glass gradient-border">
+          <h4 class="details-title"><i class="fas fa-money-bill-wave"></i> Détails : Exécution & Clôture</h4>
+          <p>Le cycle s’achève avec le <strong>paiement effectif</strong> et l’archivage du mandat.</p>
+          <div class="row">
+            <div class="col-md-6">
+              <h5 class="service-title">5.1. Payerie</h5>
+              <ul class="step-list">
+                <li><strong>Missions :</strong> Effectuer le virement bancaire.</li>
+                <li><strong>Rôle :</strong> Exécuter l’<strong>ordre de paiement</strong>.</li>
+                <li><strong>Résultat :</strong> Paiement effectué.</li>
+              </ul>
+            </div>
+            <div class="col-md-6">
+              <h5 class="service-title">5.2. Caisse</h5>
+              <ul class="step-list">
+                <li><strong>Missions :</strong> Gérer les paiements en espèces.</li>
+                <li><strong>Rôle :</strong> Assurer la <strong>sécurité des liquidités</strong>.</li>
+                <li><strong>Résultat :</strong> Paiement en numéraire réalisé.</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<script src="{{url_for('static', filename='js/traitement.js')}}"></script>
 {% endblock %}

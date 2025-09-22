@@ -2,12 +2,15 @@
 {% block title %}Accueil - TRÉSOR CONNECT{% endblock %}
 {% block style %}
 <link href="{{ url_for('static', filename='css/style.css') }}" rel="stylesheet">
+<link href="{{ url_for('static', filename='css/index.css') }}" rel="stylesheet">
+
 {% endblock %}
 {% block content %}
 
 <!-- Hero Section -->
 <section class="hero">
   <div class="container">
+   <header>
     <div id="carouselExampleDark" class="carousel carousel-dark slide">
       <div class="carousel-indicators">
         <button type="button" data-bs-target="#carouselExampleDark" data-bs-slide-to="0" class="" aria-label="Diapositive 1"></button>
@@ -16,124 +19,179 @@
       </div>
       <div class="carousel-inner">
         <div class="carousel-item" data-bs-interval="10000">
-          <svg aria-label="Espace réservé&nbsp;: Première diapositive" class="bd-placeholder-img bd-placeholder-img-lg d-block w-100" height="400" preserveAspectRatio="xMidYMid slice" role="img" width="800" xmlns="http://www.w3.org/2000/svg"><title>Placeholder</title><rect width="100%" height="100%" fill="#f5f5f5"></rect><text x="50%" y="50%" fill="#aaa" dy=".3em">First slide</text></svg>
+          <img src="{{ url_for('static', filename='/images/Tresor-Public.jpg')}}" alt="image" class="d-block w-100 " height="400" width="400">
           <div class="carousel-caption d-none d-md-block">
-            <h5><font dir="auto" style="vertical-align: inherit;"><font dir="auto" style="vertical-align: inherit;">Étiquette de la première diapositive</font></font></h5>
-            <p><font dir="auto" style="vertical-align: inherit;"><font dir="auto" style="vertical-align: inherit;">Quelques contenus représentatifs de l'espace réservé pour la première diapositive.</font></font></p>
+            <h5><font dir="auto" style="vertical-align: inherit;"><font dir="auto" style="vertical-align: inherit;">Journée porte ouverte au sein du trésor de divo</font></font></h5>
+            <p><font dir="auto" style="vertical-align: inherit;"><font dir="auto" style="vertical-align: inherit;">Quelques contenus représentatifs de l'espace réservé pour la première 
+              Lorem ipsum dolor sit amet consectetur, adipisicing elit. Ducimus omnis fugit blanditiis, laudantium veniam sed?diapositive.</font></font></p>
           </div>
         </div>
         <div class="carousel-item active" data-bs-interval="2000">
-          <svg aria-label="Espace réservé&nbsp;: Deuxième diapositive" class="bd-placeholder-img bd-placeholder-img-lg d-block w-100" height="400" preserveAspectRatio="xMidYMid slice" role="img" width="800" xmlns="http://www.w3.org/2000/svg"><title>Placeholder</title><rect width="100%" height="100%" fill="#eee"></rect><text x="50%" y="50%" fill="#bbb" dy=".3em">Second slide</text></svg>
-          <div class="carousel-caption d-none d-md-block">
-            <h5><font dir="auto" style="vertical-align: inherit;"><font dir="auto" style="vertical-align: inherit;">Étiquette de la deuxième diapositive</font></font></h5>
-            <p><font dir="auto" style="vertical-align: inherit;"><font dir="auto" style="vertical-align: inherit;">Quelques contenus représentatifs de l'espace réservé pour la deuxième diapositive.</font></font></p>
+            <img src="{{url_for('static', filename='/images/Tresor-Public.jpg')}}" alt="image" class="d-block w-100 " height="400" width="400">          <div class="carousel-caption d-none d-md-block">
+            <h5><font dir="auto" style="vertical-align: inherit;"><font dir="auto" style="vertical-align: inherit;">Partage des nouvelles dispositifs du trésor à la poupulation</font></font></h5>
+            <p><font dir="auto" style="vertical-align: inherit;"><font dir="auto" style="vertical-align: inherit;">Quelques contenus représentatifs de l'espace réservé pour la deuxième 
+              Lorem, ipsum dolor sit amet consectetur adipisicing elit. Sunt atque corporis adipisci ullam? Maxime, ea?diapositive.</font></font></p>
           </div>
         </div>
         <div class="carousel-item">
-          <svg aria-label="Espace réservé&nbsp;: Troisième diapositive" class="bd-placeholder-img bd-placeholder-img-lg d-block w-100" height="400" preserveAspectRatio="xMidYMid slice" role="img" width="800" xmlns="http://www.w3.org/2000/svg"><title>Placeholder</title><rect width="100%" height="100%" fill="#e5e5e5"></rect><text x="50%" y="50%" fill="#999" dy=".3em">Third slide</text></svg>
-          <div class="carousel-caption d-none d-md-block">
-            <h5><font dir="auto" style="vertical-align: inherit;"><font dir="auto" style="vertical-align: inherit;">Étiquette de la troisième diapositive</font></font></h5>
-            <p><font dir="auto" style="vertical-align: inherit;"><font dir="auto" style="vertical-align: inherit;">Quelques contenus représentatifs de l'espace réservé pour la troisième diapositive.</font></font></p>
+            <img src="{{url_for('static', filename='/images/viviana-rishe.jpg')}}" alt="image" class="d-block w-100 " height="400" width="400">          <div class="carousel-caption d-none d-md-block">
+            <h5><font dir="auto" style="vertical-align: inherit;"><font dir="auto" style="vertical-align: inherit;">Comment se rendre au trésor de divo</font></font></h5>
+            <p><font dir="auto" style="vertical-align: inherit;"><font dir="auto" style="vertical-align: inherit;">Quelques contenus représentatifs de l'espace réservé pour la troisième 
+              Lorem ipsum dolor sit amet consectetur adipisicing elit. Quas veritatis est minima vero repellat voluptatem.diapositive.</font></font></p>
           </div>
         </div>
       </div>
       <button class="carousel-control-prev" type="button" data-bs-target="#carouselExampleDark" data-bs-slide="prev">
         <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-        <span class="visually-hidden"><font dir="auto" style="vertical-align: inherit;"><font dir="auto" style="vertical-align: inherit;">Précédent</font></font></span>
+        <span class="visually-hidden"><font dir="auto" style="vertical-align: inherit;"><font dir="auto" style="vertical-align: inherit;" color="red;">Précédent</font></font></span>
       </button>
       <button class="carousel-control-next" type="button" data-bs-target="#carouselExampleDark" data-bs-slide="next">
         <span class="carousel-control-next-icon" aria-hidden="true"></span>
         <span class="visually-hidden"><font dir="auto" style="vertical-align: inherit;"><font dir="auto" style="vertical-align: inherit;">Suivant</font></font></span>
       </button>
     </div> <br>
+  </header>
+
     <!-- Example Code End -->
-     <div class="row row-cols-1">
-        <center>
-            <h2>Les services de la Trésorerie Générale de Divo</h2>
-        </center>
-        <div class="accordion" id="accordionExample">
-  <div class="accordion-item">
-    <h2 class="accordion-header">
-      <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
-        <strong>Le service communal</strong>
-      </button>
-    </h2>
-    <div id="collapseOne" class="accordion-collapse collapse show" data-bs-parent="#accordionExample">
-      <div class="accordion-body">
-        <strong><h5>Que faire le service communal :</h5></strong>
-        <strong>This is the first item’s accordion body.</strong> It is shown by default, until the collapse plugin adds the appropriate classes that we use to style each element. These classes control the overall appearance, as well as the showing and hiding via CSS transitions. You can modify any of this with custom CSS or overriding our default variables. It’s also worth noting that just about any HTML can go within the , though the transition does limit overflow.
+  <div class="row row-cols-1">
+            <center>
+                <h2>Les services de la Trésorerie Générale de Divo</h2>
+                <h4>Tous savoir sur les services du Trésor</h4>
+                <p>Selon l'arrété n*0226 MFE/DGTCP du 17 MAI 2023 portant sur organistaion
+                  des Trésoreries Générales et fixant leurs attributions.
+                </p>
+                <p>L'article 7 : les mission</p>
+            </center>
+    <div class="accordion" id="accordionExample">
+      <div class="accordion-item">
+        <h2 class="accordion-header">
+          <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+            <strong><h6>Le service secretariat</h6></strong>
+          </button>
+        </h2>
+        <div id="collapseOne" class="accordion-collapse collapse show" data-bs-parent="#accordionExample">
+          <div class="accordion-body">
+            <strong><h5>Que faire le service secretariat :</h5></strong>
+            <strong>Le service secretariat est chargé :</strong> 
+            <li>de recevoir lesclients qui entre au sein du trésor</li>
+            <li>de saisir et classer les documents</li>
+            <li>de gérer les appels téléphonique, fax et couriers électroniques</li>
+            <li>de rédiger des prjets de lettres</li>
+            <li>de gérer les rendez-vous du chef de Poste</li>
+            <li>de transmettre les informations et documents des services</li>
+            <li>de préparer les missions</li>
+          </div>
+        </div>
+      </div>
+
+      <div class="accordion-item">
+        <h2 class="accordion-header">
+          <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
+            <strong><h6 style="font-weight: bold;">Le Service Opération Communal</h6></strong>
+          </button>
+        </h2>
+        <div id="collapseTwo" class="accordion-collapse collapse" data-bs-parent="#accordionExample">
+          <div class="accordion-body">
+            <strong><h5>Que faire le service communal</h5></strong>
+            <strong>Le Service communal est chargé :</strong>
+            <li>de prendre en charge et compatbiliser les opérations communales</li>
+            <li>de suivre le recouvrement des recettes et de dépenses communales</li>
+            <li>d'assurer le suivi des valeurs inactives de la commune</li>
+            <li>d'élaborer le compte de gestion sur chiffres et sur pièces des opérations communales</li>
+          </div>
+        </div>
+      </div>
+      <div class="accordion-item">
+        <h2 class="accordion-header">
+          <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseThree" aria-expanded="false" aria-controls="collapseThree">
+            <strong><h6>Le service depenses</h6></strong>
+          </button>
+        </h2>
+        <div id="collapseThree" class="accordion-collapse collapse" data-bs-parent="#accordionExample">
+          <div class="accordion-body">
+            <strong><h5>Que faire le service recouvrement :</h5></strong>
+            <strong>Le Service dépenses est chargé :</strong>
+            <li>de superviser les opérations de la dépenses de l'ETAT</li>
+            <li>de contrôler les pièces de dépenses de l'ETAT</li>
+            <li>de rédiger les rapports d'activités sur les dépenses</li>
+            <li>d'integrer les expressions de bésoins, mettre en réglement, payer les de dépenses,
+              assurer des incidents et de toutes autres anomalies dans l'implication de gestion automatisée
+              du <strong>Compte Unique du Trésor</strong>, conformenement aux instructions du Chefs de Poste.
+            </li>
+            <li>de contrôler la cohérence entre les données de l'applicatif de gestion automatisée du <strong></strong>Compte
+              Unique du Trésor </strong>et les données comptables
+            </li>
+          </div>
+        </div>
+      </div>
+      <div class="accordion-item">
+        <h2 class="accordion-header">
+          <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseFour" aria-expanded="false" aria-controls="collapseFour">
+            <strong><h6>Service Qualité écoute client</h6></strong>
+          </button>
+        </h2>
+        <div id="collapseFour" class="accordion-collapse collapse" data-bs-parent="#accordionExample">
+          <div class="accordion-body">
+            <strong><h5>Que faire le service recouvrement :</h5></strong>
+            <strong>Le Service Recouvrement est chargé :.</strong> 
+            <li>de contrôler les titres de recettes</li>
+            <li>d'élaborer les stratégies de mobilisation des ressources</li>
+            <li>de superviser les actions de recouvrement</li>
+            <li>de produire les statisques de recouvrement</li>
+            <li>de rédiger les rapports d'activités sur le recouvrement</li>
+          </div>
+        </div>
       </div>
     </div>
   </div>
-  <div class="accordion-item">
-    <h2 class="accordion-header">
-      <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
-        <strong>Le service recouvrement</strong>
-      </button>
-    </h2>
-    <div id="collapseTwo" class="accordion-collapse collapse" data-bs-parent="#accordionExample">
-      <div class="accordion-body">
-        <strong><h5>Que faire le service recouvrement</h5></strong>
-        <strong>This is the second item’s accordion body.</strong> It is hidden by default, until the collapse plugin adds the appropriate classes that we use to style each element. These classes control the overall appearance, as well as the showing and hiding via CSS transitions. You can modify any of this with custom CSS or overriding our default variables. It’s also worth noting that just about any HTML can go within the , though the transition does limit overflow.
-      </div>
-    </div>
-  </div>
-  <div class="accordion-item">
-    <h2 class="accordion-header">
-      <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseThree" aria-expanded="false" aria-controls="collapseThree">
-        <strong>Le service depense</strong>
-      </button>
-    </h2>
-    <div id="collapseThree" class="accordion-collapse collapse" data-bs-parent="#accordionExample">
-      <div class="accordion-body">
-        <strong><h5>Que faire le service recouvrement :</h5></strong>
-        <strong>This is the third item’s accordion body.</strong> It is hidden by default, until the collapse plugin adds the appropriate classes that we use to style each element. These classes control the overall appearance, as well as the showing and hiding via CSS transitions. You can modify any of this with custom CSS or overriding our default variables. It’s also worth noting that just about any HTML can go within the , though the transition does limit overflow.
-      </div>
-    </div>
-  </div>
-</div>
-</div>
+
+
 <section><br>
     <!-- Example Code Start-->
     <h2>Les actualités du Trésor</h2>
     <div class="row row-cols-1 row-cols-md-2 g-4">
       <div class="col">
         <div class="card">
-          <svg aria-label="Espace réservé&nbsp;: Image cap" class="bd-placeholder-img card-img-top" height="140" preserveAspectRatio="xMidYMid slice" role="img" width="100%" xmlns="http://www.w3.org/2000/svg"><title>Placeholder</title><rect width="100%" height="100%" fill="#868e96"></rect><text x="50%" y="50%" fill="#dee2e6" dy=".3em">Image</text></svg>
+          <img src="{{ url_for('static', filename='/images/1001014714.jpg')}}" alt="Image" style="width: auto; height: 600px;">          
           <div class="card-body">
-            <h5 class="card-title"><font dir="auto" style="vertical-align: inherit;"><font dir="auto" style="vertical-align: inherit;">Titre de la carte</font></font></h5>
+            <h5 class="card-title"><font dir="auto" style="vertical-align: inherit;"><font dir="auto" style="vertical-align: inherit;">Fête du 62 ans du Trésor</font></font></h5>
+            <h4>Journée d'activité Ville propre</h4>
             <p class="card-text"><font dir="auto" style="vertical-align: inherit;"><font dir="auto" style="vertical-align: inherit;">Il s'agit d'une carte plus longue, accompagnée d'un texte d'accompagnement en dessous, qui sert d'introduction naturelle à du contenu supplémentaire. Ce contenu est légèrement plus long.</font></font></p>
           </div>
         </div>
       </div>
         <div class="col">
         <div class="card">
-          <svg aria-label="Espace réservé&nbsp;: Image cap" class="bd-placeholder-img card-img-top" height="140" preserveAspectRatio="xMidYMid slice" role="img" width="100%" xmlns="http://www.w3.org/2000/svg"><title>Placeholder</title><rect width="100%" height="100%" fill="#868e96"></rect><text x="50%" y="50%" fill="#dee2e6" dy=".3em">Image cap</text></svg>
+          <img src="{{ url_for('static', filename='/images/1001014763.jpg')}}" alt="Image" style="width: auto; height: 600px;">          
           <div class="card-body">
-            <h5 class="card-title"><font dir="auto" style="vertical-align: inherit;"><font dir="auto" style="vertical-align: inherit;">Titre de la carte</font></font></h5>
+            <h5 class="card-title"><font dir="auto" style="vertical-align: inherit;"><font dir="auto" style="vertical-align: inherit;">Fête du 62 ans du Trésor</font></font></h5>
+            <h4>Journée Planting d'arbre</h4>
             <p class="card-text"><font dir="auto" style="vertical-align: inherit;"><font dir="auto" style="vertical-align: inherit;">Il s'agit d'une carte plus longue, accompagnée d'un texte d'accompagnement en dessous, qui sert d'introduction naturelle à du contenu supplémentaire. Ce contenu est légèrement plus long.</font></font></p>
           </div>
         </div>
       </div>
       <div class="col">
         <div class="card">
-          <svg aria-label="Espace réservé&nbsp;: Image cap" class="bd-placeholder-img card-img-top" height="140" preserveAspectRatio="xMidYMid slice" role="img" width="100%" xmlns="http://www.w3.org/2000/svg"><title>Placeholder</title><rect width="100%" height="100%" fill="#868e96"></rect><text x="50%" y="50%" fill="#dee2e6" dy=".3em">Image cap</text></svg>
+          <img src="{{ url_for('static', filename='/images/1001021187.jpg')}}" alt="Image" style="width: auto; height: 600px;">
           <div class="card-body">
-            <h5 class="card-title"><font dir="auto" style="vertical-align: inherit;"><font dir="auto" style="vertical-align: inherit;">Titre de la carte</font></font></h5>
+            <h5 class="card-title"><font dir="auto" style="vertical-align: inherit;"><font dir="auto" style="vertical-align: inherit;">Fête du 62 ans du Trésor</font></font></h5>
+            <h4>Journée DON de SANG</h4>
             <p class="card-text"><font dir="auto" style="vertical-align: inherit;"><font dir="auto" style="vertical-align: inherit;">Il s'agit d'une carte plus longue avec un texte de support ci-dessous comme introduction naturelle à du contenu supplémentaire.</font></font></p>
           </div>
         </div>
       </div>
       <div class="col">
         <div class="card">
-          <svg aria-label="Espace réservé&nbsp;: Image cap" class="bd-placeholder-img card-img-top" height="140" preserveAspectRatio="xMidYMid slice" role="img" width="100%" xmlns="http://www.w3.org/2000/svg"><title>Placeholder</title><rect width="100%" height="100%" fill="#868e96"></rect><text x="50%" y="50%" fill="#dee2e6" dy=".3em">Image cap</text></svg>
+          <img src="{{ url_for('static', filename='/images/1001021215.jpg')}}" alt="Image" style="width: auto; height: 600px;">
           <div class="card-body">
-            <h5 class="card-title"><font dir="auto" style="vertical-align: inherit;"><font dir="auto" style="vertical-align: inherit;">Titre de la carte</font></font></h5>
-            <p class="card-text"><font dir="auto" style="vertical-align: inherit;"><font dir="auto" style="vertical-align: inherit;">Il s'agit d'une carte plus longue, accompagnée d'un texte d'accompagnement en dessous, qui sert d'introduction naturelle à du contenu supplémentaire.</font></font></p>
+            <h5 class="card-title"><font dir="auto" style="vertical-align: inherit;"><font dir="auto" style="vertical-align: inherit;">Fête du 62 ans du Trésor</font></font></h5>
+            <h4>Journée Marche Sportive</h4>
+            <p class="card-text"><font dir="auto" style="vertical-align: inherit;"><font dir="auto" style="vertical-align: inherit;">Il s'agit d'une carte plus longue, accompagnée d'un texte d'accompagnement en dessous, qui sert d'introduction naturelle à du contenu supplémentaire. Ce contenu est légèrement plus long.</font></font></p>
           </div>
         </div>
       </div>
-    </div>
+    </div> 
+  </div>
 </section>
 
 
