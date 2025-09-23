@@ -1,0 +1,57 @@
+{{% extends "base.html" %}}
+
+{{% block title %}}Tableau de Bord Fournisseur{{% endblock %}}
+
+{{% block content %}}
+<div class="container-fluid">
+    <h1 class="mb-4">🏢 Tableau de Bord Fournisseur</h1>
+    
+    <div class="row">
+        <div class="col-md-3">
+            <div class="card text-white bg-primary">
+                <div class="card-body">
+                    <h5 class="card-title">📄 Mandats Reçus</h5>
+                    <h2>{{ stats.mandats_total }}</h2>
+                    <small>Total des mandats</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-white bg-warning">
+                <div class="card-body">
+                    <h5 class="card-title">⏳ En Attente</h5>
+                    <h2>{{ stats.mandats_attente }}</h2>
+                    <small>En cours de traitement</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-white bg-success">
+                <div class="card-body">
+                    <h5 class="card-title">💰 Payés</h5>
+                    <h2>{{ stats.mandats_payes }}</h2>
+                    <small>Mandats réglés</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-white bg-info">
+                <div class="card-body">
+                    <h5 class="card-title">📈 Montant Total</h5>
+                    <h2>{{ stats.montant_total }} FCFA</h2>
+                    <small>Chiffre d'affaires</small>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="mt-4">
+        <a href="{{ url_for('mandats_bp.mes_mandats') }}" class="btn btn-primary">
+            <i class="fas fa-file-invoice"></i> Mes Mandats
+        </a>
+        <a href="#" class="btn btn-outline-success">
+            <i class="fas fa-chart-line"></i> Statistiques
+        </a>
+    </div>
+</div>
+{{% endblock %}}

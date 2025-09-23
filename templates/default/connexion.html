@@ -1,0 +1,123 @@
+{% extends "base.html" %}
+{% block title %}Connexion - TRÉSOR CONNECT{% endblock %}
+
+{% block style %}
+<link href="{{ url_for('static', filename='css/forms.css') }}" rel="stylesheet">
+{% endblock %}
+
+{% block content %}
+<div class="login-container">
+  <div class="login-card">
+    <h2 class="login-title"><i class="fas fa-key"></i> Connexion</h2>
+    
+    <!-- Affichage des messages flash -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        {% for category, message in messages %}
+          <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+            <i class="fas fa-{% if category == 'success' %}check-circle{% elif category == 'danger' %}exclamation-circle{% elif category == 'warning' %}exclamation-triangle{% else %}info-circle{% endif %} me-2"></i>
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+          </div>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+
+    <form action="{{ url_for('connexion') }}" method="post" autocomplete="off">
+      {{ form.hidden_tag() }}
+      
+      <!-- Email -->
+      <div class="form-group">
+        <label for="email"><i class="fas fa-envelope"></i> Email</label>
+        {{ form.email(class="form-control", id="email", placeholder="Entrez votre email") }}
+        {% if form.email.errors %}
+          <div class="text-danger">
+            {% for error in form.email.errors %}
+              <small>{{ error }}</small>
+            {% endfor %}
+          </div>
+        {% endif %}
+      </div>
+
+      <!-- Mot de passe -->
+      <div class="form-group">
+        <label for="password"><i class="fas fa-lock"></i> Mot de passe</label>
+        {{ form.password(class="form-control", id="password", placeholder="********") }}
+        {% if form.password.errors %}
+          <div class="text-danger">
+            {% for error in form.password.errors %}
+              <small>{{ error }}</small>
+            {% endfor %}
+          </div>
+        {% endif %}
+      </div>
+
+      <!-- Bouton -->
+      <button type="submit" class="btn-login">
+        <i class="fas fa-sign-in-alt me-2"></i>Se connecter
+      </button>
+
+      <!-- Liens -->
+      <div class="form-links">
+        <p class="forgot-link">
+          <a href="{{ url_for('reset_password_request') }}">
+            <i class="fas fa-question-circle me-1"></i>Mot de passe oublié ?
+          </a>
+        </p>
+        <p class="signup-link">
+          Pas de compte ? <a href="{{ url_for('inscription') }}">
+            <i class="fas fa-user-plus me-1"></i>Inscrivez-vous ici
+          </a>
+        </p>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  // Animation du formulaire
+  const form = document.querySelector('form');
+  form.classList.add('animate-in');
+  
+  // Gestion de la visibilité du mot de passe
+  const passwordField = document.getElementById('password');
+  const togglePassword = document.createElement('span');
+  togglePassword.innerHTML = '<i class="fas fa-eye"></i>';
+  togglePassword.className = 'password-toggle';
+  togglePassword.style.cursor = 'pointer';
+  togglePassword.style.position = 'absolute';
+  togglePassword.style.right = '10px';
+  togglePassword.style.top = '50%';
+  togglePassword.style.transform = 'translateY(-50%)';
+  
+  passwordField.parentElement.style.position = 'relative';
+  passwordField.parentElement.appendChild(togglePassword);
+  
+  togglePassword.addEventListener('click', function() {
+    const type = passwordField.getAttribute('type') === 'password' ? 'text' : 'password';
+    passwordField.setAttribute('type', type);
+    this.innerHTML = type === 'password' ? '<i class="fas fa-eye"></i>' : '<i class="fas fa-eye-slash"></i>';
+  });
+  
+  // Validation en temps réel
+  const emailField = document.getElementById('email');
+  const submitButton = document.querySelector('.btn-login');
+  
+  function validateForm() {
+    const emailValid = emailField.value.includes('@') && emailField.value.includes('.');
+    const passwordValid = passwordField.value.length >= 6;
+    
+    submitButton.disabled = !(emailValid && passwordValid);
+    submitButton.style.opacity = emailValid && passwordValid ? '1' : '0.6';
+  }
+  
+  emailField.addEventListener('input', validateForm);
+  passwordField.addEventListener('input', validateForm);
+  
+  validateForm(); // Validation initiale
+});
+</script>
+{% endblock %}

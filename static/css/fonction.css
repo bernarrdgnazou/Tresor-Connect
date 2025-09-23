@@ -189,7 +189,7 @@ body {
 /*
 * Reveal Animation (IntersectionObserver effect)
 */
-.reveal {
+/* .reveal {
   opacity: 0;
   transform: translateY(18px);
   transition: all 700ms cubic-bezier(.2,.9,.2,1);
@@ -198,7 +198,7 @@ body {
 .reveal.active {
   opacity: 1;
   transform: translateY(0);
-}
+} */
 
 /*
 * Active Step Highlight

@@ -1,0 +1,48 @@
+{{% extends "base.html" %}}
+
+{{% block title %}}Tableau de Bord Administrateur{{% endblock %}}
+
+{{% block content %}}
+<div class="container-fluid">
+    <h1 class="mb-4">📊 Tableau de Bord Administrateur</h1>
+    
+    <div class="row">
+        <div class="col-md-3">
+            <div class="card text-white bg-primary">
+                <div class="card-body">
+                    <h5 class="card-title">👥 Utilisateurs</h5>
+                    <h2>{{ stats.utilisateurs_total }}</h2>
+                    <small>Total des utilisateurs</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-white bg-success">
+                <div class="card-body">
+                    <h5 class="card-title">📄 Mandats</h5>
+                    <h2>{{ stats.mandats_total }}</h2>
+                    <small>Total des mandats</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-white bg-warning">
+                <div class="card-body">
+                    <h5 class="card-title">🔔 Notifications</h5>
+                    <h2>{{ stats.notifications_total }}</h2>
+                    <small>Notifications système</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-white bg-info">
+                <div class="card-body">
+                    <h5 class="card-title">⚙️ Système</h5>
+                    <h2>Actif</h2>
+                    <small>Statut de l'application</small>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{{% endblock %}}

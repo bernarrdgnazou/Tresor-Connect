@@ -1,0 +1,48 @@
+{{% extends "base.html" %}}
+
+{{% block title %}}Tableau de Bord Agent{{% endblock %}}
+
+{{% block content %}}
+<div class="container-fluid">
+    <h1 class="mb-4">👨‍💼 Tableau de Bord Agent</h1>
+    
+    <div class="row">
+        <div class="col-md-4">
+            <div class="card text-white bg-primary">
+                <div class="card-body">
+                    <h5 class="card-title">📤 Mandats Déposés</h5>
+                    <h2>{{ stats.mandats_deposes }}</h2>
+                    <small>Total de vos mandats</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card text-white bg-success">
+                <div class="card-body">
+                    <h5 class="card-title">📋 En Cours</h5>
+                    <h2>{{ stats.mandats_en_cours }}</h2>
+                    <small>Mandats en traitement</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card text-white bg-info">
+                <div class="card-body">
+                    <h5 class="card-title">✅ Validés</h5>
+                    <h2>{{ stats.mandats_valides }}</h2>
+                    <small>Mandats approuvés</small>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="mt-4">
+        <a href="{{ url_for('mandats_bp.deposer_mandat') }}" class="btn btn-success">
+            <i class="fas fa-plus"></i> Déposer un Nouveau Mandat
+        </a>
+        <a href="{{ url_for('mandats_bp.mes_mandats') }}" class="btn btn-outline-primary">
+            <i class="fas fa-list"></i> Voir Mes Mandats
+        </a>
+    </div>
+</div>
+{{% endblock %}}

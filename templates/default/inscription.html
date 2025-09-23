@@ -1,0 +1,257 @@
+{% extends "base.html" %}
+{% block title %}Inscription - TRÉSOR CONNECT{% endblock %}
+
+{% block style %}
+<link href="{{ url_for('static', filename='css/forms.css') }}" rel="stylesheet">
+{% endblock %}
+
+{% block content %}
+<div class="login-container">
+  <div class="login-card">
+    <h2 class="login-title"><i class="fas fa-user-plus"></i> Inscription</h2>
+    
+    <!-- Affichage des messages flash -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        {% for category, message in messages %}
+          <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+            <i class="fas fa-{% if category == 'success' %}check-circle{% elif category == 'danger' %}exclamation-circle{% elif category == 'warning' %}exclamation-triangle{% else %}info-circle{% endif %} me-2"></i>
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+          </div>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+
+    <form action="{{ url_for('inscription') }}" method="post" autocomplete="off">
+      {{ form.hidden_tag() }}
+      
+      <!-- Nom complet -->
+      <div class="form-group">
+        <label for="nom_complet"><i class="fas fa-user"></i> Nom complet</label>
+        {{ form.nom_complet(class="form-control", id="nom_complet", placeholder="Votre nom complet") }}
+        {% if form.nom_complet.errors %}
+          <div class="text-danger">
+            {% for error in form.nom_complet.errors %}
+              <small>{{ error }}</small>
+            {% endfor %}
+          </div>
+        {% endif %}
+      </div>
+
+      <!-- Email -->
+      <div class="form-group">
+        <label for="email"><i class="fas fa-envelope"></i> Email</label>
+        {{ form.email(class="form-control", id="email", placeholder="Votre email") }}
+        {% if form.email.errors %}
+          <div class="text-danger">
+            {% for error in form.email.errors %}
+              <small>{{ error }}</small>
+            {% endfor %}
+          </div>
+        {% endif %}
+      </div>
+
+      <!-- Téléphone -->
+      <div class="form-group">
+        <label for="telephone"><i class="fas fa-phone"></i> Téléphone</label>
+        {{ form.telephone(class="form-control", id="telephone", placeholder="Votre numéro de téléphone") }}
+        {% if form.telephone.errors %}
+          <div class="text-danger">
+            {% for error in form.telephone.errors %}
+              <small>{{ error }}</small>
+            {% endfor %}
+          </div>
+        {% endif %}
+      </div>
+
+      <!-- Rôle -->
+      <div class="form-group">
+        <label for="role"><i class="fas fa-user-tag"></i> Rôle</label>
+        {{ form.role(class="form-control", id="role") }}
+        {% if form.role.errors %}
+          <div class="text-danger">
+            {% for error in form.role.errors %}
+              <small>{{ error }}</small>
+            {% endfor %}
+          </div>
+        {% endif %}
+      </div>
+
+      <!-- Entreprise (conditionnel pour fournisseur) -->
+      <div class="form-group" id="entreprise-field" style="display: none;">
+        <label for="entreprise"><i class="fas fa-building"></i> Entreprise</label>
+        {{ form.entreprise(class="form-control", id="entreprise", placeholder="Nom de votre entreprise") }}
+        {% if form.entreprise.errors %}
+          <div class="text-danger">
+            {% for error in form.entreprise.errors %}
+              <small>{{ error }}</small>
+            {% endfor %}
+          </div>
+        {% endif %}
+      </div>
+
+      <!-- Service (conditionnel pour agent/trésorier) -->
+      <div class="form-group" id="service-field" style="display: none;">
+        <label for="service"><i class="fas fa-briefcase"></i> Service</label>
+        {{ form.service(class="form-control", id="service", placeholder="Votre service ou département") }}
+        {% if form.service.errors %}
+          <div class="text-danger">
+            {% for error in form.service.errors %}
+              <small>{{ error }}</small>
+            {% endfor %}
+          </div>
+        {% endif %}
+      </div>
+
+      <!-- Mot de passe -->
+      <div class="form-group">
+        <label for="password"><i class="fas fa-lock"></i> Mot de passe</label>
+        {{ form.password(class="form-control", id="password", placeholder="********") }}
+        {% if form.password.errors %}
+          <div class="text-danger">
+            {% for error in form.password.errors %}
+              <small>{{ error }}</small>
+            {% endfor %}
+          </div>
+        {% endif %}
+      </div>
+
+      <!-- Confirmation mot de passe -->
+      <div class="form-group">
+        <label for="confirm_password"><i class="fas fa-lock"></i> Confirmer le mot de passe</label>
+        {{ form.confirm_password(class="form-control", id="confirm_password", placeholder="********") }}
+        {% if form.confirm_password.errors %}
+          <div class="text-danger">
+            {% for error in form.confirm_password.errors %}
+              <small>{{ error }}</small>
+            {% endfor %}
+          </div>
+        {% endif %}
+      </div>
+
+      <!-- Bouton -->
+      <button type="submit" class="btn-login">
+        <i class="fas fa-user-plus me-2"></i>Créer mon compte
+      </button>
+
+      <!-- Liens -->
+      <p class="signup-link mt-3">
+        Déjà inscrit ? <a href="{{ url_for('connexion') }}">
+          <i class="fas fa-sign-in-alt me-1"></i>Connectez-vous ici
+        </a>
+      </p>
+    </form>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  // Gestion des champs conditionnels selon le rôle
+  const roleSelect = document.getElementById('role');
+  const entrepriseField = document.getElementById('entreprise-field');
+  const serviceField = document.getElementById('service-field');
+  
+  function toggleFields() {
+    const selectedRole = roleSelect.value;
+    
+    // Masquer tous les champs d'abord
+    entrepriseField.style.display = 'none';
+    serviceField.style.display = 'none';
+    
+    // Afficher les champs selon le rôle
+    if (selectedRole === 'fournisseur') {
+      entrepriseField.style.display = 'block';
+    } else if (selectedRole === 'agent' || selectedRole === 'tresorier') {
+      serviceField.style.display = 'block';
+    }
+  }
+  
+  // Écouter les changements de rôle
+  roleSelect.addEventListener('change', toggleFields);
+  
+  // Initialiser l'état des champs
+  toggleFields();
+  
+  // Validation en temps réel
+  const emailField = document.getElementById('email');
+  const telephoneField = document.getElementById('telephone');
+  const passwordField = document.getElementById('password');
+  const confirmPasswordField = document.getElementById('confirm_password');
+  const submitButton = document.querySelector('.btn-login');
+  
+  function validateForm() {
+    // Validation email
+    const emailValid = emailField.value.includes('@') && emailField.value.includes('.');
+    
+    // Validation téléphone (au moins 10 chiffres)
+    const telephoneValid = telephoneField.value.replace(/\D/g, '').length >= 10;
+    
+    // Validation mot de passe (au moins 6 caractères)
+    const passwordValid = passwordField.value.length >= 6;
+    
+    // Validation confirmation mot de passe
+    const confirmValid = passwordField.value === confirmPasswordField.value;
+    
+    // Validation rôle sélectionné
+    const roleValid = roleSelect.value !== '';
+    
+    const formValid = emailValid && telephoneValid && passwordValid && confirmValid && roleValid;
+    
+    submitButton.disabled = !formValid;
+    submitButton.style.opacity = formValid ? '1' : '0.6';
+    
+    // Feedback visuel
+    highlightField(emailField, emailValid);
+    highlightField(telephoneField, telephoneValid);
+    highlightField(passwordField, passwordValid);
+    highlightField(confirmPasswordField, confirmValid);
+  }
+  
+  function highlightField(field, isValid) {
+    if (field.value === '') {
+      field.style.borderColor = '#e1e5e9';
+    } else {
+      field.style.borderColor = isValid ? '#28a745' : '#dc3545';
+    }
+  }
+  
+  // Écouter les événements de saisie
+  emailField.addEventListener('input', validateForm);
+  telephoneField.addEventListener('input', validateForm);
+  passwordField.addEventListener('input', validateForm);
+  confirmPasswordField.addEventListener('input', validateForm);
+  roleSelect.addEventListener('change', validateForm);
+  
+  // Validation initiale
+  validateForm();
+  
+  // Gestion de la visibilité des mots de passe
+  function setupPasswordToggle(passwordFieldId) {
+    const passwordField = document.getElementById(passwordFieldId);
+    const togglePassword = document.createElement('span');
+    togglePassword.innerHTML = '<i class="fas fa-eye"></i>';
+    togglePassword.className = 'password-toggle';
+    togglePassword.style.cursor = 'pointer';
+    togglePassword.style.position = 'absolute';
+    togglePassword.style.right = '10px';
+    togglePassword.style.top = '50%';
+    togglePassword.style.transform = 'translateY(-50%)';
+    
+    passwordField.parentElement.style.position = 'relative';
+    passwordField.parentElement.appendChild(togglePassword);
+    
+    togglePassword.addEventListener('click', function() {
+      const type = passwordField.getAttribute('type') === 'password' ? 'text' : 'password';
+      passwordField.setAttribute('type', type);
+      this.innerHTML = type === 'password' ? '<i class="fas fa-eye"></i>' : '<i class="fas fa-eye-slash"></i>';
+    });
+  }
+  
+  setupPasswordToggle('password');
+  setupPasswordToggle('confirm_password');
+});
+</script>
+{% endblock %}
