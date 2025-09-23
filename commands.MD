@@ -1,11 +1,13 @@
 # Voir les commandes disponibles
-flask --app core --help
+flask --app app --help
 
 # Initialiser la base de données
-flask --app core init-db
+flask --app app init-db
 
 # Créer seulement les tables
-flask --app core create-db
+flask --app app create-db
 
 # Lancer l'application
-flask --app core run --debug
+flask --app app run --debug
+
+# no content
