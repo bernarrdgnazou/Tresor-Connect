@@ -830,33 +830,134 @@ def mandat_detail(mandat_id):
 @app.route('/tresorerie/mandats')
 @login_required
 def mandats_a_traiter():
-    """Liste des mandats à traiter (Trésorier/Admin seulement) avec pagination."""
-    if current_user.role not in [UserRole.TRESORIER, UserRole.ADMIN]:
+    """Liste des mandats à traiter (Trésorier/Admin seulement)"""
+    if current_user.role not in [UserRole.TRESORIER, UserRole.ADMIN, UserRole.AGENT]:
         flash('Accès réservé au trésor', 'danger')
-        # return redirect(url_for('dashboard'))
+        return redirect(url_for('dashboard'))
     
-    # 1. Obtenir les paramètres de pagination depuis l'URL
+    # Récupération des paramètres
     page = request.args.get('page', 1, type=int)
-    per_page = 10 # Nombre d'éléments par page
-
-    statut = request.args.get('statut', 'en_cours')
-    try:
-        # 2. Utiliser .paginate() à la place de .all()
-        mandats = db.paginate(
-            db.select(Mandat).filter_by(statut=StatutMandat(statut)).order_by(Mandat.date_depot.asc()),
-            page=page,
-            per_page=per_page
-        )
-    except ValueError:
-        # Gestion de l'erreur si le statut n'est pas valide
-        mandats = db.paginate(
-            db.select(Mandat).filter_by(statut=StatutMandat.EN_COURS).order_by(Mandat.date_depot.asc()),
-            page=page,
-            per_page=per_page
-        )
-        statut = 'en_cours'
+    per_page = request.args.get('per_page', 10, type=int)
+    statut_filter = request.args.get('statut')
+    agent_id = request.args.get('agent_id', type=int)
+    fournisseur_id = request.args.get('fournisseur_id', type=int)
+    service = request.args.get('service')
+    date_debut = request.args.get('date_debut')
+    date_fin = request.args.get('date_fin')
+    montant_min = request.args.get('montant_min', type=float)
+    montant_max = request.args.get('montant_max', type=float)
+    tri = request.args.get('tri', 'date_desc')
     
-    return render_template('user_agent/mandats_a_traiter.html', mandats=mandats, statut=statut)
+    # Construction de la requête de base
+    query = Mandat.query
+    
+    # Application des filtres
+    filtres_actifs = []
+    
+    if statut_filter:
+        try:
+            statut = StatutMandat[statut_filter.upper()]
+            query = query.filter_by(statut=statut)
+            filtres_actifs.append(f"Statut: {statut.value}")
+        except KeyError:
+            pass
+    else:
+        # Par défaut, afficher les mandats en cours
+        query = query.filter_by(statut=StatutMandat.EN_COURS)
+        filtres_actifs.append("Statut: En cours")
+    
+    if agent_id:
+        query = query.filter_by(agent_id=agent_id)
+        agent = User.query.get(agent_id)
+        if agent:
+            filtres_actifs.append(f"Agent: {agent.nom} {agent.prenom}")
+    
+    if fournisseur_id:
+        query = query.filter_by(fournisseur_id=fournisseur_id)
+        fournisseur = User.query.get(fournisseur_id)
+        if fournisseur:
+            filtres_actifs.append(f"Fournisseur: {fournisseur.nom}")
+    
+    if service:
+        query = query.join(User).filter(User.service == service)
+        filtres_actifs.append(f"Service: {service}")
+    
+    if date_debut:
+        try:
+            date_debut_obj = datetime.strptime(date_debut, '%Y-%m-%d')
+            query = query.filter(Mandat.date_depot >= date_debut_obj)
+            filtres_actifs.append(f"À partir du: {date_debut_obj.strftime('%d/%m/%Y')}")
+        except ValueError:
+            pass
+    
+    if date_fin:
+        try:
+            date_fin_obj = datetime.strptime(date_fin, '%Y-%m-%d')
+            query = query.filter(Mandat.date_depot <= date_fin_obj)
+            filtres_actifs.append(f"Jusqu'au: {date_fin_obj.strftime('%d/%m/%Y')}")
+        except ValueError:
+            pass
+    
+    if montant_min is not None:
+        query = query.filter(Mandat.montant >= montant_min)
+        filtres_actifs.append(f"Montant min: {montant_min}€")
+    
+    if montant_max is not None:
+        query = query.filter(Mandat.montant <= montant_max)
+        filtres_actifs.append(f"Montant max: {montant_max}€")
+    
+    # Application du tri
+    if tri == 'date_desc':
+        query = query.order_by(Mandat.date_depot.desc())
+    elif tri == 'date_asc':
+        query = query.order_by(Mandat.date_depot.asc())
+    elif tri == 'montant_desc':
+        query = query.order_by(Mandat.montant.desc())
+    elif tri == 'montant_asc':
+        query = query.order_by(Mandat.montant.asc())
+    elif tri == 'echeance':
+        query = query.order_by(Mandat.date_echeance.asc())
+    elif tri == 'urgence':
+        query = query.order_by(Mandat.urgence.desc(), Mandat.date_depot.desc())
+    else:
+        query = query.order_by(Mandat.date_depot.desc())
+    
+    # Pagination
+    mandats = query.paginate(
+        page=page, 
+        per_page=per_page, 
+        error_out=False
+    )
+    
+    # Calcul des statistiques
+    stats = {
+        'total': Mandat.query.count(),
+        'en_cours': Mandat.query.filter_by(statut=StatutMandat.EN_COURS).count(),
+        'valides': Mandat.query.filter_by(statut=StatutMandat.VALIDE).count(),
+        'rejetes': Mandat.query.filter_by(statut=StatutMandat.REJETE).count(),
+        'pret_a_payer': Mandat.query.filter_by(statut=StatutMandat.PRET_A_PAYER).count(),
+        'payes': Mandat.query.filter_by(statut=StatutMandat.PAYE).count(),
+        'montant_total': db.session.query(db.func.sum(Mandat.montant)).scalar() or 0
+    }
+    
+    # Données pour les filtres
+    agents = User.query.filter_by(role=UserRole.AGENT).all()
+    fournisseurs = User.query.filter_by(role=UserRole.FOURNISSEUR).all()
+    services = db.session.query(User.service).filter(User.service.isnot(None)).distinct().all()
+    services = [s[0] for s in services]
+    
+    # Arguments pour la pagination
+    request_args = request.args.to_dict()
+    
+    return render_template('user_agent/mandats_a_traiter.html',
+                         mandats=mandats,
+                         stats=stats,
+                         filtres_actifs=filtres_actifs,
+                         agents=agents,
+                         fournisseurs=fournisseurs,
+                         services=services,
+                         tous_statuts=StatutMandat,
+                         request_args=request_args)
 
 
 @app.route('/tresorerie/traiter/<int:mandat_id>', methods=['POST'])

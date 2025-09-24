@@ -1,25 +1,150 @@
 {% extends "base.html" %}
 
+{% block title %}Traitement des Mandats - Trésorerie{% endblock %}
+
 {% block content %}
 <div class="container-fluid">
-    <!-- En-tête avec titre et boutons -->
+    <!-- En-tête avec statistiques -->
     <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2><i class="fas fa-file-invoice me-2"></i>Mes Mandats</h2>
         <div>
-            <a href="{{ url_for('deposer_mandat') }}" class="btn btn-success">
-                <i class="fas fa-plus-circle me-1"></i>Nouveau Mandat
-            </a>
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="{{ url_for('dashboard') }}">Dashboard Trésorerie</a></li>
+                    <li class="breadcrumb-item active">Mandats à Traiter</li>
+                </ol>
+            </nav>
+            <h2 class="mb-1">
+                <i class="fas fa-tasks me-2"></i>Traitement des Mandats
+            </h2>
+            <p class="text-muted mb-0">Validation, contrôle et paiement des mandats déposés</p>
+        </div>
+        <div class="btn-group">
             <button class="btn btn-outline-secondary" type="button" data-bs-toggle="collapse" 
                     data-bs-target="#filtersCollapse">
                 <i class="fas fa-filter me-1"></i>Filtres
+                {% if filtres_actifs %}
+                <span class="badge bg-primary ms-1">{{ filtres_actifs|length }}</span>
+                {% endif %}
+            </button>
+            <div class="btn-group">
+                <button type="button" class="btn btn-outline-primary dropdown-toggle" data-bs-toggle="dropdown">
+                    <i class="fas fa-download me-1"></i>Exporter
+                </button>
+                <ul class="dropdown-menu">
+                    <li><a class="dropdown-item" href="#" onclick="exporterDonnees('csv')">CSV</a></li>
+                    <li><a class="dropdown-item" href="#" onclick="exporterDonnees('excel')">Excel</a></li>
+                    <li><a class="dropdown-item" href="#" onclick="exporterDonnees('pdf')">PDF</a></li>
+                </ul>
+            </div>
+            <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#modalBatchActions">
+                <i class="fas fa-bolt me-1"></i>Actions groupées
             </button>
         </div>
     </div>
 
-    <!-- Panneau de filtres -->
+    <!-- Cartes de statistiques rapides -->
+    <div class="row mb-4">
+        <div class="col-xl-2 col-md-4 col-sm-6 mb-3">
+            <div class="card bg-primary text-white shadow-sm">
+                <div class="card-body py-3">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h5 class="fw-bold">{{ stats.total }}</h5>
+                            <p class="small mb-0">Total</p>
+                        </div>
+                        <div class="align-self-center">
+                            <i class="fas fa-inbox fa-2x opacity-50"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-2 col-md-4 col-sm-6 mb-3">
+            <div class="card bg-warning text-dark shadow-sm">
+                <div class="card-body py-3">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h5 class="fw-bold">{{ stats.en_attente }}</h5>
+                            <p class="small mb-0">En Attente</p>
+                        </div>
+                        <div class="align-self-center">
+                            <i class="fas fa-clock fa-2x opacity-50"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-2 col-md-4 col-sm-6 mb-3">
+            <div class="card bg-info text-white shadow-sm">
+                <div class="card-body py-3">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h5 class="fw-bold">{{ stats.en_cours }}</h5>
+                            <p class="small mb-0">En Cours</p>
+                        </div>
+                        <div class="align-self-center">
+                            <i class="fas fa-cog fa-2x opacity-50"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-2 col-md-4 col-sm-6 mb-3">
+            <div class="card bg-success text-white shadow-sm">
+                <div class="card-body py-3">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h5 class="fw-bold">{{ stats.valides }}</h5>
+                            <p class="small mb-0">Validés</p>
+                        </div>
+                        <div class="align-self-center">
+                            <i class="fas fa-check-circle fa-2x opacity-50"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-2 col-md-4 col-sm-6 mb-3">
+            <div class="card bg-secondary text-white shadow-sm">
+                <div class="card-body py-3">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h5 class="fw-bold">{{ "{:,.2f} €".format(stats.montant_total) }}</h5>
+                            <p class="small mb-0">Montant Total</p>
+                        </div>
+                        <div class="align-self-center">
+                            <i class="fas fa-euro-sign fa-2x opacity-50"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-2 col-md-4 col-sm-6 mb-3">
+            <div class="card bg-danger text-white shadow-sm">
+                <div class="card-body py-3">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h5 class="fw-bold">{{ stats.corrections }}</h5>
+                            <p class="small mb-0">Corrections</p>
+                        </div>
+                        <div class="align-self-center">
+                            <i class="fas fa-exclamation-triangle fa-2x opacity-50"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Panneau de filtres avancés -->
     <div class="collapse mb-4" id="filtersCollapse">
         <div class="card card-body">
-            <form method="get" class="row g-3">
+            <form method="get" class="row g-3" id="filterForm">
                 <div class="col-md-3">
                     <label for="statut" class="form-label">Statut</label>
                     <select name="statut" id="statut" class="form-select">
@@ -32,9 +157,23 @@
                         {% endfor %}
                     </select>
                 </div>
+                
                 <div class="col-md-3">
-                    <label for="fournisseur" class="form-label">Fournisseur</label>
-                    <select name="fournisseur_id" id="fournisseur" class="form-select">
+                    <label for="agent_id" class="form-label">Agent</label>
+                    <select name="agent_id" id="agent_id" class="form-select">
+                        <option value="">Tous les agents</option>
+                        {% for agent in agents %}
+                        <option value="{{ agent.id }}" 
+                                {% if request.args.get('agent_id')|int == agent.id %}selected{% endif %}>
+                            {{ agent.nom }} {{ agent.prenom }} ({{ agent.service }})
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                
+                <div class="col-md-3">
+                    <label for="fournisseur_id" class="form-label">Fournisseur</label>
+                    <select name="fournisseur_id" id="fournisseur_id" class="form-select">
                         <option value="">Tous les fournisseurs</option>
                         {% for fournisseur in fournisseurs %}
                         <option value="{{ fournisseur.id }}" 
@@ -44,109 +183,193 @@
                         {% endfor %}
                     </select>
                 </div>
+                
                 <div class="col-md-3">
+                    <label for="service" class="form-label">Service</label>
+                    <select name="service" id="service" class="form-select">
+                        <option value="">Tous les services</option>
+                        {% for service in services %}
+                        <option value="{{ service }}" 
+                                {% if request.args.get('service') == service %}selected{% endif %}>
+                            {{ service }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                
+                <div class="col-md-2">
                     <label for="date_debut" class="form-label">Date début</label>
                     <input type="date" name="date_debut" id="date_debut" 
                            value="{{ request.args.get('date_debut') }}" class="form-control">
                 </div>
-                <div class="col-md-3">
+                
+                <div class="col-md-2">
                     <label for="date_fin" class="form-label">Date fin</label>
                     <input type="date" name="date_fin" id="date_fin" 
                            value="{{ request.args.get('date_fin') }}" class="form-control">
                 </div>
+                
+                <div class="col-md-2">
+                    <label for="montant_min" class="form-label">Montant min</label>
+                    <input type="number" name="montant_min" id="montant_min" 
+                           value="{{ request.args.get('montant_min') }}" placeholder="0" 
+                           class="form-control" step="0.01">
+                </div>
+                
+                <div class="col-md-2">
+                    <label for="montant_max" class="form-label">Montant max</label>
+                    <input type="number" name="montant_max" id="montant_max" 
+                           value="{{ request.args.get('montant_max') }}" placeholder="100000" 
+                           class="form-control" step="0.01">
+                </div>
+                
+                <div class="col-md-2">
+                    <label for="tri" class="form-label">Trier par</label>
+                    <select name="tri" id="tri" class="form-select">
+                        <option value="urgence" {% if request.args.get('tri') == 'urgence' %}selected{% endif %}>Urgence</option>
+                        <option value="date_desc" {% if request.args.get('tri') == 'date_desc' %}selected{% endif %}>Date récente</option>
+                        <option value="date_asc" {% if request.args.get('tri') == 'date_asc' %}selected{% endif %}>Date ancienne</option>
+                        <option value="montant_desc" {% if request.args.get('tri') == 'montant_desc' %}selected{% endif %}>Montant élevé</option>
+                        <option value="montant_asc" {% if request.args.get('tri') == 'montant_asc' %}selected{% endif %}>Montant faible</option>
+                        <option value="echeance" {% if request.args.get('tri') == 'echeance' %}selected{% endif %}>Échéance</option>
+                    </select>
+                </div>
+                
+                <div class="col-md-2">
+                    <label class="form-label">Options</label>
+                    <div class="form-check">
+                        <input type="checkbox" name="urgence_only" id="urgence_only" 
+                               class="form-check-input" {% if request.args.get('urgence_only') %}checked{% endif %}>
+                        <label for="urgence_only" class="form-check-label">Urgents seulement</label>
+                    </div>
+                </div>
+                
                 <div class="col-12">
-                    <div class="d-flex gap-2">
+                    <div class="d-flex gap-2 align-items-center">
                         <button type="submit" class="btn btn-primary">
-                            <i class="fas fa-search me-1"></i>Appliquer
+                            <i class="fas fa-search me-1"></i>Appliquer les filtres
                         </button>
-                        <a href="{{ url_for('liste_mandats') }}" class="btn btn-outline-secondary">
+                        <a href="{{ url_for('mandats_a_traiter') }}" class="btn btn-outline-secondary">
                             <i class="fas fa-times me-1"></i>Réinitialiser
-                        </button>
+                        </a>
                     </div>
                 </div>
             </form>
         </div>
     </div>
 
-    <!-- Résumé des filtres -->
+    <!-- Résumé des filtres actifs -->
     {% if filtres_actifs %}
-    <div class="alert alert-info d-flex justify-content-between align-items-center">
+    <div class="alert alert-info d-flex justify-content-between align-items-center mb-4">
         <div>
-            <strong>Filtres actifs :</strong>
+            <strong><i class="fas fa-filter me-1"></i>Filtres actifs :</strong>
             {% for filtre in filtres_actifs %}
             <span class="badge bg-primary ms-2">{{ filtre }}</span>
             {% endfor %}
+            <small class="text-muted ms-2">({{ mandats.total }} mandat(s))</small>
         </div>
-        <a href="{{ url_for('liste_mandats') }}" class="btn btn-sm btn-outline-info">
-            Tout effacer
+        <a href="{{ url_for('mandats_a_traiter') }}" class="btn btn-sm btn-outline-info">
+            <i class="fas fa-times me-1"></i>Tout effacer
         </a>
     </div>
     {% endif %}
 
-    <!-- Statistiques rapides -->
-    <div class="row mb-4">
-        <div class="col-12">
-            <div class="d-flex flex-wrap gap-3">
-                <span class="badge bg-light text-dark border">
-                    Total: <strong>{{ mandats.total }}</strong>
+    <!-- Tableau des mandats à traiter -->
+    <div class="card shadow">
+        <div class="card-header bg-light d-flex justify-content-between align-items-center">
+            <h5 class="mb-0">
+                <i class="fas fa-list me-2"></i>Mandats à Traiter
+                <small class="text-muted">(Page {{ mandats.page }}/{{ mandats.pages }})</small>
+            </h5>
+            <div class="d-flex align-items-center">
+                <span class="me-3 small text-muted">
+                    Affichage {{ mandats.per_page * (mandats.page - 1) + 1 }}-
+                    {{ mandats.per_page * mandats.page if mandats.per_page * mandats.page < mandats.total else mandats.total }}
+                    sur {{ mandats.total }}
                 </span>
-                {% for stat in stats_filtrees %}
-                <span class="badge bg-{{ stat.color }}">
-                    {{ stat.nom }}: <strong>{{ stat.count }}</strong>
-                </span>
-                {% endfor %}
+                <select class="form-select form-select-sm" style="width: auto;" onchange="changePerPage(this.value)">
+                    <option value="10" {% if mandats.per_page == 10 %}selected{% endif %}>10/page</option>
+                    <option value="25" {% if mandats.per_page == 25 %}selected{% endif %}>25/page</option>
+                    <option value="50" {% if mandats.per_page == 50 %}selected{% endif %}>50/page</option>
+                </select>
             </div>
         </div>
-    </div>
-
-    <!-- Tableau des mandats -->
-    <div class="card shadow">
+        
         <div class="card-body p-0">
             <div class="table-responsive">
-                <table class="table table-hover mb-0">
+                <table class="table table-hover mb-0" id="tableMandats">
                     <thead class="table-light">
                         <tr>
-                            <th>
+                            <th width="30">
                                 <input type="checkbox" id="selectAll" class="form-check-input">
                             </th>
-                            <th>Référence</th>
+                            <th width="120">Référence</th>
+                            <th>Agent / Service</th>
                             <th>Fournisseur</th>
-                            <th>Montant TTC</th>
-                            <th>Statut</th>
-                            <th>Date dépôt</th>
-                            <th>Dernière action</th>
-                            <th>Actions</th>
+                            <th width="120">Montant TTC</th>
+                            <th width="140">Statut</th>
+                            <th width="110">Date dépôt</th>
+                            <th width="110">Échéance</th>
+                            <th width="150">Dernière action</th>
+                            <th width="120" class="text-center">Actions</th>
                         </tr>
                     </thead>
                     <tbody>
                         {% for mandat in mandats.items %}
-                        <tr class="{% if mandat.urgence %}table-warning{% endif %}">
+                        <tr class="mandat-row {% if mandat.urgence %}table-warning{% endif %} 
+                            {% if mandat.correction_requise %}table-danger{% endif %}" 
+                            data-mandat-id="{{ mandat.id }}" data-statut="{{ mandat.statut.name }}">
                             <td>
                                 <input type="checkbox" name="mandat_ids" value="{{ mandat.id }}" 
-                                       class="form-check-input mandat-checkbox">
+                                       class="form-check-input mandat-checkbox"
+                                       data-statut="{{ mandat.statut.name }}"
+                                       data-montant="{{ mandat.montant }}">
                             </td>
                             <td>
                                 <div class="d-flex align-items-center">
-                                    <strong>{{ mandat.reference }}</strong>
-                                    {% if mandat.urgence %}
-                                    <span class="badge bg-danger ms-2" data-bs-toggle="tooltip" 
-                                          title="Mandat urgent">
-                                        <i class="fas fa-exclamation"></i>
-                                    </span>
-                                    {% endif %}
-                                    {% if mandat.pieces_jointes %}
-                                    <span class="badge bg-info ms-1" data-bs-toggle="tooltip" 
-                                          title="Pièces jointes disponibles">
-                                        <i class="fas fa-paperclip"></i>
-                                    </span>
-                                    {% endif %}
+                                    <strong class="mandat-reference">{{ mandat.reference }}</strong>
+                                    <div class="ms-1">
+                                        {% if mandat.urgence %}
+                                        <span class="badge bg-danger badge-sm" data-bs-toggle="tooltip" 
+                                              title="Mandat urgent">
+                                            <i class="fas fa-exclamation"></i>
+                                        </span>
+                                        {% endif %}
+                                        {% if mandat.pieces_jointes %}
+                                        <span class="badge bg-info badge-sm" data-bs-toggle="tooltip" 
+                                              title="{{ mandat.pieces_jointes|length }} pièce(s) jointe(s)">
+                                            <i class="fas fa-paperclip"></i>
+                                        </span>
+                                        {% endif %}
+                                        {% if mandat.correction_requise %}
+                                        <span class="badge bg-warning badge-sm" data-bs-toggle="tooltip" 
+                                              title="Correction requise">
+                                            <i class="fas fa-exclamation-triangle"></i>
+                                        </span>
+                                        {% endif %}
+                                    </div>
                                 </div>
                             </td>
                             <td>
-                                <div>
-                                    <strong>{{ mandat.fournisseur.nom }}</strong>
-                                    <br>
-                                    <small class="text-muted">{{ mandat.fournisseur.email }}</small>
+                                <div class="d-flex align-items-center">
+                                    <div class="avatar-sm bg-primary rounded me-2 text-white d-flex align-items-center justify-content-center">
+                                        <i class="fas fa-user"></i>
+                                    </div>
+                                    <div>
+                                        <strong class="d-block">{{ mandat.agent.nom }} {{ mandat.agent.prenom }}</strong>
+                                        <small class="text-muted">{{ mandat.agent.service }}</small>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="d-flex align-items-center">
+                                    <div class="avatar-sm bg-secondary rounded me-2 text-white d-flex align-items-center justify-content-center">
+                                        <i class="fas fa-building"></i>
+                                    </div>
+                                    <div>
+                                        <strong class="d-block">{{ mandat.fournisseur.nom }}</strong>
+                                        <small class="text-muted">{{ mandat.fournisseur.email|truncate(20) }}</small>
+                                    </div>
                                 </div>
                             </td>
                             <td>
@@ -158,68 +381,121 @@
                             </td>
                             <td>
                                 <span class="badge bg-{{ mandat.statut.color }} badge-lg">
-                                    <i class="fas fa-{{ mandat.statut.icon }} me-1"></i>
+                                    <i class="fas fa-{{ get_statut_icon(mandat.statut) }} me-1"></i>
                                     {{ mandat.statut.value }}
                                 </span>
                                 {% if mandat.correction_requise %}
-                                <br>
-                                <small class="text-danger">
-                                    <i class="fas fa-exclamation-triangle"></i> Correction requise
-                                </small>
+                                <div class="mt-1">
+                                    <small class="text-danger">
+                                        <i class="fas fa-exclamation-triangle"></i> Correction requise
+                                    </small>
+                                </div>
                                 {% endif %}
                             </td>
                             <td>
-                                {{ mandat.date_depot.strftime('%d/%m/%Y') }}
-                                <br>
-                                <small class="text-muted">{{ mandat.date_depot.strftime('%H:%M') }}</small>
+                                <div class="small">
+                                    <div>{{ mandat.date_depot.strftime('%d/%m/%Y') }}</div>
+                                    <div class="text-muted">{{ mandat.date_depot.strftime('%H:%M') }}</div>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="small">
+                                    <div>{{ mandat.date_echeance.strftime('%d/%m/%Y') }}</div>
+                                    {% set jours_restants = (mandat.date_echeance - now).days %}
+                                    {% if jours_restants < 0 %}
+                                    <span class="badge bg-danger badge-sm">Dépassée</span>
+                                    {% elif jours_restants <= 3 %}
+                                    <span class="badge bg-warning badge-sm">J-{{ jours_restants }}</span>
+                                    {% else %}
+                                    <span class="text-muted">J-{{ jours_restants }}</span>
+                                    {% endif %}
+                                </div>
                             </td>
                             <td>
                                 {% if mandat.historique %}
-                                <small>
-                                    {{ mandat.historique[-1].action }}
-                                    <br>
-                                    <span class="text-muted">{{ mandat.historique[-1].date_action|time_ago }}</span>
-                                </small>
+                                <div class="small">
+                                    <div class="text-truncate" style="max-width: 150px;" 
+                                         data-bs-toggle="tooltip" title="{{ mandat.historique[-1].action }}">
+                                        {{ mandat.historique[-1].action|truncate(25) }}
+                                    </div>
+                                    <div class="text-muted">{{ mandat.historique[-1].date_action|time_ago }}</div>
+                                </div>
                                 {% else %}
                                 <span class="text-muted">-</span>
                                 {% endif %}
                             </td>
                             <td>
-                                <div class="btn-group btn-group-sm" role="group">
-                                    <a href="{{ url_for('detail_mandat', mandat_id=mandat.id) }}" 
+                                <div class="btn-group-vertical btn-group-sm" role="group">
+                                    <a href="{{ url_for('detail_mandat_tresorerie', mandat_id=mandat.id) }}" 
                                        class="btn btn-outline-primary" data-bs-toggle="tooltip" title="Voir détails">
                                         <i class="fas fa-eye"></i>
                                     </a>
-                                    {% if mandat.statut.name in ['EN_ATTENTE', 'EN_COURS'] %}
-                                    <a href="{{ url_for('modifier_mandat', mandat_id=mandat.id) }}" 
-                                       class="btn btn-outline-warning" data-bs-toggle="tooltip" title="Modifier">
+                                    
+                                    <!-- Actions contextuelles selon le statut -->
+                                    {% if mandat.statut.name == 'EN_ATTENTE' %}
+                                    <button class="btn btn-outline-success action-btn" 
+                                            data-action="valider" 
+                                            data-mandat-id="{{ mandat.id }}"
+                                            data-bs-toggle="tooltip" title="Valider le mandat">
+                                        <i class="fas fa-check"></i>
+                                    </button>
+                                    <button class="btn btn-outline-warning action-btn" 
+                                            data-action="demander_correction" 
+                                            data-mandat-id="{{ mandat.id }}"
+                                            data-bs-toggle="tooltip" title="Demander correction">
                                         <i class="fas fa-edit"></i>
-                                    </a>
+                                    </button>
+                                    {% elif mandat.statut.name == 'EN_COURS' %}
+                                    <button class="btn btn-outline-info action-btn" 
+                                            data-action="pret_a_payer" 
+                                            data-mandat-id="{{ mandat.id }}"
+                                            data-bs-toggle="tooltip" title="Prêt à payer">
+                                        <i class="fas fa-hourglass-half"></i>
+                                    </button>
+                                    {% elif mandat.statut.name == 'VALIDE' %}
+                                    <button class="btn btn-outline-primary action-btn" 
+                                            data-action="pret_a_payer" 
+                                            data-mandat-id="{{ mandat.id }}"
+                                            data-bs-toggle="tooltip" title="Prêt à payer">
+                                        <i class="fas fa-arrow-right"></i>
+                                    </button>
+                                    {% elif mandat.statut.name == 'PRET_A_PAYER' %}
+                                    <button class="btn btn-outline-success action-btn" 
+                                            data-action="payer" 
+                                            data-mandat-id="{{ mandat.id }}"
+                                            data-bs-toggle="tooltip" title="Marquer comme payé">
+                                        <i class="fas fa-money-check"></i>
+                                    </button>
                                     {% endif %}
-                                    {% if mandat.correction_requise %}
-                                    <a href="{{ url_for('corriger_mandat', mandat_id=mandat.id) }}" 
-                                       class="btn btn-outline-danger" data-bs-toggle="tooltip" title="Corriger">
-                                        <i class="fas fa-wrench"></i>
-                                    </a>
-                                    {% endif %}
+                                    
+                                    <button class="btn btn-outline-danger action-btn" 
+                                            data-action="rejeter" 
+                                            data-mandat-id="{{ mandat.id }}"
+                                            data-bs-toggle="tooltip" title="Rejeter le mandat">
+                                        <i class="fas fa-times"></i>
+                                    </button>
                                 </div>
                             </td>
                         </tr>
                         {% else %}
                         <tr>
-                            <td colspan="8" class="text-center py-5">
-                                <i class="fas fa-inbox fa-3x text-muted mb-3"></i>
-                                <h5 class="text-muted">Aucun mandat trouvé</h5>
-                                <p class="text-muted">
+                            <td colspan="10" class="text-center py-5">
+                                <div class="empty-state">
+                                    <i class="fas fa-inbox fa-3x text-muted mb-3"></i>
+                                    <h5 class="text-muted">Aucun mandat à traiter</h5>
+                                    <p class="text-muted mb-4">
+                                        {% if filtres_actifs %}
+                                        Aucun mandat ne correspond à vos critères de recherche.
+                                        {% else %}
+                                        Tous les mandats sont traités !
+                                        {% endif %}
+                                    </p>
                                     {% if filtres_actifs %}
-                                    Aucun mandat ne correspond à vos critères de recherche.
-                                    {% else %}
-                                    Vous n'avez pas encore déposé de mandat.
+                                    <a href="{{ url_for('mandats_a_traiter') }}" class="btn btn-outline-secondary">
+                                        <i class="fas fa-times me-1"></i>Effacer les filtres
+                                    </a>
                                     {% endif %}
-                                </p>
-                                <a href="{{ url_for('deposer_mandat') }}" class="btn btn-primary mt-2">
-                                    <i class="fas fa-plus me-1"></i>Déposer un mandat
-                                </a>
+                                </div>
                             </td>
                         </tr>
                         {% endfor %}
@@ -231,70 +507,203 @@
         <!-- Pied de tableau avec pagination -->
         {% if mandats.pages > 1 %}
         <div class="card-footer">
-            <nav aria-label="Pagination">
-                <ul class="pagination justify-content-center mb-0">
-                    <!-- Premier -->
-                    <li class="page-item {% if not mandats.has_prev %}disabled{% endif %}">
-                        <a class="page-link" href="{{ url_for('liste_mandats', page=1, **request.args) }}">
-                            <i class="fas fa-angle-double-left"></i>
-                        </a>
-                    </li>
-                    
-                    <!-- Précédent -->
-                    <li class="page-item {% if not mandats.has_prev %}disabled{% endif %}">
-                        <a class="page-link" href="{{ url_for('liste_mandats', page=mandats.prev_num, **request.args) }}">
-                            <i class="fas fa-angle-left"></i>
-                        </a>
-                    </li>
+            <div class="d-flex justify-content-between align-items-center">
+                <div class="small text-muted">
+                    Page {{ mandats.page }} sur {{ mandats.pages }} - 
+                    {{ mandats.total }} mandat(s) au total
+                </div>
+                
+                <nav aria-label="Pagination">
+                    <ul class="pagination justify-content-center mb-0">
+                        <!-- Premier -->
+                        <li class="page-item {% if not mandats.has_prev %}disabled{% endif %}">
+                            <a class="page-link" href="{{ url_for('mandats_a_traiter', page=1, **request_args) }}">
+                                <i class="fas fa-angle-double-left"></i>
+                            </a>
+                        </li>
+                        
+                        <!-- Précédent -->
+                        <li class="page-item {% if not mandats.has_prev %}disabled{% endif %}">
+                            <a class="page-link" href="{{ url_for('mandats_a_traiter', page=mandats.prev_num, **request_args) }}">
+                                <i class="fas fa-angle-left"></i>
+                            </a>
+                        </li>
 
-                    <!-- Pages -->
-                    {% for page_num in mandats.iter_pages(left_edge=1, right_edge=1, left_current=2, right_current=2) %}
-                        {% if page_num %}
-                            <li class="page-item {% if page_num == mandats.page %}active{% endif %}">
-                                <a class="page-link" href="{{ url_for('liste_mandats', page=page_num, **request.args) }}">
-                                    {{ page_num }}
-                                </a>
-                            </li>
-                        {% else %}
-                            <li class="page-item disabled">
-                                <span class="page-link">...</span>
-                            </li>
-                        {% endif %}
-                    {% endfor %}
+                        <!-- Pages -->
+                        {% for page_num in mandats.iter_pages(left_edge=1, right_edge=1, left_current=2, right_current=2) %}
+                            {% if page_num %}
+                                <li class="page-item {% if page_num == mandats.page %}active{% endif %}">
+                                    <a class="page-link" href="{{ url_for('mandats_a_traiter', page=page_num, **request_args) }}">
+                                        {{ page_num }}
+                                    </a>
+                                </li>
+                            {% else %}
+                                <li class="page-item disabled">
+                                    <span class="page-link">...</span>
+                                </li>
+                            {% endif %}
+                        {% endfor %}
 
-                    <!-- Suivant -->
-                    <li class="page-item {% if not mandats.has_next %}disabled{% endif %}">
-                        <a class="page-link" href="{{ url_for('liste_mandats', page=mandats.next_num, **request.args) }}">
-                            <i class="fas fa-angle-right"></i>
-                        </a>
-                    </li>
+                        <!-- Suivant -->
+                        <li class="page-item {% if not mandats.has_next %}disabled{% endif %}">
+                            <a class="page-link" href="{{ url_for('mandats_a_traiter', page=mandats.next_num, **request_args) }}">
+                                <i class="fas fa-angle-right"></i>
+                            </a>
+                        </li>
 
-                    <!-- Dernier -->
-                    <li class="page-item {% if not mandats.has_next %}disabled{% endif %}">
-                        <a class="page-link" href="{{ url_for('liste_mandats', page=mandats.pages, **request.args) }}">
-                            <i class="fas fa-angle-double-right"></i>
-                        </a>
-                    </li>
-                </ul>
-            </nav>
+                        <!-- Dernier -->
+                        <li class="page-item {% if not mandats.has_next %}disabled{% endif %}">
+                            <a class="page-link" href="{{ url_for('mandats_a_traiter', page=mandats.pages, **request_args) }}">
+                                <i class="fas fa-angle-double-right"></i>
+                            </a>
+                        </li>
+                    </ul>
+                </nav>
+                
+                <div class="small text-muted">
+                    <select class="form-select form-select-sm d-inline-block w-auto" 
+                            onchange="window.location.href = '{{ url_for('mandats_a_traiter', **request_args) }}&page=' + this.value">
+                        {% for p in range(1, mandats.pages + 1) %}
+                        <option value="{{ p }}" {% if p == mandats.page %}selected{% endif %}>{{ p }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
         </div>
         {% endif %}
     </div>
 
     <!-- Actions groupées -->
-    <div class="mt-3 p-3 bg-light rounded d-none" id="actionsGroupées">
+    <div class="mt-3 p-3 bg-light rounded d-none" id="actionsGroupees">
         <div class="d-flex justify-content-between align-items-center">
-            <span id="nbSelectionnes">0 mandat(s) sélectionné(s)</span>
+            <div>
+                <span id="nbSelectionnes" class="fw-bold">0 mandat(s) sélectionné(s)</span>
+                <small class="text-muted ms-2" id="montantTotalSelection"></small>
+                <div id="statutSelection" class="small mt-1"></div>
+            </div>
             <div class="btn-group">
-                <button type="button" class="btn btn-outline-secondary btn-sm" 
-                        onclick="exporterSelection()">
-                    <i class="fas fa-download me-1"></i>Exporter
+                <button type="button" class="btn btn-outline-success btn-sm" 
+                        onclick="actionGroupee('valider')">
+                    <i class="fas fa-check me-1"></i>Valider
+                </button>
+                <button type="button" class="btn btn-outline-info btn-sm" 
+                        onclick="actionGroupee('pret_a_payer')">
+                    <i class="fas fa-hourglass-half me-1"></i>Prêt à payer
+                </button>
+                <button type="button" class="btn btn-outline-primary btn-sm" 
+                        onclick="actionGroupee('payer')">
+                    <i class="fas fa-money-check me-1"></i>Marquer payé
+                </button>
+                <button type="button" class="btn btn-outline-warning btn-sm" 
+                        onclick="actionGroupee('demander_correction')">
+                    <i class="fas fa-edit me-1"></i>Demander correction
                 </button>
                 <button type="button" class="btn btn-outline-danger btn-sm" 
-                        onclick="supprimerSelection()">
-                    <i class="fas fa-trash me-1"></i>Supprimer
+                        onclick="actionGroupee('rejeter')">
+                    <i class="fas fa-times me-1"></i>Rejeter
+                </button>
+                <button type="button" class="btn btn-outline-secondary btn-sm" 
+                        onclick="deselectionnerTout()">
+                    <i class="fas fa-times me-1"></i>Annuler
                 </button>
             </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Actions Groupées -->
+<div class="modal fade" id="modalBatchActions" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Actions groupées sur les mandats</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p>Sélectionnez un critère pour appliquer une action à plusieurs mandats :</p>
+                
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label class="form-label">Statut actuel</label>
+                        <select class="form-select" id="batchStatut">
+                            <option value="">Tous les statuts</option>
+                            {% for statut in tous_statuts %}
+                            <option value="{{ statut.name }}">{{ statut.value }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Service</label>
+                        <select class="form-select" id="batchService">
+                            <option value="">Tous les services</option>
+                            {% for service in services %}
+                            <option value="{{ service }}">{{ service }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Date de dépôt avant le</label>
+                        <input type="date" class="form-control" id="batchDate">
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Action à appliquer</label>
+                        <select class="form-select" id="batchAction">
+                            <option value="valider">Valider</option>
+                            <option value="pret_a_payer">Marquer prêt à payer</option>
+                            <option value="payer">Marquer comme payé</option>
+                            <option value="demander_correction">Demander correction</option>
+                            <option value="rejeter">Rejeter</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="mt-3 p-3 bg-light rounded">
+                    <h6>Résultat de la sélection :</h6>
+                    <div id="batchPreview" class="small text-muted">
+                        Aucun critère sélectionné
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                <button type="button" class="btn btn-primary" onclick="appliquerActionGroupee()">
+                    <i class="fas fa-bolt me-1"></i>Appliquer l'action
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Action Individuelle -->
+<div class="modal fade" id="actionModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="actionModalTitle">Action sur le mandat</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form id="actionForm" method="post">
+                <input type="hidden" name="mandat_id" id="actionMandatId">
+                <input type="hidden" name="action" id="actionType">
+                
+                <div class="modal-body">
+                    <div id="actionDescription"></div>
+                    
+                    <div class="mb-3">
+                        <label for="actionCommentaire" class="form-label">Commentaire (optionnel)</label>
+                        <textarea name="commentaire" id="actionCommentaire" class="form-control" rows="3" 
+                                  placeholder="Ajoutez un commentaire pour l'historique..."></textarea>
+                    </div>
+                    
+                    <div id="actionAlerte" class="alert alert-warning d-none"></div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                    <button type="submit" class="btn btn-primary" id="actionSubmit">
+                        Confirmer l'action
+                    </button>
+                </div>
+            </form>
         </div>
     </div>
 </div>
@@ -302,13 +711,19 @@
 
 {% block scripts %}
 <script>
-// Gestion de la sélection multiple
+// Gestion des actions sur les mandats
 document.addEventListener('DOMContentLoaded', function() {
+    initSelection();
+    initTooltips();
+    initActionButtons();
+});
+
+// Gestion de la sélection multiple
+function initSelection() {
     const selectAll = document.getElementById('selectAll');
     const checkboxes = document.querySelectorAll('.mandat-checkbox');
-    const actionsGroupees = document.getElementById('actionsGroupées');
+    const actionsGroupees = document.getElementById('actionsGroupees');
 
-    // Sélection/désélection globale
     selectAll.addEventListener('change', function() {
         checkboxes.forEach(checkbox => {
             checkbox.checked = selectAll.checked;
@@ -316,59 +731,225 @@ document.addEventListener('DOMContentLoaded', function() {
         toggleActionsGroupees();
     });
 
-    // Gestion individuelle
     checkboxes.forEach(checkbox => {
         checkbox.addEventListener('change', function() {
-            // Met à jour la case "Tout sélectionner"
             selectAll.checked = [...checkboxes].every(cb => cb.checked);
             toggleActionsGroupees();
         });
     });
 
     function toggleActionsGroupees() {
-        const nbSelectionnes = document.querySelectorAll('.mandat-checkbox:checked').length;
-        const nbSpan = document.getElementById('nbSelectionnes');
+        const selected = document.querySelectorAll('.mandat-checkbox:checked');
+        const nbSelectionnes = selected.length;
         
-        nbSpan.textContent = `${nbSelectionnes} mandat(s) sélectionné(s)`;
+        document.getElementById('nbSelectionnes').textContent = `${nbSelectionnes} mandat(s) sélectionné(s)`;
         
-        if (nbSelectionnes > 0) {
-            actionsGroupees.classList.remove('d-none');
-        } else {
-            actionsGroupees.classList.add('d-none');
-        }
-    }
-
-    // Tooltips Bootstrap
-    $('[data-bs-toggle="tooltip"]').tooltip();
-});
-
-function exporterSelection() {
-    const selected = Array.from(document.querySelectorAll('.mandat-checkbox:checked'))
-                         .map(cb => cb.value);
-    if (selected.length > 0) {
-        // Implémenter l'export
-        alert(`Export des mandats: ${selected.join(', ')}`);
+        // Calcul du montant total
+        let total = 0;
+        let statuts = new Set();
+        selected.forEach(checkbox => {
+            const montant = parseFloat(checkbox.dataset.montant);
+            if (!isNaN(montant)) total += montant;
+            statuts.add(checkbox.dataset.statut);
+        });
+        
+        document.getElementById('montantTotalSelection').textContent = 
+            total > 0 ? `Total: ${total.toLocaleString('fr-FR', {style: 'currency', currency: 'EUR'})}` : '';
+        
+        document.getElementById('statutSelection').innerHTML = 
+            `Statuts: ${Array.from(statuts).map(s => `<span class="badge bg-light text-dark">${s}</span>`).join(' ')}`;
+        
+        actionsGroupees.classList.toggle('d-none', nbSelectionnes === 0);
     }
 }
 
-function supprimerSelection() {
+// Initialisation des boutons d'action
+function initActionButtons() {
+    document.querySelectorAll('.action-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const action = this.dataset.action;
+            const mandatId = this.dataset.mandatId;
+            ouvrirModalAction(action, mandatId);
+        });
+    });
+}
+
+// Ouvrir le modal d'action
+function ouvrirModalAction(action, mandatId) {
+    const modal = new bootstrap.Modal(document.getElementById('actionModal'));
+    const descriptions = {
+        'valider': 'Valider ce mandat pour le faire passer à l\'étape suivante.',
+        'rejeter': 'Rejeter définitivement ce mandat.',
+        'pret_a_payer': 'Marquer ce mandat comme prêt à être payé.',
+        'payer': 'Marquer ce mandat comme payé.',
+        'demander_correction': 'Demander des corrections à l\'agent.'
+    };
+    
+    const titres = {
+        'valider': 'Valider le mandat',
+        'rejeter': 'Rejeter le mandat',
+        'pret_a_payer': 'Prêt à payer',
+        'payer': 'Marquer comme payé',
+        'demander_correction': 'Demander correction'
+    };
+    
+    document.getElementById('actionModalTitle').textContent = titres[action];
+    document.getElementById('actionDescription').textContent = descriptions[action];
+    document.getElementById('actionMandatId').value = mandatId;
+    document.getElementById('actionType').value = action;
+    
+    // Ajuster la couleur du bouton selon l'action
+    const submitBtn = document.getElementById('actionSubmit');
+    submitBtn.className = 'btn ' + {
+        'valider': 'btn-success',
+        'rejeter': 'btn-danger',
+        'pret_a_payer': 'btn-info',
+        'payer': 'btn-primary',
+        'demander_correction': 'btn-warning'
+    }[action];
+    
+    modal.show();
+}
+
+// Gestion de la soumission du formulaire d'action
+document.getElementById('actionForm').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    
+    const formData = new FormData(this);
+    const submitBtn = document.getElementById('actionSubmit');
+    const originalText = submitBtn.innerHTML;
+    
+    submitBtn.disabled = true;
+    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Traitement...';
+    
+    try {
+        const response = await fetch('/tresorerie/traiter/' + formData.get('mandat_id'), {
+            method: 'POST',
+            body: formData
+        });
+        
+        if (response.ok) {
+            location.reload(); // Recharger la page pour voir les changements
+        } else {
+            alert('Erreur lors du traitement du mandat');
+        }
+    } catch (error) {
+        alert('Erreur réseau: ' + error.message);
+    } finally {
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = originalText;
+    }
+});
+
+// Actions groupées
+function actionGroupee(action) {
     const selected = Array.from(document.querySelectorAll('.mandat-checkbox:checked'))
                          .map(cb => cb.value);
-    if (selected.length > 0 && confirm(`Supprimer ${selected.length} mandat(s) ?`)) {
-        // Implémenter la suppression
-        alert(`Suppression des mandats: ${selected.join(', ')}`);
+    
+    if (selected.length === 0) {
+        alert('Veuillez sélectionner au moins un mandat');
+        return;
     }
+    
+    if (confirm(`Appliquer l'action "${action}" à ${selected.length} mandat(s) ?`)) {
+        // Implémenter l'action groupée
+        selected.forEach(mandatId => {
+            // Envoyer une requête pour chaque mandat
+            fetch('/tresorerie/traiter/' + mandatId, {
+                method: 'POST',
+                headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+                body: `action=${action}&commentaire=Action+groupée`
+            });
+        });
+        
+        setTimeout(() => location.reload(), 1000);
+    }
+}
+
+function deselectionnerTout() {
+    document.querySelectorAll('.mandat-checkbox').forEach(cb => cb.checked = false);
+    document.getElementById('selectAll').checked = false;
+    document.getElementById('actionsGroupees').classList.add('d-none');
+}
+
+function changePerPage(perPage) {
+    const url = new URL(window.location);
+    url.searchParams.set('per_page', perPage);
+    url.searchParams.set('page', '1');
+    window.location.href = url.toString();
+}
+
+// Tooltips
+function initTooltips() {
+    const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+    const tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+        return new bootstrap.Tooltip(tooltipTriggerEl);
+    });
 }
 </script>
 
 <style>
+.avatar-sm {
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.badge-sm {
+    font-size: 0.7em;
+    padding: 0.2em 0.4em;
+}
+
 .badge-lg {
     font-size: 0.85em;
     padding: 0.35em 0.65em;
 }
+
+.mandat-row {
+    cursor: pointer;
+    transition: background-color 0.15s ease;
+}
+
+.mandat-row:hover {
+    background-color: #f8f9fa !important;
+}
+
+.empty-state {
+    padding: 3rem 1rem;
+    text-align: center;
+}
+
+.btn-group-vertical .btn {
+    border-radius: 0;
+}
+
+.btn-group-vertical .btn:first-child {
+    border-top-left-radius: 0.375rem;
+    border-top-right-radius: 0.375rem;
+}
+
+.btn-group-vertical .btn:last-child {
+    border-bottom-left-radius: 0.375rem;
+    border-bottom-right-radius: 0.375rem;
+}
+
 .table th {
     border-top: none;
     font-weight: 600;
+    font-size: 0.9rem;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .table-responsive {
+        font-size: 0.85rem;
+    }
+    
+    .btn-group-sm .btn {
+        padding: 0.25rem 0.5rem;
+    }
 }
 </style>
 {% endblock %}
