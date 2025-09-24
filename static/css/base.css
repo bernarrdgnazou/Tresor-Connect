@@ -44,13 +44,13 @@ body {
   top: 0; left: 0;
   width: 100%;
   z-index: 1000;
-  background: rgba(250,128,19,0.85); /* orange translucide */
+  background: rgba(250,128,19,0.8); /* orange translucide */
   backdrop-filter: var(--glass-blur);
   box-shadow: var(--shadow);
   transition: background var(--transition), box-shadow var(--transition);
 }
 .custom-header.scrolled {
-  background: rgba(2,48,71,0.9); /* devient sombre au scroll */
+  background: rgba(8, 34, 0, 0.9); /* devient sombre au scroll */
   box-shadow: 0 4px 12px rgba(0,0,0,0.25);
 }
 .custom-header .navbar-brand {
