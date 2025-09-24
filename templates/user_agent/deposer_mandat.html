@@ -1,19 +1,710 @@
 {% extends "base.html" %}
 
-{% block title %}Deposer Mandat{% endblock %}
+{% block title %}Déposer un Mandat - TRÉSOR CONNECT{% endblock %}
+
+{% block style %}
+<style>
+    .mandat-form-card {
+        border: none;
+        border-radius: 15px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        overflow: hidden;
+    }
+    
+    .form-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 30px;
+    }
+    
+    .step-indicator {
+        display: flex;
+        justify-content: space-between;
+        margin: 30px 0;
+        position: relative;
+    }
+    
+    .step-indicator::before {
+        content: '';
+        position: absolute;
+        top: 20px;
+        left: 0;
+        right: 0;
+        height: 3px;
+        background: #e9ecef;
+        z-index: 1;
+    }
+    
+    .step {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        position: relative;
+        z-index: 2;
+    }
+    
+    .step-number {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background: #e9ecef;
+        color: #6c757d;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: bold;
+        margin-bottom: 10px;
+        border: 3px solid white;
+    }
+    
+    .step.active .step-number {
+        background: #667eea;
+        color: white;
+    }
+    
+    .step.completed .step-number {
+        background: #28a745;
+        color: white;
+    }
+    
+    .step-label {
+        font-size: 0.9em;
+        color: #6c757d;
+        text-align: center;
+    }
+    
+    .step.active .step-label {
+        color: #667eea;
+        font-weight: bold;
+    }
+    
+    .form-section {
+        display: none;
+        padding: 30px;
+        animation: fadeIn 0.5s ease-in-out;
+    }
+    
+    .form-section.active {
+        display: block;
+    }
+    
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(20px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+    
+    .form-preview {
+        border: 2px dashed #dee2e6;
+        border-radius: 10px;
+        padding: 20px;
+        background: #f8f9fa;
+    }
+    
+    .file-upload-area {
+        border: 2px dashed #667eea;
+        border-radius: 10px;
+        padding: 40px;
+        text-align: center;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        background: #f8f9fa;
+    }
+    
+    .file-upload-area:hover {
+        border-color: #764ba2;
+        background: #f0f2f5;
+    }
+    
+    .file-upload-area.dragover {
+        border-color: #28a745;
+        background: #e8f5e8;
+    }
+    
+    .file-preview {
+        max-width: 200px;
+        margin: 10px auto;
+    }
+    
+    .montant-input {
+        font-size: 1.5rem;
+        font-weight: bold;
+        text-align: right;
+    }
+    
+    .btn-navigation {
+        min-width: 120px;
+    }
+    
+    .mandat-preview-card {
+        border-left: 4px solid #667eea;
+        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    }
+</style>
+{% endblock %}
 
 {% block content %}
-<div class="container">
-    <div class="row">
-        <div class="col-12">
-            <h1>Deposer Mandat</h1>
-            <p>Template deposer_mandat.html - En cours de développement</p>
-            
-            <div class="alert alert-info">
-                <i class="fas fa-info-circle"></i> 
-                Cette page est en cours de construction. Contenu à compléter.
+<div class="container-fluid py-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            <!-- En-tête -->
+            <div class="text-center mb-4">
+                <h1 class="h2 mb-2">
+                    <i class="fas fa-file-contract me-2 text-primary"></i>Déposer un Nouveau Mandat
+                </h1>
+                <p class="text-muted">
+                    Remplissez les informations du mandat à déposer. Tous les champs marqués d'un <span class="text-danger">*</span> sont obligatoires.
+                </p>
+            </div>
+
+            <!-- Indicateur d'étapes -->
+            <div class="step-indicator">
+                <div class="step active" data-step="1">
+                    <div class="step-number">1</div>
+                    <div class="step-label">Informations<br>de Base</div>
+                </div>
+                <div class="step" data-step="2">
+                    <div class="step-number">2</div>
+                    <div class="step-label">Détails du<br>Mandat</div>
+                </div>
+                <div class="step" data-step="3">
+                    <div class="step-number">3</div>
+                    <div class="step-label">Fichiers &<br>Validation</div>
+                </div>
+            </div>
+
+            <!-- Formulaire -->
+            <div class="card mandat-form-card">
+                <form action="{{ url_for('deposer_mandat') }}" method="post" enctype="multipart/form-data" id="mandatForm">
+                    {{ form.hidden_tag() }}
+                    
+                    <!-- Étape 1: Informations de base -->
+                    <div class="form-section active" id="section-1">
+                        <div class="form-header">
+                            <h4 class="mb-0">
+                                <i class="fas fa-info-circle me-2"></i>Informations de Base
+                            </h4>
+                        </div>
+                        
+                        <div class="p-4">
+                            <div class="row g-3">
+                                <!-- Référence du mandat -->
+                                <div class="col-md-6">
+                                    <label for="reference" class="form-label">
+                                        Référence du Mandat <span class="text-danger">*</span>
+                                    </label>
+                                    {{ form.reference(class="form-control form-control-lg", id="reference", placeholder="Ex: MAND-2024-001") }}
+                                    {% if form.reference.errors %}
+                                    <div class="text-danger small mt-1">
+                                        {% for error in form.reference.errors %}
+                                        <i class="fas fa-exclamation-circle me-1"></i>{{ error }}
+                                        {% endfor %}
+                                    </div>
+                                    {% endif %}
+                                    <div class="form-text">
+                                        La référence doit être unique et suivre le format standard.
+                                    </div>
+                                </div>
+
+                                <!-- Fournisseur -->
+                                <div class="col-md-6">
+                                    <label for="fournisseur_id" class="form-label">
+                                        Fournisseur <span class="text-danger">*</span>
+                                    </label>
+                                    {{ form.fournisseur_id(class="form-control form-control-lg", id="fournisseur_id") }}
+                                    {% if form.fournisseur_id.errors %}
+                                    <div class="text-danger small mt-1">
+                                        {% for error in form.fournisseur_id.errors %}
+                                        <i class="fas fa-exclamation-circle me-1"></i>{{ error }}
+                                        {% endfor %}
+                                    </div>
+                                    {% endif %}
+                                    <div class="form-text">
+                                        Sélectionnez le fournisseur concerné par ce mandat.
+                                    </div>
+                                </div>
+
+                                <!-- Montant -->
+                                <div class="col-12">
+                                    <label for="montant" class="form-label">
+                                        Montant du Mandat (FCFA) <span class="text-danger">*</span>
+                                    </label>
+                                    <div class="input-group input-group-lg">
+                                        <span class="input-group-text bg-light">FCFA</span>
+                                        {{ form.montant(class="form-control montant-input", id="montant", placeholder="0,00", step="0.01", min="0.01") }}
+                                    </div>
+                                    {% if form.montant.errors %}
+                                    <div class="text-danger small mt-1">
+                                        {% for error in form.montant.errors %}
+                                        <i class="fas fa-exclamation-circle me-1"></i>{{ error }}
+                                        {% endfor %}
+                                    </div>
+                                    {% endif %}
+                                </div>
+
+                                <!-- Description -->
+                                <div class="col-12">
+                                    <label for="description" class="form-label">
+                                        Description du Mandat <span class="text-danger">*</span>
+                                    </label>
+                                    {{ form.description(class="form-control", id="description", rows="4", placeholder="Décrivez l'objet de ce mandat...") }}
+                                    {% if form.description.errors %}
+                                    <div class="text-danger small mt-1">
+                                        {% for error in form.description.errors %}
+                                        <i class="fas fa-exclamation-circle me-1"></i>{{ error }}
+                                        {% endfor %}
+                                    </div>
+                                    {% endif %}
+                                    <div class="form-text">
+                                        <span id="description-counter">0</span>/1000 caractères
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Navigation -->
+                        <div class="card-footer bg-light">
+                            <div class="d-flex justify-content-between">
+                                <button type="button" class="btn btn-outline-secondary" disabled>
+                                    <i class="fas fa-arrow-left me-2"></i>Précédent
+                                </button>
+                                <button type="button" class="btn btn-primary btn-navigation" onclick="nextStep(2)">
+                                    Suivant <i class="fas fa-arrow-right ms-2"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Étape 2: Détails supplémentaires -->
+                    <div class="form-section" id="section-2">
+                        <div class="form-header">
+                            <h4 class="mb-0">
+                                <i class="fas fa-list-alt me-2"></i>Détails du Mandat
+                            </h4>
+                        </div>
+                        
+                        <div class="p-4">
+                            <!-- Aperçu des informations -->
+                            <div class="card mandat-preview-card mb-4">
+                                <div class="card-body">
+                                    <h6 class="card-title">
+                                        <i class="fas fa-eye me-2"></i>Aperçu du Mandat
+                                    </h6>
+                                    <div class="row small">
+                                        <div class="col-md-3">
+                                            <strong>Référence:</strong><br>
+                                            <span id="preview-reference" class="text-primary">-</span>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <strong>Fournisseur:</strong><br>
+                                            <span id="preview-fournisseur">-</span>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <strong>Montant:</strong><br>
+                                            <span id="preview-montant" class="text-success">- FCFA</span>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <strong>Agent:</strong><br>
+                                            <span class="text-info">{{ current_user.nom_complet }}</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row g-3">
+                                <!-- Catégorie du mandat -->
+                                <div class="col-md-6">
+                                    <label for="categorie" class="form-label">Catégorie</label>
+                                    <select class="form-control" id="categorie" name="categorie">
+                                        <option value="">Sélectionnez une catégorie</option>
+                                        <option value="prestation">Prestation de service</option>
+                                        <option value="fourniture">Fourniture de matériel</option>
+                                        <option value="travaux">Travaux et construction</option>
+                                        <option value="consulting">Consulting</option>
+                                        <option value="autre">Autre</option>
+                                    </select>
+                                </div>
+
+                                <!-- Date d'échéance -->
+                                <div class="col-md-6">
+                                    <label for="date_echeance" class="form-label">Date d'échéance</label>
+                                    <input type="date" class="form-control" id="date_echeance" name="date_echeance" 
+                                           min="{{ today }}">
+                                    <div class="form-text">
+                                        Date limite pour le traitement du mandat
+                                    </div>
+                                </div>
+
+                                <!-- Priorité -->
+                                <div class="col-md-6">
+                                    <label for="priorite" class="form-label">Niveau de priorité</label>
+                                    <select class="form-control" id="priorite" name="priorite">
+                                        <option value="normal">Normal</option>
+                                        <option value="elevee">Élevée</option>
+                                        <option value="urgent">Urgent</option>
+                                    </select>
+                                </div>
+
+                                <!-- Numéro de facture -->
+                                <div class="col-md-6">
+                                    <label for="numero_facture" class="form-label">Numéro de facture</label>
+                                    <input type="text" class="form-control" id="numero_facture" name="numero_facture" 
+                                           placeholder="Facultatif">
+                                </div>
+
+                                <!-- Informations complémentaires -->
+                                <div class="col-12">
+                                    <label for="informations_complementaires" class="form-label">
+                                        Informations complémentaires
+                                    </label>
+                                    <textarea class="form-control" id="informations_complementaires" 
+                                              name="informations_complementaires" rows="3"
+                                              placeholder="Toute information supplémentaire utile..."></textarea>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Navigation -->
+                        <div class="card-footer bg-light">
+                            <div class="d-flex justify-content-between">
+                                <button type="button" class="btn btn-outline-secondary btn-navigation" onclick="prevStep(1)">
+                                    <i class="fas fa-arrow-left me-2"></i>Précédent
+                                </button>
+                                <button type="button" class="btn btn-primary btn-navigation" onclick="nextStep(3)">
+                                    Suivant <i class="fas fa-arrow-right ms-2"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Étape 3: Fichiers et validation -->
+                    <div class="form-section" id="section-3">
+                        <div class="form-header">
+                            <h4 class="mb-0">
+                                <i class="fas fa-file-upload me-2"></i>Fichiers Joints & Validation
+                            </h4>
+                        </div>
+                        
+                        <div class="p-4">
+                            <!-- Zone de dépôt de fichiers -->
+                            <div class="file-upload-area" id="fileDropArea">
+                                <i class="fas fa-cloud-upload-alt fa-3x text-primary mb-3"></i>
+                                <h5>Déposer les fichiers du mandat</h5>
+                                <p class="text-muted">
+                                    Glissez-déposez vos fichiers ici ou cliquez pour parcourir
+                                </p>
+                                <small class="text-muted">
+                                    Formats acceptés: PDF, DOC, DOCX, JPG, PNG (Max: 16MB)
+                                </small>
+                                {{ form.fichier(id="fileInput", style="display: none;", accept=".pdf,.doc,.docx,.jpg,.png") }}
+                                <button type="button" class="btn btn-outline-primary mt-3" onclick="document.getElementById('fileInput').click()">
+                                    <i class="fas fa-folder-open me-2"></i>Parcourir les fichiers
+                                </button>
+                            </div>
+
+                            <!-- Liste des fichiers -->
+                            <div id="fileList" class="mt-4" style="display: none;">
+                                <h6 class="mb-3">
+                                    <i class="fas fa-paperclip me-2"></i>Fichiers sélectionnés
+                                </h6>
+                                <div id="fileItems" class="list-group"></div>
+                            </div>
+
+                            <!-- Résumé final -->
+                            <div class="card bg-light mt-4">
+                                <div class="card-body">
+                                    <h6 class="card-title">
+                                        <i class="fas fa-check-circle me-2 text-success"></i>Résumé du Mandat
+                                    </h6>
+                                    <div class="row small">
+                                        <div class="col-md-4">
+                                            <strong>Référence:</strong><br>
+                                            <span id="final-reference" class="text-primary">-</span>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <strong>Fournisseur:</strong><br>
+                                            <span id="final-fournisseur">-</span>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <strong>Montant:</strong><br>
+                                            <span id="final-montant" class="text-success">- FCFA</span>
+                                        </div>
+                                    </div>
+                                    <hr>
+                                    <div class="row small">
+                                        <div class="col-12">
+                                            <strong>Description:</strong><br>
+                                            <span id="final-description" class="text-muted">-</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Checklist de validation -->
+                            <div class="form-check mt-4">
+                                <input class="form-check-input" type="checkbox" id="validationCheck" required>
+                                <label class="form-check-label" for="validationCheck">
+                                    Je certifie que les informations fournies sont exactes et complètes
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- Navigation -->
+                        <div class="card-footer bg-light">
+                            <div class="d-flex justify-content-between">
+                                <button type="button" class="btn btn-outline-secondary btn-navigation" onclick="prevStep(2)">
+                                    <i class="fas fa-arrow-left me-2"></i>Précédent
+                                </button>
+                                <button type="submit" class="btn btn-success btn-navigation" id="submitButton" disabled>
+                                    <i class="fas fa-paper-plane me-2"></i>Déposer le Mandat
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </form>
             </div>
         </div>
     </div>
 </div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+let currentStep = 1;
+let selectedFiles = [];
+
+// Navigation entre les étapes
+function nextStep(step) {
+    if (validateStep(currentStep)) {
+        document.getElementById(`section-${currentStep}`).classList.remove('active');
+        document.querySelector(`.step[data-step="${currentStep}"]`).classList.remove('active');
+        
+        currentStep = step;
+        document.getElementById(`section-${currentStep}`).classList.add('active');
+        document.querySelector(`.step[data-step="${currentStep}"]`).classList.add('active');
+        
+        updatePreview();
+        updateStepIndicators();
+    }
+}
+
+function prevStep(step) {
+    document.getElementById(`section-${currentStep}`).classList.remove('active');
+    document.querySelector(`.step[data-step="${currentStep}"]`).classList.remove('active');
+    
+    currentStep = step;
+    document.getElementById(`section-${currentStep}`).classList.add('active');
+    document.querySelector(`.step[data-step="${currentStep}"]`).classList.add('active');
+    
+    updateStepIndicators();
+}
+
+function updateStepIndicators() {
+    document.querySelectorAll('.step').forEach((step, index) => {
+        const stepNum = parseInt(step.dataset.step);
+        if (stepNum < currentStep) {
+            step.classList.add('completed');
+            step.classList.remove('active');
+        } else if (stepNum === currentStep) {
+            step.classList.add('active');
+            step.classList.remove('completed');
+        } else {
+            step.classList.remove('active', 'completed');
+        }
+    });
+}
+
+// Validation des étapes
+function validateStep(step) {
+    switch(step) {
+        case 1:
+            const reference = document.getElementById('reference').value;
+            const fournisseur = document.getElementById('fournisseur_id').value;
+            const montant = document.getElementById('montant').value;
+            const description = document.getElementById('description').value;
+            
+            if (!reference || !fournisseur || !montant || !description) {
+                showAlert('error', 'Veuillez remplir tous les champs obligatoires');
+                return false;
+            }
+            return true;
+            
+        case 2:
+            return true; // Étape optionnelle
+    }
+    return true;
+}
+
+// Mise à jour de l'aperçu
+function updatePreview() {
+    // Étape 2
+    document.getElementById('preview-reference').textContent = document.getElementById('reference').value || '-';
+    document.getElementById('preview-fournisseur').textContent = 
+        document.getElementById('fournisseur_id').options[document.getElementById('fournisseur_id').selectedIndex]?.text || '-';
+    document.getElementById('preview-montant').textContent = 
+        document.getElementById('montant').value ? parseFloat(document.getElementById('montant').value).toLocaleString() + ' FCFA' : '-';
+    
+    // Étape 3
+    document.getElementById('final-reference').textContent = document.getElementById('reference').value || '-';
+    document.getElementById('final-fournisseur').textContent = 
+        document.getElementById('fournisseur_id').options[document.getElementById('fournisseur_id').selectedIndex]?.text || '-';
+    document.getElementById('final-montant').textContent = 
+        document.getElementById('montant').value ? parseFloat(document.getElementById('montant').value).toLocaleString() + ' FCFA' : '-';
+    document.getElementById('final-description').textContent = document.getElementById('description').value || '-';
+}
+
+// Gestion des fichiers
+function setupFileUpload() {
+    const fileInput = document.getElementById('fileInput');
+    const fileDropArea = document.getElementById('fileDropArea');
+    const fileList = document.getElementById('fileList');
+    
+    // Glisser-déposer
+    fileDropArea.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        fileDropArea.classList.add('dragover');
+    });
+    
+    fileDropArea.addEventListener('dragleave', () => {
+        fileDropArea.classList.remove('dragover');
+    });
+    
+    fileDropArea.addEventListener('drop', (e) => {
+        e.preventDefault();
+        fileDropArea.classList.remove('dragover');
+        handleFiles(e.dataTransfer.files);
+    });
+    
+    // Sélection de fichiers
+    fileInput.addEventListener('change', (e) => {
+        handleFiles(e.target.files);
+    });
+}
+
+function handleFiles(files) {
+    for (let file of files) {
+        if (validateFile(file)) {
+            selectedFiles.push(file);
+            addFileToList(file);
+        }
+    }
+    updateFileListDisplay();
+}
+
+function validateFile(file) {
+    const allowedTypes = ['application/pdf', 'application/msword', 
+                         'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+                         'image/jpeg', 'image/png'];
+    const maxSize = 16 * 1024 * 1024; // 16MB
+    
+    if (!allowedTypes.includes(file.type)) {
+        showAlert('error', `Type de fichier non supporté: ${file.name}`);
+        return false;
+    }
+    
+    if (file.size > maxSize) {
+        showAlert('error', `Fichier trop volumineux: ${file.name} (Max: 16MB)`);
+        return false;
+    }
+    
+    return true;
+}
+
+function addFileToList(file) {
+    const fileItem = document.createElement('div');
+    fileItem.className = 'list-group-item d-flex justify-content-between align-items-center';
+    fileItem.innerHTML = `
+        <div>
+            <i class="fas fa-file-${getFileIcon(file.type)} me-2 text-primary"></i>
+            <span class="fw-bold">${file.name}</span>
+            <small class="text-muted ms-2">(${(file.size / 1024 / 1024).toFixed(2)} MB)</small>
+        </div>
+        <button type="button" class="btn btn-sm btn-outline-danger" onclick="removeFile('${file.name}')">
+            <i class="fas fa-times"></i>
+        </button>
+    `;
+    document.getElementById('fileItems').appendChild(fileItem);
+}
+
+function removeFile(filename) {
+    selectedFiles = selectedFiles.filter(file => file.name !== filename);
+    updateFileListDisplay();
+}
+
+function updateFileListDisplay() {
+    const fileList = document.getElementById('fileList');
+    if (selectedFiles.length > 0) {
+        fileList.style.display = 'block';
+    } else {
+        fileList.style.display = 'none';
+    }
+}
+
+function getFileIcon(fileType) {
+    if (fileType.includes('pdf')) return 'pdf';
+    if (fileType.includes('word')) return 'word';
+    if (fileType.includes('image')) return 'image';
+    return 'alt';
+}
+
+// Compteur de caractères
+function setupCharacterCounter() {
+    const description = document.getElementById('description');
+    const counter = document.getElementById('description-counter');
+    
+    description.addEventListener('input', () => {
+        counter.textContent = description.value.length;
+        if (description.value.length > 1000) {
+            counter.classList.add('text-danger');
+        } else {
+            counter.classList.remove('text-danger');
+        }
+    });
+}
+
+// Validation du formulaire final
+function setupFinalValidation() {
+    const validationCheck = document.getElementById('validationCheck');
+    const submitButton = document.getElementById('submitButton');
+    
+    validationCheck.addEventListener('change', () => {
+        submitButton.disabled = !validationCheck.checked;
+    });
+}
+
+// Affichage des alertes
+function showAlert(type, message) {
+    const alertClass = type === 'success' ? 'alert-success' : 'alert-danger';
+    const alertHtml = `
+        <div class="alert ${alertClass} alert-dismissible fade show position-fixed" 
+             style="top: 20px; right: 20px; z-index: 1060; min-width: 300px;">
+            <i class="fas fa-${type === 'success' ? 'check' : 'exclamation'}-circle me-2"></i>
+            ${message}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    `;
+    
+    document.body.insertAdjacentHTML('beforeend', alertHtml);
+    
+    setTimeout(() => {
+        const alert = document.querySelector('.alert');
+        if (alert) alert.remove();
+    }, 5000);
+}
+
+// Initialisation
+document.addEventListener('DOMContentLoaded', function() {
+    setupFileUpload();
+    setupCharacterCounter();
+    setupFinalValidation();
+    updatePreview();
+    
+    // Formatage du montant
+    const montantInput = document.getElementById('montant');
+    montantInput.addEventListener('blur', function() {
+        if (this.value) {
+            this.value = parseFloat(this.value).toFixed(2);
+        }
+    });
+});
+</script>
 {% endblock %}

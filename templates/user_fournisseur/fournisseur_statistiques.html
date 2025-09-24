@@ -1,19 +1,514 @@
 {% extends "base.html" %}
 
-{% block title %}Fournisseur Statistiques{% endblock %}
+{% block title %}Statistiques Fournisseur - TRÉSOR CONNECT{% endblock %}
+
+{% block style %}
+<style>
+    .stat-card {
+        border: none;
+        border-radius: 15px;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        overflow: hidden;
+    }
+    
+    .stat-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+    }
+    
+    .stat-icon {
+        font-size: 2.5rem;
+        opacity: 0.8;
+    }
+    
+    .chart-container {
+        background: white;
+        border-radius: 15px;
+        padding: 25px;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+        height: 100%;
+    }
+    
+    .progress-bar-custom {
+        border-radius: 10px;
+        overflow: hidden;
+        height: 12px;
+    }
+    
+    .table-hover tbody tr:hover {
+        background-color: rgba(102, 126, 234, 0.05);
+    }
+    
+    .filter-card {
+        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+        border: none;
+        border-radius: 15px;
+    }
+    
+    .timeline-item {
+        border-left: 3px solid #667eea;
+        padding-left: 20px;
+        margin-left: 10px;
+        position: relative;
+    }
+    
+    .timeline-item::before {
+        content: '';
+        position: absolute;
+        left: -8px;
+        top: 0;
+        width: 14px;
+        height: 14px;
+        border-radius: 50%;
+        background: #667eea;
+        border: 3px solid white;
+    }
+</style>
+{% endblock %}
 
 {% block content %}
-<div class="container">
+<div class="container-fluid py-4">
+    <!-- En-tête -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h1 class="h2 mb-1">
+                        <i class="fas fa-chart-line me-2 text-primary"></i>Statistiques Détaillées
+                    </h1>
+                    <p class="text-muted mb-0">Analyse complète de votre activité fournisseur</p>
+                </div>
+                <div class="dropdown">
+                    <button class="btn btn-outline-primary dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                        <i class="fas fa-calendar me-2"></i>
+                        {{ periode|default("30 derniers jours") }}
+                    </button>
+                    <ul class="dropdown-menu">
+                        <li><a class="dropdown-item" href="?periode=7">7 derniers jours</a></li>
+                        <li><a class="dropdown-item" href="?periode=30">30 derniers jours</a></li>
+                        <li><a class="dropdown-item" href="?periode=90">3 derniers mois</a></li>
+                        <li><a class="dropdown-item" href="?periode=365">1 an</a></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li><a class="dropdown-item" href="?periode=tout">Toute la période</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Cartes de statistiques principales -->
+    <div class="row mb-4">
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card stat-card text-white bg-primary">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div>
+                            <h5 class="card-title mb-3">Chiffre d'Affaires</h5>
+                            <h2 class="display-6 fw-bold">{{ "{:,.0f}".format(stats.montant_total) }} FCFA</h2>
+                            <small class="opacity-75">
+                                <i class="fas fa-arrow-{{ 'up' if stats.evolution_montant >= 0 else 'down' }} me-1"></i>
+                                {{ 0|abs }}% vs période précédente
+                            </small>
+                        </div>
+                        <div class="stat-icon">
+                            <i class="fas fa-money-bill-wave"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card stat-card text-white bg-success">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div>
+                            <h5 class="card-title mb-3">Mandats Payés</h5>
+                            <h2 class="display-6 fw-bold">{{ stats.mandats_payes }}</h2>
+                            <small class="opacity-75">
+                                {{ stats.taux_paiement }}% du total
+                            </small>
+                        </div>
+                        <div class="stat-icon">
+                            <i class="fas fa-check-circle"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card stat-card text-white bg-warning">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div>
+                            <h5 class="card-title mb-3">En Attente</h5>
+                            <h2 class="display-6 fw-bold">{{ stats.mandats_attente }}</h2>
+                            <small class="opacity-75">
+                                {{ stats.taux_attente }}% du total
+                            </small>
+                        </div>
+                        <div class="stat-icon">
+                            <i class="fas fa-clock"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card stat-card text-white bg-info">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div>
+                            <h5 class="card-title mb-3">Moyenne/Mandat</h5>
+                            <h2 class="display-6 fw-bold">{{ "{:,.0f}".format(stats.moyenne_mandat) }} FCFA</h2>
+                            <small class="opacity-75">
+                                {{ stats.mandats_total }} mandats au total
+                            </small>
+                        </div>
+                        <div class="stat-icon">
+                            <i class="fas fa-chart-bar"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Graphiques et analyses -->
+    <div class="row mb-4">
+        <!-- Évolution du chiffre d'affaires -->
+        <div class="col-lg-8 mb-4">
+            <div class="chart-container">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h5 class="mb-0">
+                        <i class="fas fa-chart-line me-2 text-primary"></i>Évolution du Chiffre d'Affaires
+                    </h5>
+                    <div class="btn-group btn-group-sm">
+                        <button class="btn btn-outline-primary active" onclick="changeChartType('line')">Ligne</button>
+                        <button class="btn btn-outline-primary" onclick="changeChartType('bar')">Barre</button>
+                    </div>
+                </div>
+                <canvas id="caChart" height="250"></canvas>
+            </div>
+        </div>
+        
+        <!-- Répartition par statut -->
+        <div class="col-lg-4 mb-4">
+            <div class="chart-container">
+                <h5 class="mb-4">
+                    <i class="fas fa-chart-pie me-2 text-success"></i>Répartition par Statut
+                </h5>
+                <canvas id="statutChart" height="250"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- Analyse détaillée -->
+    <div class="row">
+        <!-- Top 5 des mandats -->
+        <div class="col-lg-6 mb-4">
+            <div class="card h-100">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-trophy me-2 text-warning"></i>Top 5 des Mandats
+                    </h5>
+                </div>
+                <div class="card-body">
+                    {% if top_mandats %}
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Référence</th>
+                                    <th>Montant</th>
+                                    <th>Statut</th>
+                                    <th>Date</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for mandat in top_mandats %}
+                                <tr>
+                                    <td>
+                                        <strong class="text-primary">{{ mandat.reference }}</strong>
+                                        <br>
+                                        <small class="text-muted">{{ mandat.agent.nom_complet if mandat.agent else 'N/A' }}</small>
+                                    </td>
+                                    <td class="fw-bold text-success">{{ "{:,.0f}".format(mandat.montant) }} FCFA</td>
+                                    <td>
+                                        <span class="badge bg-{{ 'success' if mandat.statut.value == 'payé' else 'warning' if mandat.statut.value == 'en_cours' else 'info' }}">
+                                            {{ mandat.statut.value|title }}
+                                        </span>
+                                    </td>
+                                    <td>{{ mandat.date_depot.strftime('%d/%m/%Y') }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% else %}
+                    <div class="text-center py-4">
+                        <i class="fas fa-inbox fa-3x text-muted mb-3"></i>
+                        <p class="text-muted">Aucun mandat trouvé</p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        
+        <!-- Performance mensuelle -->
+        <div class="col-lg-6 mb-4">
+            <div class="card h-100">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-calendar-alt me-2 text-info"></i>Performance Mensuelle
+                    </h5>
+                </div>
+                <div class="card-body">
+                    {% if performance_mensuelle %}
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Mois</th>
+                                    <th>Mandats</th>
+                                    <th>Montant</th>
+                                    <th>Évolution</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for perf in performance_mensuelle %}
+                                <tr>
+                                    <td class="fw-bold">{{ perf.mois }}</td>
+                                    <td>{{ perf.nombre_mandats }}</td>
+                                    <td class="text-success">{{ "{:,.0f}".format(perf.montant) }} FCFA</td>
+                                    <td>
+                                        <span class="badge bg-{{ 'success' if perf.evolution >= 0 else 'danger' }}">
+                                            <i class="fas fa-arrow-{{ 'up' if perf.evolution >= 0 else 'down' }} me-1"></i>
+                                            {{ perf.evolution|abs }}%
+                                        </span>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% else %}
+                    <div class="text-center py-4">
+                        <i class="fas fa-chart-bar fa-3x text-muted mb-3"></i>
+                        <p class="text-muted">Aucune donnée de performance</p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Timeline des événements importants -->
     <div class="row">
         <div class="col-12">
-            <h1>Fournisseur Statistiques</h1>
-            <p>Template fournisseur_statistiques.html - En cours de développement</p>
-            
-            <div class="alert alert-info">
-                <i class="fas fa-info-circle"></i> 
-                Cette page est en cours de construction. Contenu à compléter.
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-history me-2 text-secondary"></i>Timeline des Événements Importants
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        {% for evenement in timeline %}
+                        <div class="col-md-6 col-lg-4 mb-3">
+                            <div class="timeline-item">
+                                <h6 class="mb-1">{{ evenement.titre }}</h6>
+                                <p class="text-muted mb-1 small">{{ evenement.description }}</p>
+                                <small class="text-muted">
+                                    <i class="fas fa-clock me-1"></i>{{ evenement.date }}
+                                </small>
+                            </div>
+                        </div>
+                        {% else %}
+                        <div class="col-12 text-center py-4">
+                            <i class="fas fa-stream fa-3x text-muted mb-3"></i>
+                            <p class="text-muted">Aucun événement récent</p>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Export et actions -->
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="card filter-card">
+                <div class="card-body text-center">
+                    <h5 class="mb-3">Export des Données Statistiques</h5>
+                    <div class="btn-group">
+                        <button class="btn btn-outline-primary">
+                            <i class="fas fa-file-pdf me-2"></i>PDF
+                        </button>
+                        <button class="btn btn-outline-success">
+                            <i class="fas fa-file-excel me-2"></i>Excel
+                        </button>
+                        <button class="btn btn-outline-info">
+                            <i class="fas fa-file-csv me-2"></i>CSV
+                        </button>
+                        <button class="btn btn-outline-secondary">
+                            <i class="fas fa-print me-2"></i>Imprimer
+                        </button>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
 </div>
+{% endblock %}
+
+{% block scripts %}
+<!-- Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<!-- Date-fns pour les dates -->
+<script src="https://cdn.jsdelivr.net/npm/date-fns@2.29.3/index.min.js"></script>
+
+<script>
+// Données pour les graphiques (à remplacer par des données réelles)
+const caData = {
+    labels: {{ dates_ca|tojson }},
+    datasets: [{
+        label: 'Chiffre d\'Affaires (FCFA)',
+        data: {{ valeurs_ca|tojson }},
+        borderColor: '#667eea',
+        backgroundColor: 'rgba(102, 126, 234, 0.1)',
+        borderWidth: 3,
+        fill: true,
+        tension: 0.4
+    }]
+};
+
+const statutData = {
+    labels: {{ labels_statut|tojson }},
+    datasets: [{
+        data: {{ valeurs_statut|tojson }},
+        backgroundColor: [
+            '#28a745',
+            '#ffc107',
+            '#17a2b8',
+            '#dc3545',
+            '#6c757d'
+        ],
+        borderWidth: 2,
+        borderColor: '#fff'
+    }]
+};
+
+let caChart, statutChart;
+
+document.addEventListener('DOMContentLoaded', function() {
+    // Initialisation des graphiques
+    
+    // Animation des cartes
+    animateCards();
+    
+    // Gestion des filtres de période
+    setupPeriodFilters();
+});
+
+function initCharts() {
+    const caCtx = document.getElementById('caChart').getContext('2d');
+    const statutCtx = document.getElementById('statutChart').getContext('2d');
+    
+    caChart = new Chart(caCtx, {
+        type: 'line',
+        data: caData,
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    display: false
+                },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            return `Chiffre d'affaires: ${context.parsed.y.toLocaleString()} FCFA`;
+                        }
+                    }
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        callback: function(value) {
+                            return value.toLocaleString() + ' FCFA';
+                        }
+                    }
+                }
+            }
+        }
+    });
+    
+    statutChart = new Chart(statutCtx, {
+        type: 'doughnut',
+        data: statutData,
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'bottom',
+                    labels: {
+                        padding: 20,
+                        usePointStyle: true
+                    }
+                }
+            },
+            cutout: '60%'
+        }
+    });
+}
+
+function changeChartType(type) {
+    caChart.config.type = type;
+    caChart.update();
+    
+    // Mettre à jour les boutons actifs
+    document.querySelectorAll('#caChart').parentElement.querySelectorAll('.btn').forEach(btn => {
+        btn.classList.remove('active');
+    });
+    event.target.classList.add('active');
+}
+
+function animateCards() {
+    const cards = document.querySelectorAll('.stat-card, .chart-container, .card');
+    cards.forEach((card, index) => {
+        card.style.animationDelay = `${index * 0.1}s`;
+        card.classList.add('animate__animated', 'animate__fadeInUp');
+    });
+}
+
+function setupPeriodFilters() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const periode = urlParams.get('periode') || '30';
+    
+    // Mettre à jour le bouton dropdown
+    const periodTexts = {
+        '7': '7 derniers jours',
+        '30': '30 derniers jours',
+        '90': '3 derniers mois',
+        '365': '1 an',
+        'tout': 'Toute la période'
+    };
+    
+    document.querySelector('.dropdown-toggle').innerHTML = 
+        `<i class="fas fa-calendar me-2"></i>${periodTexts[periode]}`;
+}
+
+// Export des données
+function exportData(format) {
+    // Implémentation de l'export selon le format
+    alert(`Export ${format} en cours de développement...`);
+}
+</script>
 {% endblock %}

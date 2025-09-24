@@ -1,19 +1,590 @@
 {% extends "base.html" %}
 
-{% block title %}Mandat Detail{% endblock %}
+{% block title %}Détail du Mandat {{ mandat.reference }} - TRÉSOR CONNECT{% endblock %}
+
+{% block extra_css %}
+<style>
+    .mandat-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border-radius: 15px 15px 0 0;
+        padding: 30px;
+    }
+    
+    .status-badge {
+        font-size: 0.9em;
+        padding: 8px 16px;
+        border-radius: 20px;
+        font-weight: 600;
+    }
+    
+    .info-card {
+        border: none;
+        border-radius: 15px;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+        margin-bottom: 20px;
+        transition: transform 0.3s ease;
+    }
+    
+    .info-card:hover {
+        transform: translateY(-2px);
+    }
+    
+    .info-card .card-header {
+        background: #f8f9fa;
+        border-bottom: 2px solid #e9ecef;
+        font-weight: 600;
+        color: #495057;
+    }
+    
+    .timeline {
+        position: relative;
+        padding-left: 30px;
+    }
+    
+    .timeline::before {
+        content: '';
+        position: absolute;
+        left: 15px;
+        top: 0;
+        bottom: 0;
+        width: 2px;
+        background: #e9ecef;
+    }
+    
+    .timeline-item {
+        position: relative;
+        margin-bottom: 25px;
+        padding: 15px;
+        background: white;
+        border-radius: 10px;
+        border-left: 4px solid #667eea;
+    }
+    
+    .timeline-item::before {
+        content: '';
+        position: absolute;
+        left: -23px;
+        top: 20px;
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        background: #667eea;
+        border: 3px solid white;
+    }
+    
+    .action-btn {
+        min-width: 120px;
+        margin: 2px;
+    }
+    
+    .file-preview {
+        border: 2px dashed #dee2e6;
+        border-radius: 10px;
+        padding: 20px;
+        text-align: center;
+        background: #f8f9fa;
+    }
+    
+    .montant-display {
+        font-size: 2.5rem;
+        font-weight: bold;
+        color: #28a745;
+        text-align: center;
+    }
+    
+    .progress-tracker {
+        display: flex;
+        justify-content: space-between;
+        position: relative;
+        margin: 30px 0;
+    }
+    
+    .progress-tracker::before {
+        content: '';
+        position: absolute;
+        top: 20px;
+        left: 0;
+        right: 0;
+        height: 3px;
+        background: #e9ecef;
+        z-index: 1;
+    }
+    
+    .tracker-step {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        position: relative;
+        z-index: 2;
+        text-align: center;
+    }
+    
+    .tracker-icon {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background: #e9ecef;
+        color: #6c757d;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 10px;
+        border: 3px solid white;
+    }
+    
+    .tracker-step.active .tracker-icon {
+        background: #667eea;
+        color: white;
+    }
+    
+    .tracker-step.completed .tracker-icon {
+        background: #28a745;
+        color: white;
+    }
+</style>
+{% endblock %}
 
 {% block content %}
-<div class="container">
+{# Variables de sécurité pour éviter les erreurs datetime #}
+{% set today_date = today %}
+{% set date_depot_date = mandat.date_depot.date() %}
+{% set date_echeance_date = mandat.date_echeance if mandat.date_echeance else None %}
+
+<div class="container-fluid py-4">
+    <div class="card info-card">
+        <div class="mandat-header">
+            <div class="row align-items-center">
+                <div class="col-md-8">
+                    <div class="d-flex align-items-center mb-2">
+                        <h1 class="h3 mb-0 me-3">
+                            <i class="fas fa-file-contract me-2"></i>Mandat {{ mandat.reference }}
+                        </h1>
+                        <span class="status-badge bg-{{ 
+                            'success' if mandat.statut.value == 'payé' 
+                            else 'info' if mandat.statut.value in ['validé', 'pret_a_payer']
+                            else 'warning' if mandat.statut.value in ['en_cours', 'déposé']
+                            else 'danger' if mandat.statut.value == 'rejeté'
+                            else 'secondary'
+                        }}">
+                            <i class="fas 
+                                {% if mandat.statut.value == 'payé' %}fa-check-circle
+                                {% elif mandat.statut.value in ['validé', 'pret_a_payer'] %}fa-thumbs-up
+                                {% elif mandat.statut.value in ['en_cours', 'déposé'] %}fa-clock
+                                {% elif mandat.statut.value == 'rejeté' %}fa-times-circle
+                                {% else %}fa-question{% endif %} me-1">
+                            </i>
+                            {{ mandat.statut.value|replace('_', ' ')|title }}
+                        </span>
+                    </div>
+                    <p class="mb-0 opacity-75">
+                        <i class="fas fa-calendar me-1"></i>Déposé le {{ mandat.date_depot.strftime('%d/%m/%Y à %H:%M') }}
+                        {% if mandat.date_validation %}
+                        • Validé le {{ mandat.date_validation.strftime('%d/%m/%Y à %H:%M') }}
+                        {% endif %}
+                        {% if mandat.date_paiement %}
+                        • Payé le {{ mandat.date_paiement.strftime('%d/%m/%Y à %H:%M') }}
+                        {% endif %}
+                    </p>
+                </div>
+                <div class="col-md-4 text-end">
+                    <div class="montant-display">
+                        {{ "{:,.2f}".format(mandat.montant) }} FCFA
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card-body">
+            <div class="d-flex flex-wrap gap-2 mb-4">
+                <a href="{{ url_for('mes_mandats') }}" class="btn btn-outline-secondary action-btn">
+                    <i class="fas fa-arrow-left me-2"></i>Retour
+                </a>
+                
+                <a href="{{ url_for('suivi_mandat', mandat_id=mandat.id) }}" class="btn btn-outline-primary action-btn">
+                    <i class="fas fa-history me-2"></i>Historique
+                </a>
+                
+                {% if mandat.fichier_original %}
+                <a href="{{ url_for('uploaded_file', filename=mandat.fichier_original) }}" 
+                   class="btn btn-outline-info action-btn" target="_blank">
+                    <i class="fas fa-download me-2"></i>Télécharger
+                </a>
+                {% endif %}
+                
+                {% if current_user.role.value in ['admin', 'tresorier'] %}
+                    {% if mandat.statut.value in ['déposé', 'en_cours'] %}
+                        <button class="btn btn-success action-btn" data-bs-toggle="modal" data-bs-target="#actionModal" data-action="valider">
+                            <i class="fas fa-check me-2"></i>Valider
+                        </button>
+                        <button class="btn btn-warning action-btn" data-bs-toggle="modal" data-bs-target="#actionModal" data-action="pret_a_payer">
+                            <i class="fas fa-credit-card me-2"></i>Prêt à payer
+                        </button>
+                    {% elif mandat.statut.value in ['validé', 'pret_a_payer'] %}
+                        <button class="btn btn-success action-btn" data-bs-toggle="modal" data-bs-target="#actionModal" data-action="payer">
+                            <i class="fas fa-money-bill-wave me-2"></i>Marquer payé
+                        </button>
+                    {% endif %}
+                    {% if mandat.statut.value in ['déposé', 'en_cours', 'validé', 'pret_a_payer'] %}
+                        <button class="btn btn-danger action-btn" data-bs-toggle="modal" data-bs-target="#actionModal" data-action="rejeter">
+                            <i class="fas fa-times me-2"></i>Rejeter
+                        </button>
+                    {% endif %}
+                {% endif %}
+            </div>
+
+            <div class="progress-tracker">
+                {% set steps = [
+                    {'icon': 'upload', 'label': 'Déposé', 'status': 'completed', 'date': mandat.date_depot},
+                    {'icon': 'check', 'label': 'Validé', 'status': 'completed' if mandat.statut.value in ['validé', 'pret_a_payer', 'payé'] else 'active' if mandat.statut.value in ['déposé', 'en_cours'] else '', 'date': mandat.date_validation},
+                    {'icon': 'credit-card', 'label': 'Prêt à payer', 'status': 'completed' if mandat.statut.value in ['pret_a_payer', 'payé'] else 'active' if mandat.statut.value == 'validé' else '', 'date': None},
+                    {'icon': 'money-bill', 'label': 'Payé', 'status': 'completed' if mandat.statut.value == 'payé' else 'active' if mandat.statut.value == 'pret_a_payer' else '', 'date': mandat.date_paiement}
+                ] %}
+                
+                {% for step in steps %}
+                <div class="tracker-step {{ step.status }}">
+                    <div class="tracker-icon">
+                        <i class="fas fa-{{ step.icon }}"></i>
+                    </div>
+                    <div class="tracker-label">
+                        <small class="fw-bold">{{ step.label }}</small>
+                        {% if step.date %}
+                        <br><small class="text-muted">{{ step.date.strftime('%d/%m/%y') }}</small>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
     <div class="row">
-        <div class="col-12">
-            <h1>Mandat Detail</h1>
-            <p>Template mandat_detail.html - En cours de développement</p>
-            
-            <div class="alert alert-info">
-                <i class="fas fa-info-circle"></i> 
-                Cette page est en cours de construction. Contenu à compléter.
+        <div class="col-lg-8">
+            <div class="card info-card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-info-circle me-2 text-primary"></i>Informations du Mandat
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label text-muted small">Référence</label>
+                            <p class="fw-bold text-primary">{{ mandat.reference }}</p>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label text-muted small">Montant</label>
+                            <p class="fw-bold text-success">{{ "{:,.2f}".format(mandat.montant) }} FCFA</p>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label text-muted small">Agent</label>
+                            <p class="fw-bold">
+                                <i class="fas fa-user-tie me-2 text-info"></i>
+                                {{ mandat.agent.nom_complet if mandat.agent else 'N/A' }}
+                            </p>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label text-muted small">Fournisseur</label>
+                            <p class="fw-bold">
+                                <i class="fas fa-building me-2 text-warning"></i>
+                                {{ mandat.fournisseur.nom_complet if mandat.fournisseur else 'N/A' }}
+                            </p>
+                        </div>
+                        <div class="col-12 mb-3">
+                            <label class="form-label text-muted small">Description</label>
+                            <p class="fw-bold">{{ mandat.description }}</p>
+                        </div>
+                        {% if mandat.numero_facture %}
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label text-muted small">Numéro de facture</label>
+                            <p class="fw-bold">{{ mandat.numero_facture }}</p>
+                        </div>
+                        {% endif %}
+                        {% if mandat.date_echeance %}
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label text-muted small">Date d'échéance</label>
+                            <p class="fw-bold">
+                                <i class="fas fa-calendar-day me-2 text-danger"></i>
+                                {{ mandat.date_echeance.strftime('%d/%m/%Y') }}
+                                {% if date_echeance_date and date_echeance_date < today_date %}
+                                <span class="badge bg-danger ms-2">Dépassée</span>
+                                {% endif %}
+                            </p>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            {% if mandat.fichier_original %}
+            <div class="card info-card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-paperclip me-2 text-info"></i>Fichiers Joints
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="file-preview">
+                        <i class="fas fa-file-pdf fa-3x text-danger mb-3"></i>
+                        <h6>{{ mandat.fichier_original }}</h6>
+                        <p class="text-muted small">Document principal du mandat</p>
+                        <a href="{{ url_for('uploaded_file', filename=mandat.fichier_original) }}" 
+                           class="btn btn-outline-primary btn-sm" target="_blank">
+                            <i class="fas fa-download me-2"></i>Télécharger
+                        </a>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+
+            <div class="card info-card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-history me-2 text-warning"></i>Dernières Activités
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="timeline">
+                        {% for historique in historiques[:5] %}
+                        <div class="timeline-item">
+                            <div class="d-flex justify-content-between align-items-start">
+                                <div>
+                                    <h6 class="mb-1">{{ historique.action }}</h6>
+                                    <p class="text-muted mb-1 small">{{ historique.commentaire or 'Aucun commentaire' }}</p>
+                                    <small class="text-muted">
+                                        <i class="fas fa-user me-1"></i>{{ historique.user.nom_complet }}
+                                        • <i class="fas fa-clock me-1"></i>{{ historique.date_action.strftime('%d/%m/%Y à %H:%M') }}
+                                    </small>
+                                </div>
+                                <span class="badge bg-light text-dark">{{ historique.service }}</span>
+                            </div>
+                        </div>
+                        {% else %}
+                        <div class="text-center py-4">
+                            <i class="fas fa-inbox fa-3x text-muted mb-3"></i>
+                            <p class="text-muted">Aucune activité enregistrée</p>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% if historiques|length > 5 %}
+                    <div class="text-center mt-3">
+                        <a href="{{ url_for('suivi_mandat', mandat_id=mandat.id) }}" class="btn btn-outline-primary btn-sm">
+                            Voir tout l'historique <i class="fas fa-arrow-right ms-2"></i>
+                        </a>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4">
+            <div class="card info-card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-cogs me-2 text-secondary"></i>État du Mandat
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="text-center mb-4">
+                        <div class="display-6 fw-bold text-{{ 
+                            'success' if mandat.statut.value == 'payé' 
+                            else 'info' if mandat.statut.value in ['validé', 'pret_a_payer']
+                            else 'warning' if mandat.statut.value in ['en_cours', 'déposé']
+                            else 'danger'
+                        }}">
+                            {{ mandat.statut.value|replace('_', ' ')|title }}
+                        </div>
+                        <small class="text-muted">Statut actuel</small>
+                    </div>
+                    
+                    <div class="list-group list-group-flush">
+                        <div class="list-group-item d-flex justify-content-between align-items-center">
+                            <span>Durée écoulée</span>
+                            <span class="badge bg-primary">
+                                {{ (today_date - date_depot_date).days }} jours
+                            </span>
+                        </div>
+                        {% if date_echeance_date %}
+                        <div class="list-group-item d-flex justify-content-between align-items-center">
+                            <span>Jours restants</span>
+                            <span class="badge bg-{{ 'success' if (date_echeance_date - today_date).days > 0 else 'danger' }}">
+                                {{ (date_echeance_date - today_date).days }} jours
+                            </span>
+                        </div>
+                        {% endif %}
+                        <div class="list-group-item d-flex justify-content-between align-items-center">
+                            <span>Nombre d'actions</span>
+                            <span class="badge bg-info">{{ historiques|length }}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card info-card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-address-book me-2 text-success"></i>Contacts
+                    </h5>
+                </div>
+                <div class="card-body">
+                    {% if mandat.agent %}
+                    <div class="mb-3">
+                        <h6 class="small text-muted mb-1">Agent</h6>
+                        <p class="mb-1 fw-bold">{{ mandat.agent.nom_complet }}</p>
+                        <small class="text-muted">
+                            <i class="fas fa-envelope me-1"></i>{{ mandat.agent.email }}<br>
+                            <i class="fas fa-phone me-1"></i>{{ mandat.agent.telephone }}
+                        </small>
+                    </div>
+                    {% endif %}
+                    
+                    {% if mandat.fournisseur %}
+                    <div>
+                        <h6 class="small text-muted mb-1">Fournisseur</h6>
+                        <p class="mb-1 fw-bold">{{ mandat.fournisseur.nom_complet }}</p>
+                        <small class="text-muted">
+                            <i class="fas fa-envelope me-1"></i>{{ mandat.fournisseur.email }}<br>
+                            <i class="fas fa-phone me-1"></i>{{ mandat.fournisseur.telephone }}
+                            {% if mandat.fournisseur.entreprise %}
+                            <br><i class="fas fa-building me-1"></i>{{ mandat.fournisseur.entreprise }}
+                            {% endif %}
+                        </small>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="card info-card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-chart-bar me-2 text-info"></i>Métriques
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row text-center">
+                        <div class="col-6 mb-3">
+                            <div class="h5 text-primary mb-1">{{ historiques|length }}</div>
+                            <small class="text-muted">Actions</small>
+                        </div>
+                        <div class="col-6 mb-3">
+                            <div class="h5 text-success mb-1">{{ (today_date - date_depot_date).days }}</div>
+                            <small class="text-muted">Jours écoulés</small>
+                        </div>
+                        <div class="col-6">
+                            <div class="h5 text-warning mb-1">
+                                {% set services = historiques|map(attribute='service')|unique|list %}
+                                {{ services|length }}
+                            </div>
+                            <small class="text-muted">Services impliqués</small>
+                        </div>
+                        <div class="col-6">
+                            <div class="h5 text-info mb-1">
+                                {% set users = historiques|map(attribute='user_id')|unique|list %}
+                                {{ users|length }}
+                            </div>
+                            <small class="text-muted">Intervenants</small>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
 </div>
+
+<div class="modal fade" id="actionModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="actionModalTitle">Action sur le mandat</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="actionForm" method="post" action="{{ url_for('traiter_mandat', mandat_id=mandat.id) }}">
+                    <input type="hidden" name="action" id="modalAction">
+                    <div class="mb-3">
+                        <label for="commentaire" class="form-label">Commentaire (optionnel)</label>
+                        <textarea class="form-control" id="commentaire" name="commentaire" rows="3" 
+                                  placeholder="Ajoutez un commentaire pour cette action..."></textarea>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                <button type="submit" form="actionForm" class="btn btn-primary">Confirmer</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Gestion du modal d'actions
+    const actionModal = document.getElementById('actionModal');
+    if (actionModal) {
+        actionModal.addEventListener('show.bs.modal', function(event) {
+            const button = event.relatedTarget;
+            const action = button.getAttribute('data-action');
+            const actionText = getActionText(action);
+            
+            document.getElementById('modalAction').value = action;
+            document.getElementById('actionModalTitle').textContent = actionText;
+        });
+    }
+    
+    // Animation des cartes
+    const cards = document.querySelectorAll('.info-card');
+    cards.forEach((card, index) => {
+        setTimeout(() => {
+            card.style.opacity = '0';
+            card.style.transform = 'translateY(20px)';
+            card.style.transition = 'all 0.6s ease';
+            
+            setTimeout(() => {
+                card.style.opacity = '1';
+                card.style.transform = 'translateY(0)';
+            }, 50);
+        }, index * 100);
+    });
+});
+
+function getActionText(action) {
+    const actions = {
+        'valider': 'Valider le mandat',
+        'rejeter': 'Rejeter le mandat',
+        'pret_a_payer': 'Marquer comme prêt à payer',
+        'payer': 'Marquer comme payé'
+    };
+    return actions[action] || 'Action sur le mandat';
+}
+
+// Affichage des alertes flash
+{% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+        {% for category, message in messages %}
+            showAlert('{{ category }}', '{{ message }}');
+        {% endfor %}
+    {% endif %}
+{% endwith %}
+
+function showAlert(type, message) {
+    const alertClass = type === 'success' ? 'alert-success' : 'alert-danger';
+    const alertHtml = `
+        <div class="alert ${alertClass} alert-dismissible fade show position-fixed" 
+             style="top: 20px; right: 20px; z-index: 1060; min-width: 300px;">
+            <i class="fas fa-${type === 'success' ? 'check' : 'exclamation'}-circle me-2"></i>
+            ${message}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    `;
+    
+    document.body.insertAdjacentHTML('beforeend', alertHtml);
+    
+    setTimeout(() => {
+        const alert = document.querySelector('.alert');
+        if (alert) alert.remove();
+    }, 5000);
+}
+</script>
 {% endblock %}

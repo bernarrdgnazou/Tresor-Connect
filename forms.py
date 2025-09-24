@@ -1,5 +1,6 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, PasswordField, SubmitField, TextAreaField, FloatField, SelectField, FileField
+from flask_wtf.file import FileAllowed
+from wtforms import StringField, PasswordField, SubmitField, TextAreaField, DecimalField, FloatField, SelectField, FileField
 from wtforms.validators import DataRequired, Email, Length, EqualTo, NumberRange
 from wtforms.validators import ValidationError
 from models import User
@@ -68,11 +69,28 @@ class ResetPasswordForm(FlaskForm):
 
 
 class MandatForm(FlaskForm):
-    reference = StringField('Référence du mandat', validators=[DataRequired(), Length(max=50)])
-    montant = FloatField('Montant', validators=[DataRequired(), NumberRange(min=0.01)])
-    description = TextAreaField('Description', validators=[DataRequired()])
-    fournisseur_id = SelectField('Fournisseur', coerce=int, validators=[DataRequired()])
-    fichier = FileField('Fichier du mandat')
+    reference = StringField('Référence du mandat', validators=[
+        DataRequired(message='La référence est requise'),
+        Length(max=50, message='La référence ne doit pas dépasser 50 caractères')
+    ])
+    numero_facture = StringField('Numéro de facture (optionnel)', validators=[
+        Length(max=50, message='Le numéro de facture ne doit pas dépasser 50 caractères')
+    ])
+    montant = DecimalField('Montant', validators=[
+        DataRequired(message='Le montant est requis'),
+        NumberRange(min=0.01, message='Le montant doit être supérieur à 0')
+    ], places=2)
+    description = TextAreaField('Description', validators=[
+        DataRequired(message='La description est requise'),
+        Length(max=1000, message='La description ne doit pas dépasser 1000 caractères')
+    ])
+    fournisseur_id = SelectField('Fournisseur', coerce=int, validators=[
+        DataRequired(message='Le fournisseur est requis')
+    ])
+    fichier = FileField('Fichier joint', validators=[
+        FileAllowed(['pdf', 'doc', 'docx', 'jpg', 'png'], 
+                   'Seuls les fichiers PDF, Word, JPG et PNG sont autorisés')
+    ])
     submit = SubmitField('Déposer le mandat')
 
 class TraitementMandatForm(FlaskForm):

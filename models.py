@@ -1,7 +1,7 @@
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import UserMixin
 from werkzeug.security import generate_password_hash, check_password_hash
-from datetime import datetime
+from datetime import datetime, timedelta
 import enum
 
 db = SQLAlchemy()
@@ -59,13 +59,17 @@ class Mandat(db.Model):
     
     id = db.Column(db.Integer, primary_key=True)
     reference = db.Column(db.String(50), unique=True, nullable=False)
-    montant = db.Column(db.Float, nullable=False)
+    numero_facture = db.Column(db.String(50), nullable=True)  # Ajout du champ pour le numéro de facture
+    montant = db.Column(db.Numeric(10, 2), nullable=False)    # Utilisation de Numeric pour la précision des montants
     description = db.Column(db.Text)
-    date_depot = db.Column(db.DateTime, default=datetime.utcnow)
-    date_validation = db.Column(db.DateTime)
-    date_paiement = db.Column(db.DateTime)
-    statut = db.Column(db.Enum(StatutMandat), default=StatutMandat.DEPOSE)
-    fichier_original = db.Column(db.String(255))
+    
+    date_depot = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)  # Date d'arrivée
+    date_echeance = db.Column(db.Date, nullable=True) # Ajout de la date d'échéance. Peut être nulle si non applicable.
+    date_validation = db.Column(db.DateTime, nullable=True)
+    date_paiement = db.Column(db.DateTime, nullable=True)
+    
+    statut = db.Column(db.Enum(StatutMandat), default=StatutMandat.DEPOSE, nullable=False)
+    fichier_original = db.Column(db.String(255), nullable=True)
     
     # Clés étrangères
     agent_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
@@ -76,6 +80,11 @@ class Mandat(db.Model):
     
     def __repr__(self):
         return f'<Mandat {self.reference} - {self.montant}>'
+    
+    # Méthode pour définir la date d'échéance (utilisée lors de la création du mandat)
+    def set_date_echeance(self):
+        self.date_echeance = (self.date_depot + timedelta(days=5)).date()
+
 
 class HistoriqueMandat(db.Model):
     __tablename__ = 'historique_mandats'

@@ -1,0 +1,77 @@
+{% extends "base.html" %}
+{% block title %}Vérification OTP - TRÉSOR CONNECT{% endblock %}
+
+{% block style %}
+<link href="{{ url_for('static', filename='css/forms.css') }}" rel="stylesheet">
+{% endblock %}
+
+{% block content %}
+<div class="login-container">
+  <div class="login-card">
+    <h2 class="login-title"><i class="fas fa-shield-alt"></i> Vérification OTP</h2>
+    
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        {% for category, message in messages %}
+          <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+            <i class="fas fa-{% if category == 'success' %}check-circle{% elif category == 'danger' %}exclamation-circle{% elif category == 'warning' %}exclamation-triangle{% else %}info-circle{% endif %} me-2"></i>
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+          </div>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+
+    <p class="text-center text-muted">
+      <i class="fas fa-mobile-alt me-2"></i>
+      Un code de vérification a été envoyé à votre téléphone
+    </p>
+
+    <form action="{{ url_for('verify_otp', user_id=user.id) }}" method="post">
+      {{ form.hidden_tag() }}
+      
+      <div class="form-group">
+        <label for="otp_code"><i class="fas fa-key"></i> Code OTP</label>
+        {{ form.otp_code(class="form-control", placeholder="Entrez le code à 6 chiffres", maxlength="6") }}
+        {% if form.otp_code.errors %}
+          <div class="text-danger">
+            {% for error in form.otp_code.errors %}
+              <small>{{ error }}</small>
+            {% endfor %}
+          </div>
+        {% endif %}
+      </div>
+
+      <button type="submit" class="btn-login">
+        <i class="fas fa-check-circle me-2"></i>Vérifier le code
+      </button>
+      
+      <div class="text-center mt-3">
+        <p class="small text-muted">
+          <i class="fas fa-clock me-1"></i>Le code expire dans 10 minutes
+        </p>
+        <a href="{{ url_for('connexion') }}" class="text-primary">
+          <i class="fas fa-arrow-left me-1"></i>Retour à la connexion
+        </a>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  // Auto-focus sur le champ OTP
+  const otpField = document.getElementById('otp_code');
+  if (otpField) {
+    otpField.focus();
+  }
+  
+  // Validation en temps réel
+  otpField.addEventListener('input', function() {
+    this.value = this.value.replace(/\D/g, '').substring(0, 6);
+  });
+});
+</script>
+{% endblock %}

@@ -26,8 +26,8 @@
       <nav class="navbar navbar-expand-lg navbar-dark">
         
         <!-- Brand -->
-        <a class="navbar-brand" href="{{ url_for('home') }}">
-          <i class="fas me-2"></i>TRÉSOR DIVO CONNECT
+        <a class="navbar-brand" href="#">
+          <i class="fas me-2"></i>TRÉSOR D CONNECT
           <span class="live-dot ms-2"></span>
         </a>
 
@@ -50,12 +50,17 @@
               {% if current_user.role.value == 'agent' %}
               <li class="nav-item">
                 <a class="nav-link {% if request.endpoint == 'deposer_mandat' %}active{% endif %}" href="{{ url_for('deposer_mandat') }}">
-                  <i class="fas fa-plus-circle me-1"></i>Déposer Mandat
+                  <i class="fas fa-plus-circle me-1"></i>Déposer
+                </a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link {% if request.endpoint == 'mandats_a_traiter' %}active{% endif %}" href="{{ url_for('mandats_a_traiter') }}">
+                  <i class="fas fa-plus-circle me-1"></i>Traiter
                 </a>
               </li>
               <li class="nav-item">
                 <a class="nav-link {% if request.endpoint == 'mes_mandats' %}active{% endif %}" href="{{ url_for('mes_mandats') }}">
-                  <i class="fas fa-file-invoice me-1"></i>Mes Mandats
+                  <i class="fas fa-file-invoice me-1"></i>Mandats
                 </a>
               </li>
               {% endif %}
@@ -63,7 +68,7 @@
               {% if current_user.role.value == 'fournisseur' %}
               <li class="nav-item">
                 <a class="nav-link {% if request.endpoint == 'mes_mandats' %}active{% endif %}" href="{{ url_for('mes_mandats') }}">
-                  <i class="fas fa-file-invoice-dollar me-1"></i>Mes Mandats
+                  <i class="fas fa-file-invoice-dollar me-1"></i>Mandats
                 </a>
               </li>
               <li class="nav-item">
@@ -76,12 +81,12 @@
               {% if current_user.role.value == 'tresorier' %}
               <li class="nav-item">
                 <a class="nav-link {% if request.endpoint == 'mandats_a_traiter' %}active{% endif %}" href="{{ url_for('mandats_a_traiter') }}">
-                  <i class="fas fa-tasks me-1"></i>Mandats à Traiter
+                  <i class="fas fa-tasks me-1"></i>Mandats AT
                 </a>
               </li>
               <li class="nav-item">
                 <a class="nav-link {% if request.endpoint == 'mes_mandats' %}active{% endif %}" href="{{ url_for('mes_mandats') }}">
-                  <i class="fas fa-list-alt me-1"></i>Tous les Mandats
+                  <i class="fas fa-list-alt me-1"></i>Mandats
                 </a>
               </li>
               {% endif %}
@@ -117,7 +122,7 @@
                   <li><a class="dropdown-item" href="{{ url_for('profil') }}"><i class="fas fa-user-edit me-2"></i>Mon Profil</a></li>
                   <li><a class="dropdown-item" href="{{ url_for('statistiques') }}"><i class="fas fa-chart-bar me-2"></i>Statistiques</a></li>
                   <li><hr class="dropdown-divider"></li>
-                  <li><a class="dropdown-item" href="{{ url_for('inscription') }}"><i class="fas fa-sign-out-alt me-2"></i>Déconnexion</a></li>
+                  <li><a class="dropdown-item" href="{{ url_for('logout') }}"><i class="fas fa-sign-out-alt me-2"></i>Déconnexion</a></li>
                 </ul>
               </li>
               

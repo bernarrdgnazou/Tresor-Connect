@@ -1,19 +1,785 @@
 {% extends "base.html" %}
 
-{% block title %}Mes Mandats{% endblock %}
+{% block title %}Mes Mandats - TRÉSOR CONNECT{% endblock %}
+
+{% block style %}
+<style>
+    .stats-card {
+        border: none;
+        border-radius: 15px;
+        transition: transform 0.3s ease;
+        height: 100%;
+    }
+    
+    .stats-card:hover {
+        transform: translateY(-5px);
+    }
+    
+    .stats-icon {
+        font-size: 2.5rem;
+        opacity: 0.8;
+    }
+    
+    .mandat-card {
+        border: none;
+        border-radius: 15px;
+        box-shadow: 0 3px 10px rgba(0,0,0,0.08);
+        margin-bottom: 20px;
+        transition: all 0.3s ease;
+        border-left: 4px solid transparent;
+    }
+    
+    .mandat-card:hover {
+        box-shadow: 0 5px 20px rgba(0,0,0,0.12);
+        transform: translateY(-2px);
+    }
+    
+    .mandat-card.paye { border-left-color: #28a745; }
+    .mandat-card.valide { border-left-color: #17a2b8; }
+    .mandat-card.en_cours { border-left-color: #ffc107; }
+    .mandat-card.rejete { border-left-color: #dc3545; }
+    
+    .status-badge {
+        padding: 6px 12px;
+        border-radius: 20px;
+        font-size: 0.8em;
+        font-weight: 600;
+    }
+    
+    .montant-display {
+        font-size: 1.3rem;
+        font-weight: bold;
+    }
+    
+    .filters-card {
+        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+        border: none;
+        border-radius: 15px;
+    }
+    
+    .pagination .page-link {
+        border-radius: 10px;
+        margin: 0 2px;
+        border: none;
+    }
+    
+    .action-btn {
+        min-width: 100px;
+        margin: 1px;
+    }
+    
+    .table-hover tbody tr:hover {
+        background-color: rgba(102, 126, 234, 0.05);
+    }
+    
+    .search-box {
+        position: relative;
+    }
+    
+    .search-box .form-control {
+        padding-left: 40px;
+        border-radius: 25px;
+    }
+    
+    .search-box .search-icon {
+        position: absolute;
+        left: 15px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #6c757d;
+    }
+    
+    .export-btn {
+        border-radius: 25px;
+        padding: 8px 20px;
+    }
+    
+    .view-switcher .btn.active {
+        background-color: #667eea;
+        color: white;
+    }
+</style>
+{% endblock %}
 
 {% block content %}
-<div class="container">
-    <div class="row">
+<div class="container-fluid py-4">
+    <!-- En-tête avec statistiques -->
+    <div class="row mb-4">
         <div class="col-12">
-            <h1>Mes Mandats</h1>
-            <p>Template mes_mandats.html - En cours de développement</p>
-            
-            <div class="alert alert-info">
-                <i class="fas fa-info-circle"></i> 
-                Cette page est en cours de construction. Contenu à compléter.
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h1 class="h2 mb-1">
+                        <i class="fas fa-file-invoice me-2 text-primary"></i>
+                        {% if current_user.role.value == 'agent' %}Mes Mandats
+                        {% elif current_user.role.value == 'fournisseur' %}Mandats Reçus
+                        {% else %}Gestion des Mandats{% endif %}
+                    </h1>
+                    <p class="text-muted mb-0">
+                        {% if current_user.role.value == 'agent' %}
+                        Gestion et suivi de tous vos mandats déposés
+                        {% elif current_user.role.value == 'fournisseur' %}
+                        Suivi des mandats qui vous sont attribués
+                        {% else %}
+                        Administration de l'ensemble des mandats
+                        {% endif %}
+                    </p>
+                </div>
+                <div>
+                    {% if current_user.role.value == 'agent' %}
+                    <a href="{{ url_for('deposer_mandat') }}" class="btn btn-primary">
+                        <i class="fas fa-plus-circle me-2"></i>Nouveau Mandat
+                    </a>
+                    {% endif %}
+                </div>
             </div>
         </div>
     </div>
+
+    <!-- Cartes de statistiques -->
+    <div class="row mb-4">
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card stats-card text-white bg-primary">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div>
+                            <h5 class="card-title mb-3">Total</h5>
+                            <h2 class="display-6 fw-bold">{{ stats.mandats_total }}</h2>
+                            <small class="opacity-75">Mandats au total</small>
+                        </div>
+                        <div class="stats-icon">
+                            <i class="fas fa-file-contract"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card stats-card text-white bg-warning">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div>
+                            <h5 class="card-title mb-3">En Cours</h5>
+                            <h2 class="display-6 fw-bold">{{ stats.mandats_en_cours }}</h2>
+                            <small class="opacity-75">En traitement</small>
+                        </div>
+                        <div class="stats-icon">
+                            <i class="fas fa-clock"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card stats-card text-white bg-info">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div>
+                            <h5 class="card-title mb-3">Validés</h5>
+                            <h2 class="display-6 fw-bold">{{ stats.mandats_valides }}</h2>
+                            <small class="opacity-75">Mandats approuvés</small>
+                        </div>
+                        <div class="stats-icon">
+                            <i class="fas fa-check-circle"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card stats-card text-white bg-success">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div>
+                            <h5 class="card-title mb-3">Payés</h5>
+                            <h2 class="display-6 fw-bold">{{ stats.mandats_payes }}</h2>
+                            <small class="opacity-75">Règlements effectués</small>
+                        </div>
+                        <div class="stats-icon">
+                            <i class="fas fa-money-bill-wave"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filtres et recherche -->
+    <div class="card filters-card mb-4">
+        <div class="card-body">
+            <div class="row g-3 align-items-center">
+                <div class="col-md-4">
+                    <div class="search-box">
+                        <i class="fas fa-search search-icon"></i>
+                        <input type="text" class="form-control" id="searchInput" 
+                               placeholder="Rechercher par référence, fournisseur...">
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <select class="form-select" id="statutFilter">
+                        <option value="">Tous les statuts</option>
+                        <option value="en_cours">En cours</option>
+                        <option value="validé">Validé</option>
+                        <option value="pret_a_payer">Prêt à payer</option>
+                        <option value="payé">Payé</option>
+                        <option value="rejeté">Rejeté</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <select class="form-select" id="triSelect">
+                        <option value="date_desc">Plus récent</option>
+                        <option value="date_asc">Plus ancien</option>
+                        <option value="montant_desc">Montant décroissant</option>
+                        <option value="montant_asc">Montant croissant</option>
+                        <option value="reference">Par référence</option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <div class="dropdown">
+                        <button class="btn btn-outline-primary export-btn dropdown-toggle w-100" 
+                                type="button" data-bs-toggle="dropdown">
+                            <i class="fas fa-download me-2"></i>Exporter
+                        </button>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="#" onclick="exportData('pdf')">
+                                <i class="fas fa-file-pdf me-2 text-danger"></i>PDF
+                            </a></li>
+                            <li><a class="dropdown-item" href="#" onclick="exportData('excel')">
+                                <i class="fas fa-file-excel me-2 text-success"></i>Excel
+                            </a></li>
+                            <li><a class="dropdown-item" href="#" onclick="exportData('csv')">
+                                <i class="fas fa-file-csv me-2 text-info"></i>CSV
+                            </a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Affichage des mandats -->
+    <div class="row">
+        <div class="col-12">
+            <!-- Vue tableau (par défaut) -->
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-list me-2 text-primary"></i>
+                        Liste des Mandats 
+                        <span class="badge bg-primary ms-2" id="mandatsCount">{{ mandats|length }}</span>
+                    </h5>
+                    <div class="btn-group btn-group-sm view-switcher" role="group">
+                        <button type="button" class="btn btn-outline-primary active" id="tableViewBtn" onclick="switchView('table')">
+                            <i class="fas fa-table me-1"></i>Tableau
+                        </button>
+                        <button type="button" class="btn btn-outline-primary" id="gridViewBtn" onclick="switchView('grid')">
+                            <i class="fas fa-th me-1"></i>Grille
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Vue tableau -->
+                <div class="card-body" id="tableView">
+                    <div class="table-responsive">
+                        <table class="table table-hover" id="mandatsTable">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Référence</th>
+                                    <th>Fournisseur</th>
+                                    <th>Montant</th>
+                                    <th>Statut</th>
+                                    <th>Date dépôt</th>
+                                    {% if current_user.role.value in ['admin', 'tresorier'] %}
+                                    <th>Agent</th>
+                                    {% endif %}
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for mandat in mandats %}
+                                <tr class="mandat-row" data-statut="{{ mandat.statut.value }}" 
+                                    data-montant="{{ mandat.montant }}" 
+                                    data-date="{{ mandat.date_depot.timestamp() }}"
+                                    data-reference="{{ mandat.reference|lower }}"
+                                    data-fournisseur="{{ mandat.fournisseur.nom_complet|lower if mandat.fournisseur else '' }}">
+                                    <td>
+                                        <strong class="text-primary">{{ mandat.reference }}</strong>
+                                        {% if mandat.date_echeance and mandat.date_echeance < today %}
+                                        <br><small class="text-danger">
+                                            <i class="fas fa-exclamation-triangle me-1"></i>Échéance dépassée
+                                        </small>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            <i class="fas fa-building me-2 text-warning"></i>
+                                            <span>{{ mandat.fournisseur.nom_complet if mandat.fournisseur else 'N/A' }}</span>
+                                        </div>
+                                    </td>
+                                    <td class="montant-display text-success">
+                                        {{ "{:,.0f}".format(mandat.montant) }} FCFA
+                                    </td>
+                                    <td>
+                                        <span class="status-badge bg-{{ 
+                                            'success' if mandat.statut.value == 'payé' 
+                                            else 'info' if mandat.statut.value == 'validé' or mandat.statut.value == 'pret_a_payer'
+                                            else 'warning' if mandat.statut.value == 'en_cours'
+                                            else 'danger' if mandat.statut.value == 'rejeté'
+                                            else 'secondary'
+                                        }}">
+                                            <i class="fas 
+                                                {% if mandat.statut.value == 'payé' %}fa-check-circle
+                                                {% elif mandat.statut.value == 'validé' or mandat.statut.value == 'pret_a_payer' %}fa-thumbs-up
+                                                {% elif mandat.statut.value == 'en_cours' %}fa-clock
+                                                {% elif mandat.statut.value == 'rejeté' %}fa-times-circle
+                                                {% else %}fa-question{% endif %} me-1">
+                                            </i>
+                                            {{ mandat.statut.value|title }}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <small>{{ mandat.date_depot.strftime('%d/%m/%Y') }}</small>
+                                        <br>
+                                        <small class="text-muted">{{ mandat.date_depot.strftime('%H:%M') }}</small>
+                                    </td>
+                                    {% if current_user.role.value in ['admin', 'tresorier'] %}
+                                    <td>
+                                        <small>{{ mandat.agent.nom_complet if mandat.agent else 'N/A' }}</small>
+                                    </td>
+                                    {% endif %}
+                                    <td>
+                                        <div class="btn-group btn-group-sm">
+                                            <a href="{{ url_for('mandat_detail', mandat_id=mandat.id) }}" 
+                                               class="btn btn-outline-info" title="Voir le détail">
+                                                <i class="fas fa-eye"></i>
+                                            </a>
+                                            <a href="{{ url_for('suivi_mandat', mandat_id=mandat.id) }}" 
+                                               class="btn btn-outline-primary" title="Suivi complet">
+                                                <i class="fas fa-history"></i>
+                                            </a>
+                                            {% if mandat.fichier_original %}
+                                            <a href="{{ url_for('uploaded_file', filename=mandat.fichier_original) }}" 
+                                               class="btn btn-outline-success" title="Télécharger" target="_blank">
+                                                <i class="fas fa-download"></i>
+                                            </a>
+                                            {% endif %}
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% else %}
+                                <tr>
+                                    <td colspan="{% if current_user.role.value in ['admin', 'tresorier'] %}7{% else %}6{% endif %}" class="text-center py-5">
+                                        <i class="fas fa-inbox fa-3x text-muted mb-3"></i>
+                                        <h5 class="text-muted">Aucun mandat trouvé</h5>
+                                        <p class="text-muted">
+                                            {% if current_user.role.value == 'agent' %}
+                                            Commencez par <a href="{{ url_for('deposer_mandat') }}">déposer votre premier mandat</a>
+                                            {% else %}
+                                            Aucun mandat ne correspond à vos critères
+                                            {% endif %}
+                                        </p>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Vue grille (cachée par défaut) -->
+                <div class="card-body" id="gridView" style="display: none;">
+                    <div class="row" id="mandatsGrid">
+                        {% for mandat in mandats %}
+                        <div class="col-xl-4 col-lg-6 mb-4 mandat-grid-item" 
+                             data-statut="{{ mandat.statut.value }}"
+                             data-reference="{{ mandat.reference|lower }}"
+                             data-fournisseur="{{ mandat.fournisseur.nom_complet|lower if mandat.fournisseur else '' }}">
+                            <div class="card mandat-card {{ mandat.statut.value }}">
+                                <div class="card-body">
+                                    <div class="d-flex justify-content-between align-items-start mb-3">
+                                        <h6 class="card-title text-primary mb-0">{{ mandat.reference }}</h6>
+                                        <span class="status-badge bg-{{ 
+                                            'success' if mandat.statut.value == 'payé' 
+                                            else 'info' if mandat.statut.value == 'validé' or mandat.statut.value == 'pret_a_payer'
+                                            else 'warning' if mandat.statut.value == 'en_cours'
+                                            else 'danger' if mandat.statut.value == 'rejeté'
+                                            else 'secondary'
+                                        }}">
+                                            {{ mandat.statut.value|title }}
+                                        </span>
+                                    </div>
+                                    
+                                    <p class="text-muted small mb-2">
+                                        <i class="fas fa-building me-2"></i>
+                                        {{ mandat.fournisseur.nom_complet if mandat.fournisseur else 'N/A' }}
+                                    </p>
+                                    
+                                    <div class="montant-display text-success mb-3">
+                                        {{ "{:,.0f}".format(mandat.montant) }} FCFA
+                                    </div>
+                                    
+                                    <div class="d-flex justify-content-between align-items-center mb-3">
+                                        <small class="text-muted">
+                                            <i class="fas fa-calendar me-1"></i>
+                                            {{ mandat.date_depot.strftime('%d/%m/%Y') }}
+                                        </small>
+                                        {% if mandat.date_echeance %}
+                                        <small class="text-{{ 'danger' if mandat.date_echeance < today else 'muted' }}">
+                                            <i class="fas fa-clock me-1"></i>
+                                            {{ mandat.date_echeance.strftime('%d/%m/%y') }}
+                                        </small>
+                                        {% endif %}
+                                    </div>
+                                    
+                                    <div class="btn-group w-100">
+                                        <a href="{{ url_for('mandat_detail', mandat_id=mandat.id) }}" 
+                                           class="btn btn-outline-primary btn-sm">
+                                            <i class="fas fa-eye me-1"></i>Détail
+                                        </a>
+                                        <a href="{{ url_for('suivi_mandat', mandat_id=mandat.id) }}" 
+                                           class="btn btn-outline-info btn-sm">
+                                            <i class="fas fa-history me-1"></i>Suivi
+                                        </a>
+                                        {% if mandat.fichier_original %}
+                                        <a href="{{ url_for('uploaded_file', filename=mandat.fichier_original) }}" 
+                                           class="btn btn-outline-success btn-sm" target="_blank">
+                                            <i class="fas fa-download me-1"></i>Fichier
+                                        </a>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {% else %}
+                        <div class="col-12 text-center py-5">
+                            <i class="fas fa-inbox fa-3x text-muted mb-3"></i>
+                            <h5 class="text-muted">Aucun mandat trouvé</h5>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Pagination -->
+            {% if mandats|length > 0 %}
+            <nav aria-label="Pagination" class="mt-4">
+                <ul class="pagination justify-content-center">
+                    <li class="page-item disabled">
+                        <a class="page-link" href="#" tabindex="-1">Précédent</a>
+                    </li>
+                    <li class="page-item active"><a class="page-link" href="#">1</a></li>
+                    <li class="page-item"><a class="page-link" href="#">2</a></li>
+                    <li class="page-item"><a class="page-link" href="#">3</a></li>
+                    <li class="page-item">
+                        <a class="page-link" href="#">Suivant</a>
+                    </li>
+                </ul>
+            </nav>
+            {% endif %}
+        </div>
+    </div>
 </div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+// Variables globales
+let currentView = 'table';
+let currentSort = 'date_desc';
+
+// Initialisation
+document.addEventListener('DOMContentLoaded', function() {
+    initializeFilters();
+    initializeSearch();
+    initializeSorting();
+    animateCards();
+    
+    // Restaurer la vue sauvegardée
+    const savedView = localStorage.getItem('mandatsView');
+    if (savedView) {
+        switchView(savedView);
+    }
+});
+
+// Changement de vue
+function switchView(view) {
+    currentView = view;
+    
+    // Sauvegarder la préférence
+    localStorage.setItem('mandatsView', view);
+    
+    // Mise à jour des boutons
+    document.getElementById('tableViewBtn').classList.toggle('active', view === 'table');
+    document.getElementById('gridViewBtn').classList.toggle('active', view === 'grid');
+    
+    // Affichage de la vue
+    document.getElementById('tableView').style.display = view === 'table' ? 'block' : 'none';
+    document.getElementById('gridView').style.display = view === 'grid' ? 'block' : 'none';
+    
+    // Réappliquer les filtres après changement de vue
+    setTimeout(filterMandats, 100);
+}
+
+// Filtrage des mandats
+function initializeFilters() {
+    const statutFilter = document.getElementById('statutFilter');
+    if (statutFilter) {
+        // Restaurer la valeur sauvegardée
+        const savedFilter = localStorage.getItem('mandatsStatutFilter');
+        if (savedFilter) {
+            statutFilter.value = savedFilter;
+        }
+        
+        statutFilter.addEventListener('change', function() {
+            localStorage.setItem('mandatsStatutFilter', this.value);
+            filterMandats();
+        });
+    }
+}
+
+function filterMandats() {
+    const statut = document.getElementById('statutFilter').value;
+    const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+    
+    let filteredCount = 0;
+    
+    if (currentView === 'table') {
+        // Filtrage pour la vue tableau
+        document.querySelectorAll('#mandatsTable .mandat-row').forEach(row => {
+            const rowStatut = row.getAttribute('data-statut');
+            const rowText = row.textContent.toLowerCase();
+            const rowReference = row.getAttribute('data-reference');
+            const rowFournisseur = row.getAttribute('data-fournisseur');
+            
+            const statutMatch = !statut || rowStatut === statut;
+            const searchMatch = !searchTerm || 
+                               rowText.includes(searchTerm) ||
+                               rowReference.includes(searchTerm) ||
+                               rowFournisseur.includes(searchTerm);
+            
+            if (statutMatch && searchMatch) {
+                row.style.display = '';
+                filteredCount++;
+            } else {
+                row.style.display = 'none';
+            }
+        });
+    } else {
+        // Filtrage pour la vue grille
+        document.querySelectorAll('#mandatsGrid .mandat-grid-item').forEach(item => {
+            const itemStatut = item.getAttribute('data-statut');
+            const itemText = item.textContent.toLowerCase();
+            const itemReference = item.getAttribute('data-reference');
+            const itemFournisseur = item.getAttribute('data-fournisseur');
+            
+            const statutMatch = !statut || itemStatut === statut;
+            const searchMatch = !searchTerm || 
+                               itemText.includes(searchTerm) ||
+                               itemReference.includes(searchTerm) ||
+                               itemFournisseur.includes(searchTerm);
+            
+            if (statutMatch && searchMatch) {
+                item.style.display = 'block';
+                filteredCount++;
+            } else {
+                item.style.display = 'none';
+            }
+        });
+    }
+    
+    // Mise à jour du compteur
+    document.getElementById('mandatsCount').textContent = filteredCount;
+    
+    // Afficher/masquer le message "Aucun résultat"
+    const noResultsRow = document.querySelector('.mandat-row[style*="display: none"] + .text-center');
+    if (noResultsRow) {
+        noResultsRow.style.display = filteredCount === 0 ? '' : 'none';
+    }
+}
+
+// Recherche en temps réel
+function initializeSearch() {
+    const searchInput = document.getElementById('searchInput');
+    if (searchInput) {
+        // Restaurer la recherche sauvegardée
+        const savedSearch = localStorage.getItem('mandatsSearch');
+        if (savedSearch) {
+            searchInput.value = savedSearch;
+        }
+        
+        let searchTimeout;
+        searchInput.addEventListener('input', function() {
+            localStorage.setItem('mandatsSearch', this.value);
+            
+            clearTimeout(searchTimeout);
+            searchTimeout = setTimeout(() => {
+                filterMandats();
+            }, 300);
+        });
+        
+        // Nettoyer la recherche
+        searchInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Escape') {
+                this.value = '';
+                filterMandats();
+            }
+        });
+    }
+}
+
+// Tri des mandats
+function initializeSorting() {
+    const triSelect = document.getElementById('triSelect');
+    if (triSelect) {
+        // Restaurer le tri sauvegardé
+        const savedSort = localStorage.getItem('mandatsSort');
+        if (savedSort) {
+            triSelect.value = savedSort;
+            currentSort = savedSort;
+        }
+        
+        triSelect.addEventListener('change', function() {
+            currentSort = this.value;
+            localStorage.setItem('mandatsSort', currentSort);
+            sortMandats();
+        });
+    }
+}
+
+function sortMandats() {
+    if (currentView === 'table') {
+        sortTableMandats();
+    } else {
+        sortGridMandats();
+    }
+}
+
+function sortTableMandats() {
+    const tbody = document.querySelector('#mandatsTable tbody');
+    const rows = Array.from(tbody.querySelectorAll('.mandat-row:not([style*="display: none"])'));
+    
+    rows.sort((a, b) => {
+        switch(currentSort) {
+            case 'date_desc':
+                return new Date(b.getAttribute('data-date') * 1000) - new Date(a.getAttribute('data-date') * 1000);
+            case 'date_asc':
+                return new Date(a.getAttribute('data-date') * 1000) - new Date(b.getAttribute('data-date') * 1000);
+            case 'montant_desc':
+                return parseFloat(b.getAttribute('data-montant')) - parseFloat(a.getAttribute('data-montant'));
+            case 'montant_asc':
+                return parseFloat(a.getAttribute('data-montant')) - parseFloat(b.getAttribute('data-montant'));
+            case 'reference':
+                return a.getAttribute('data-reference').localeCompare(b.getAttribute('data-reference'));
+            default:
+                return 0;
+        }
+    });
+    
+    // Réorganiser les lignes
+    rows.forEach(row => tbody.appendChild(row));
+}
+
+function sortGridMandats() {
+    const grid = document.getElementById('mandatsGrid');
+    const items = Array.from(grid.querySelectorAll('.mandat-grid-item:not([style*="display: none"])'));
+    
+    items.sort((a, b) => {
+        switch(currentSort) {
+            case 'date_desc':
+                return new Date(b.getAttribute('data-date') * 1000) - new Date(a.getAttribute('data-date') * 1000);
+            case 'date_asc':
+                return new Date(a.getAttribute('data-date') * 1000) - new Date(b.getAttribute('data-date') * 1000);
+            case 'montant_desc':
+                // Pour la grille, on doit extraire le montant du texte
+                const montantA = parseFloat(a.querySelector('.montant-display').textContent.replace(/[^\d,]/g, '').replace(',', '.'));
+                const montantB = parseFloat(b.querySelector('.montant-display').textContent.replace(/[^\d,]/g, '').replace(',', '.'));
+                return montantB - montantA;
+            case 'montant_asc':
+                const montantAA = parseFloat(a.querySelector('.montant-display').textContent.replace(/[^\d,]/g, '').replace(',', '.'));
+                const montantBB = parseFloat(b.querySelector('.montant-display').textContent.replace(/[^\d,]/g, '').replace(',', '.'));
+                return montantAA - montantBB;
+            case 'reference':
+                return a.getAttribute('data-reference').localeCompare(b.getAttribute('data-reference'));
+            default:
+                return 0;
+        }
+    });
+    
+    // Réorganiser les éléments
+    items.forEach(item => grid.appendChild(item));
+}
+
+// Export des données
+function exportData(format) {
+    const filters = {
+        statut: document.getElementById('statutFilter').value,
+        search: document.getElementById('searchInput').value,
+        tri: document.getElementById('triSelect').value
+    };
+    
+    // Simulation d'export avec confirmation
+    if (confirm(`Exporter les mandats filtrés au format ${format.toUpperCase()} ?`)) {
+        // En production, rediriger vers une route d'export réelle
+        const params = new URLSearchParams();
+        if (filters.statut) params.append('statut', filters.statut);
+        if (filters.search) params.append('search', filters.search);
+        if (filters.tri) params.append('tri', filters.tri);
+        
+        // Pour l'instant, simulation
+        alert(`Export ${format.toUpperCase()} en cours de préparation...\nFiltres appliqués: ${JSON.stringify(filters)}`);
+        
+        // Décommenter pour une vraie exportation :
+        // window.location.href = `/export/mandats/${format}?${params.toString()}`;
+    }
+}
+
+// Animation des cartes
+function animateCards() {
+    const cards = document.querySelectorAll('.mandat-card, .stats-card');
+    cards.forEach((card, index) => {
+        card.style.animationDelay = `${index * 0.1}s`;
+        card.style.opacity = '0';
+        card.style.transform = 'translateY(20px)';
+        card.style.transition = 'all 0.6s ease';
+        
+        setTimeout(() => {
+            card.style.opacity = '1';
+            card.style.transform = 'translateY(0)';
+        }, index * 100);
+    });
+}
+
+// Fonctions utilitaires
+function resetFilters() {
+    document.getElementById('statutFilter').value = '';
+    document.getElementById('searchInput').value = '';
+    document.getElementById('triSelect').value = 'date_desc';
+    
+    localStorage.removeItem('mandatsStatutFilter');
+    localStorage.removeItem('mandatsSearch');
+    localStorage.removeItem('mandatsSort');
+    
+    filterMandats();
+}
+
+// Raccourcis clavier
+document.addEventListener('keydown', function(e) {
+    // Ctrl + F pour focus la recherche
+    if (e.ctrlKey && e.key === 'f') {
+        e.preventDefault();
+        document.getElementById('searchInput').focus();
+    }
+    
+    // Échap pour effacer la recherche
+    if (e.key === 'Escape') {
+        document.getElementById('searchInput').value = '';
+        filterMandats();
+    }
+});
+
+// Réinitialiser les filtres au double-clic sur le titre
+document.querySelector('h1').addEventListener('dblclick', resetFilters);
+</script>
 {% endblock %}

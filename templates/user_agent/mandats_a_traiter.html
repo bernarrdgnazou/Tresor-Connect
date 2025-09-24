@@ -1,0 +1,374 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- En-tête avec titre et boutons -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2><i class="fas fa-file-invoice me-2"></i>Mes Mandats</h2>
+        <div>
+            <a href="{{ url_for('deposer_mandat') }}" class="btn btn-success">
+                <i class="fas fa-plus-circle me-1"></i>Nouveau Mandat
+            </a>
+            <button class="btn btn-outline-secondary" type="button" data-bs-toggle="collapse" 
+                    data-bs-target="#filtersCollapse">
+                <i class="fas fa-filter me-1"></i>Filtres
+            </button>
+        </div>
+    </div>
+
+    <!-- Panneau de filtres -->
+    <div class="collapse mb-4" id="filtersCollapse">
+        <div class="card card-body">
+            <form method="get" class="row g-3">
+                <div class="col-md-3">
+                    <label for="statut" class="form-label">Statut</label>
+                    <select name="statut" id="statut" class="form-select">
+                        <option value="">Tous les statuts</option>
+                        {% for statut in tous_statuts %}
+                        <option value="{{ statut.name }}" 
+                                {% if request.args.get('statut') == statut.name %}selected{% endif %}>
+                            {{ statut.value }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label for="fournisseur" class="form-label">Fournisseur</label>
+                    <select name="fournisseur_id" id="fournisseur" class="form-select">
+                        <option value="">Tous les fournisseurs</option>
+                        {% for fournisseur in fournisseurs %}
+                        <option value="{{ fournisseur.id }}" 
+                                {% if request.args.get('fournisseur_id')|int == fournisseur.id %}selected{% endif %}>
+                            {{ fournisseur.nom }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label for="date_debut" class="form-label">Date début</label>
+                    <input type="date" name="date_debut" id="date_debut" 
+                           value="{{ request.args.get('date_debut') }}" class="form-control">
+                </div>
+                <div class="col-md-3">
+                    <label for="date_fin" class="form-label">Date fin</label>
+                    <input type="date" name="date_fin" id="date_fin" 
+                           value="{{ request.args.get('date_fin') }}" class="form-control">
+                </div>
+                <div class="col-12">
+                    <div class="d-flex gap-2">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-search me-1"></i>Appliquer
+                        </button>
+                        <a href="{{ url_for('liste_mandats') }}" class="btn btn-outline-secondary">
+                            <i class="fas fa-times me-1"></i>Réinitialiser
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Résumé des filtres -->
+    {% if filtres_actifs %}
+    <div class="alert alert-info d-flex justify-content-between align-items-center">
+        <div>
+            <strong>Filtres actifs :</strong>
+            {% for filtre in filtres_actifs %}
+            <span class="badge bg-primary ms-2">{{ filtre }}</span>
+            {% endfor %}
+        </div>
+        <a href="{{ url_for('liste_mandats') }}" class="btn btn-sm btn-outline-info">
+            Tout effacer
+        </a>
+    </div>
+    {% endif %}
+
+    <!-- Statistiques rapides -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex flex-wrap gap-3">
+                <span class="badge bg-light text-dark border">
+                    Total: <strong>{{ mandats.total }}</strong>
+                </span>
+                {% for stat in stats_filtrees %}
+                <span class="badge bg-{{ stat.color }}">
+                    {{ stat.nom }}: <strong>{{ stat.count }}</strong>
+                </span>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Tableau des mandats -->
+    <div class="card shadow">
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>
+                                <input type="checkbox" id="selectAll" class="form-check-input">
+                            </th>
+                            <th>Référence</th>
+                            <th>Fournisseur</th>
+                            <th>Montant TTC</th>
+                            <th>Statut</th>
+                            <th>Date dépôt</th>
+                            <th>Dernière action</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for mandat in mandats.items %}
+                        <tr class="{% if mandat.urgence %}table-warning{% endif %}">
+                            <td>
+                                <input type="checkbox" name="mandat_ids" value="{{ mandat.id }}" 
+                                       class="form-check-input mandat-checkbox">
+                            </td>
+                            <td>
+                                <div class="d-flex align-items-center">
+                                    <strong>{{ mandat.reference }}</strong>
+                                    {% if mandat.urgence %}
+                                    <span class="badge bg-danger ms-2" data-bs-toggle="tooltip" 
+                                          title="Mandat urgent">
+                                        <i class="fas fa-exclamation"></i>
+                                    </span>
+                                    {% endif %}
+                                    {% if mandat.pieces_jointes %}
+                                    <span class="badge bg-info ms-1" data-bs-toggle="tooltip" 
+                                          title="Pièces jointes disponibles">
+                                        <i class="fas fa-paperclip"></i>
+                                    </span>
+                                    {% endif %}
+                                </div>
+                            </td>
+                            <td>
+                                <div>
+                                    <strong>{{ mandat.fournisseur.nom }}</strong>
+                                    <br>
+                                    <small class="text-muted">{{ mandat.fournisseur.email }}</small>
+                                </div>
+                            </td>
+                            <td>
+                                <strong class="text-primary">{{ "{:,.2f} €".format(mandat.montant) }}</strong>
+                                {% if mandat.montant_ht %}
+                                <br>
+                                <small class="text-muted">HT: {{ "{:,.2f} €".format(mandat.montant_ht) }}</small>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <span class="badge bg-{{ mandat.statut.color }} badge-lg">
+                                    <i class="fas fa-{{ mandat.statut.icon }} me-1"></i>
+                                    {{ mandat.statut.value }}
+                                </span>
+                                {% if mandat.correction_requise %}
+                                <br>
+                                <small class="text-danger">
+                                    <i class="fas fa-exclamation-triangle"></i> Correction requise
+                                </small>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {{ mandat.date_depot.strftime('%d/%m/%Y') }}
+                                <br>
+                                <small class="text-muted">{{ mandat.date_depot.strftime('%H:%M') }}</small>
+                            </td>
+                            <td>
+                                {% if mandat.historique %}
+                                <small>
+                                    {{ mandat.historique[-1].action }}
+                                    <br>
+                                    <span class="text-muted">{{ mandat.historique[-1].date_action|time_ago }}</span>
+                                </small>
+                                {% else %}
+                                <span class="text-muted">-</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <div class="btn-group btn-group-sm" role="group">
+                                    <a href="{{ url_for('detail_mandat', mandat_id=mandat.id) }}" 
+                                       class="btn btn-outline-primary" data-bs-toggle="tooltip" title="Voir détails">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
+                                    {% if mandat.statut.name in ['EN_ATTENTE', 'EN_COURS'] %}
+                                    <a href="{{ url_for('modifier_mandat', mandat_id=mandat.id) }}" 
+                                       class="btn btn-outline-warning" data-bs-toggle="tooltip" title="Modifier">
+                                        <i class="fas fa-edit"></i>
+                                    </a>
+                                    {% endif %}
+                                    {% if mandat.correction_requise %}
+                                    <a href="{{ url_for('corriger_mandat', mandat_id=mandat.id) }}" 
+                                       class="btn btn-outline-danger" data-bs-toggle="tooltip" title="Corriger">
+                                        <i class="fas fa-wrench"></i>
+                                    </a>
+                                    {% endif %}
+                                </div>
+                            </td>
+                        </tr>
+                        {% else %}
+                        <tr>
+                            <td colspan="8" class="text-center py-5">
+                                <i class="fas fa-inbox fa-3x text-muted mb-3"></i>
+                                <h5 class="text-muted">Aucun mandat trouvé</h5>
+                                <p class="text-muted">
+                                    {% if filtres_actifs %}
+                                    Aucun mandat ne correspond à vos critères de recherche.
+                                    {% else %}
+                                    Vous n'avez pas encore déposé de mandat.
+                                    {% endif %}
+                                </p>
+                                <a href="{{ url_for('deposer_mandat') }}" class="btn btn-primary mt-2">
+                                    <i class="fas fa-plus me-1"></i>Déposer un mandat
+                                </a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Pied de tableau avec pagination -->
+        {% if mandats.pages > 1 %}
+        <div class="card-footer">
+            <nav aria-label="Pagination">
+                <ul class="pagination justify-content-center mb-0">
+                    <!-- Premier -->
+                    <li class="page-item {% if not mandats.has_prev %}disabled{% endif %}">
+                        <a class="page-link" href="{{ url_for('liste_mandats', page=1, **request.args) }}">
+                            <i class="fas fa-angle-double-left"></i>
+                        </a>
+                    </li>
+                    
+                    <!-- Précédent -->
+                    <li class="page-item {% if not mandats.has_prev %}disabled{% endif %}">
+                        <a class="page-link" href="{{ url_for('liste_mandats', page=mandats.prev_num, **request.args) }}">
+                            <i class="fas fa-angle-left"></i>
+                        </a>
+                    </li>
+
+                    <!-- Pages -->
+                    {% for page_num in mandats.iter_pages(left_edge=1, right_edge=1, left_current=2, right_current=2) %}
+                        {% if page_num %}
+                            <li class="page-item {% if page_num == mandats.page %}active{% endif %}">
+                                <a class="page-link" href="{{ url_for('liste_mandats', page=page_num, **request.args) }}">
+                                    {{ page_num }}
+                                </a>
+                            </li>
+                        {% else %}
+                            <li class="page-item disabled">
+                                <span class="page-link">...</span>
+                            </li>
+                        {% endif %}
+                    {% endfor %}
+
+                    <!-- Suivant -->
+                    <li class="page-item {% if not mandats.has_next %}disabled{% endif %}">
+                        <a class="page-link" href="{{ url_for('liste_mandats', page=mandats.next_num, **request.args) }}">
+                            <i class="fas fa-angle-right"></i>
+                        </a>
+                    </li>
+
+                    <!-- Dernier -->
+                    <li class="page-item {% if not mandats.has_next %}disabled{% endif %}">
+                        <a class="page-link" href="{{ url_for('liste_mandats', page=mandats.pages, **request.args) }}">
+                            <i class="fas fa-angle-double-right"></i>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Actions groupées -->
+    <div class="mt-3 p-3 bg-light rounded d-none" id="actionsGroupées">
+        <div class="d-flex justify-content-between align-items-center">
+            <span id="nbSelectionnes">0 mandat(s) sélectionné(s)</span>
+            <div class="btn-group">
+                <button type="button" class="btn btn-outline-secondary btn-sm" 
+                        onclick="exporterSelection()">
+                    <i class="fas fa-download me-1"></i>Exporter
+                </button>
+                <button type="button" class="btn btn-outline-danger btn-sm" 
+                        onclick="supprimerSelection()">
+                    <i class="fas fa-trash me-1"></i>Supprimer
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+// Gestion de la sélection multiple
+document.addEventListener('DOMContentLoaded', function() {
+    const selectAll = document.getElementById('selectAll');
+    const checkboxes = document.querySelectorAll('.mandat-checkbox');
+    const actionsGroupees = document.getElementById('actionsGroupées');
+
+    // Sélection/désélection globale
+    selectAll.addEventListener('change', function() {
+        checkboxes.forEach(checkbox => {
+            checkbox.checked = selectAll.checked;
+        });
+        toggleActionsGroupees();
+    });
+
+    // Gestion individuelle
+    checkboxes.forEach(checkbox => {
+        checkbox.addEventListener('change', function() {
+            // Met à jour la case "Tout sélectionner"
+            selectAll.checked = [...checkboxes].every(cb => cb.checked);
+            toggleActionsGroupees();
+        });
+    });
+
+    function toggleActionsGroupees() {
+        const nbSelectionnes = document.querySelectorAll('.mandat-checkbox:checked').length;
+        const nbSpan = document.getElementById('nbSelectionnes');
+        
+        nbSpan.textContent = `${nbSelectionnes} mandat(s) sélectionné(s)`;
+        
+        if (nbSelectionnes > 0) {
+            actionsGroupees.classList.remove('d-none');
+        } else {
+            actionsGroupees.classList.add('d-none');
+        }
+    }
+
+    // Tooltips Bootstrap
+    $('[data-bs-toggle="tooltip"]').tooltip();
+});
+
+function exporterSelection() {
+    const selected = Array.from(document.querySelectorAll('.mandat-checkbox:checked'))
+                         .map(cb => cb.value);
+    if (selected.length > 0) {
+        // Implémenter l'export
+        alert(`Export des mandats: ${selected.join(', ')}`);
+    }
+}
+
+function supprimerSelection() {
+    const selected = Array.from(document.querySelectorAll('.mandat-checkbox:checked'))
+                         .map(cb => cb.value);
+    if (selected.length > 0 && confirm(`Supprimer ${selected.length} mandat(s) ?`)) {
+        // Implémenter la suppression
+        alert(`Suppression des mandats: ${selected.join(', ')}`);
+    }
+}
+</script>
+
+<style>
+.badge-lg {
+    font-size: 0.85em;
+    padding: 0.35em 0.65em;
+}
+.table th {
+    border-top: none;
+    font-weight: 600;
+}
+</style>
+{% endblock %}

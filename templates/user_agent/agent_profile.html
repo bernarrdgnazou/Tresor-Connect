@@ -1,19 +1,472 @@
 {% extends "base.html" %}
 
-{% block title %}Agent Profile{% endblock %}
+{% block title %}Mon Profil Agent - TRÉSOR CONNECT{% endblock %}
+
+{% block style %}
+<style>
+    .profile-card {
+        border: none;
+        border-radius: 15px;
+        box-shadow: 0 5px 25px rgba(0,0,0,0.1);
+        overflow: hidden;
+    }
+    
+    .profile-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 40px 30px;
+        position: relative;
+    }
+    
+    .profile-avatar {
+        width: 120px;
+        height: 120px;
+        border: 5px solid white;
+        border-radius: 50%;
+        background: #f8f9fa;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 3rem;
+        color: #667eea;
+    }
+    
+    .stat-badge {
+        font-size: 0.8em;
+        padding: 6px 12px;
+        border-radius: 20px;
+    }
+    
+    .info-item {
+        border-left: 3px solid #667eea;
+        padding-left: 15px;
+        margin-bottom: 20px;
+    }
+    
+    .edit-btn {
+        position: absolute;
+        top: 20px;
+        right: 20px;
+    }
+    
+    .activity-timeline {
+        position: relative;
+        padding-left: 30px;
+    }
+    
+    .activity-timeline::before {
+        content: '';
+        position: absolute;
+        left: 15px;
+        top: 0;
+        bottom: 0;
+        width: 2px;
+        background: #e9ecef;
+    }
+    
+    .timeline-item {
+        position: relative;
+        margin-bottom: 25px;
+    }
+    
+    .timeline-item::before {
+        content: '';
+        position: absolute;
+        left: -23px;
+        top: 5px;
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        background: #667eea;
+        border: 3px solid white;
+    }
+</style>
+{% endblock %}
 
 {% block content %}
-<div class="container">
-    <div class="row">
+<div class="container-fluid py-4">
+    <!-- En-tête du profil -->
+    <div class="row mb-4">
         <div class="col-12">
-            <h1>Agent Profile</h1>
-            <p>Template agent_profile.html - En cours de développement</p>
-            
-            <div class="alert alert-info">
-                <i class="fas fa-info-circle"></i> 
-                Cette page est en cours de construction. Contenu à compléter.
+            <div class="profile-card">
+                <div class="profile-header">
+                    <button class="btn btn-light edit-btn" data-bs-toggle="modal" data-bs-target="#editProfileModal">
+                        <i class="fas fa-edit me-1"></i>Modifier
+                    </button>
+                    
+                    <div class="row align-items-center">
+                        <div class="col-auto">
+                            <div class="profile-avatar">
+                                <i class="fas fa-user-tie"></i>
+                            </div>
+                        </div>
+                        <div class="col">
+                            <h1 class="h3 mb-2">{{ current_user.nom_complet }}</h1>
+                            <p class="mb-1">
+                                <span class="stat-badge bg-light text-dark">
+                                    <i class="fas fa-user-tag me-1"></i>Agent
+                                </span>
+                                {% if current_user.service %}
+                                <span class="stat-badge bg-light text-dark ms-2">
+                                    <i class="fas fa-building me-1"></i>{{ current_user.service }}
+                                </span>
+                                {% endif %}
+                            </p>
+                            <p class="mb-0 opacity-75">
+                                <i class="fas fa-id-card me-1"></i>Membre depuis 
+                                {{ current_user.date_creation.strftime('%d/%m/%Y') }}
+                            </p>
+                        </div>
+                        <div class="col-auto text-end">
+                            <div class="d-flex flex-column">
+                                <span class="h4 mb-1">{{ stats.mandats_total if stats else 0 }}</span>
+                                <small class="opacity-75">Mandats déposés</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="card-body">
+                    <div class="row">
+                        <!-- Informations personnelles -->
+                        <div class="col-lg-6">
+                            <h5 class="mb-4">
+                                <i class="fas fa-user-circle me-2 text-primary"></i>Informations Personnelles
+                            </h5>
+                            
+                            <div class="info-item">
+                                <label class="text-muted small">Email</label>
+                                <p class="mb-0 fw-bold">{{ current_user.email }}</p>
+                            </div>
+                            
+                            <div class="info-item">
+                                <label class="text-muted small">Téléphone</label>
+                                <p class="mb-0 fw-bold">{{ current_user.telephone }}</p>
+                            </div>
+                            
+                            <div class="info-item">
+                                <label class="text-muted small">Service/Unité</label>
+                                <p class="mb-0 fw-bold">{{ current_user.service or "Non spécifié" }}</p>
+                            </div>
+                            
+                            <div class="info-item">
+                                <label class="text-muted small">Dernière connexion</label>
+                                <p class="mb-0 fw-bold">
+                                    {% if current_user.last_login %}
+                                        {{ current_user.last_login.strftime('%d/%m/%Y à %H:%M') }}
+                                    {% else %}
+                                        Première connexion
+                                    {% endif %}
+                                </p>
+                            </div>
+                        </div>
+                        
+                        <!-- Statistiques rapides -->
+                        <div class="col-lg-6">
+                            <h5 class="mb-4">
+                                <i class="fas fa-chart-bar me-2 text-success"></i>Statistiques d'Activité
+                            </h5>
+                            
+                            <div class="row text-center">
+                                <div class="col-6 mb-3">
+                                    <div class="border rounded p-3">
+                                        <div class="h3 text-primary mb-1">{{ stats.mandats_total if stats else 0 }}</div>
+                                        <small class="text-muted">Total Mandats</small>
+                                    </div>
+                                </div>
+                                <div class="col-6 mb-3">
+                                    <div class="border rounded p-3">
+                                        <div class="h3 text-warning mb-1">{{ stats.mandats_en_cours if stats else 0 }}</div>
+                                        <small class="text-muted">En Cours</small>
+                                    </div>
+                                </div>
+                                <div class="col-6">
+                                    <div class="border rounded p-3">
+                                        <div class="h3 text-success mb-1">{{ stats.mandats_valides if stats else 0 }}</div>
+                                        <small class="text-muted">Validés</small>
+                                    </div>
+                                </div>
+                                <div class="col-6">
+                                    <div class="border rounded p-3">
+                                        <div class="h3 text-info mb-1">{{ stats.mandats_payes if stats else 0 }}</div>
+                                        <small class="text-muted">Payés</small>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Actions rapides -->
+                            <div class="mt-4">
+                                <h6 class="text-muted mb-3">Actions Rapides</h6>
+                                <div class="d-grid gap-2">
+                                    <a href="{{ url_for('deposer_mandat') }}" class="btn btn-primary btn-sm">
+                                        <i class="fas fa-plus-circle me-1"></i>Déposer un Mandat
+                                    </a>
+                                    <a href="{{ url_for('mes_mandats') }}" class="btn btn-outline-primary btn-sm">
+                                        <i class="fas fa-list me-1"></i>Voir mes Mandats
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Dernières activités -->
+    <div class="row">
+        <div class="col-lg-8">
+            <div class="card profile-card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-history me-2 text-warning"></i>Activité Récente
+                    </h5>
+                </div>
+                <div class="card-body">
+                    {% if activites_recentes %}
+                    <div class="activity-timeline">
+                        {% for activite in activites_recentes %}
+                        <div class="timeline-item">
+                            <div class="d-flex justify-content-between align-items-start">
+                                <div>
+                                    <h6 class="mb-1">{{ activite.action }}</h6>
+                                    <p class="text-muted mb-1 small">{{ activite.description }}</p>
+                                    <small class="text-muted">
+                                        <i class="fas fa-clock me-1"></i>
+                                        {{ activite.date.strftime('%d/%m/%Y à %H:%M') }}
+                                    </small>
+                                </div>
+                                <span class="badge bg-light text-dark">
+                                    {{ activite.type }}
+                                </span>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    <div class="text-center py-4">
+                        <i class="fas fa-inbox fa-3x text-muted mb-3"></i>
+                        <p class="text-muted">Aucune activité récente</p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        
+        <!-- Paramètres du compte -->
+        <div class="col-lg-4">
+            <div class="card profile-card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-cog me-2 text-secondary"></i>Paramètres du Compte
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="list-group list-group-flush">
+                        <a href="#" class="list-group-item list-group-item-action" data-bs-toggle="modal" data-bs-target="#changePasswordModal">
+                            <i class="fas fa-key me-2 text-warning"></i>Changer le mot de passe
+                        </a>
+                        <a href="#" class="list-group-item list-group-item-action">
+                            <i class="fas fa-bell me-2 text-info"></i>Préférences de notifications
+                        </a>
+                        <a href="#" class="list-group-item list-group-item-action">
+                            <i class="fas fa-download me-2 text-success"></i>Exporter mes données
+                        </a>
+                        <a href="{{ url_for('statistiques') }}" class="list-group-item list-group-item-action">
+                            <i class="fas fa-chart-line me-2 text-primary"></i>Mes statistiques détaillées
+                        </a>
+                    </div>
+                    
+                    <hr>
+                    
+                    <!-- Informations de sécurité -->
+                    <div class="mt-3">
+                        <h6 class="text-muted mb-3">Sécurité du Compte</h6>
+                        <div class="d-flex align-items-center mb-2">
+                            <i class="fas fa-check-circle text-success me-2"></i>
+                            <small>Authentification à deux facteurs</small>
+                            <span class="badge bg-success ms-auto">Activé</span>
+                        </div>
+                        <div class="d-flex align-items-center mb-2">
+                            <i class="fas fa-check-circle text-success me-2"></i>
+                            <small>Dernière connexion</small>
+                            <small class="text-muted ms-auto">
+                                {% if current_user.last_login %}
+                                    {{ current_user.last_login.strftime('%d/%m %H:%M') }}
+                                {% else %}
+                                    Jamais
+                                {% endif %}
+                            </small>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
 </div>
+
+<!-- Modal Modification du Profil -->
+<div class="modal fade" id="editProfileModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Modifier le Profil</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="editProfileForm">
+                    <div class="mb-3">
+                        <label class="form-label">Nom Complet</label>
+                        <input type="text" class="form-control" value="{{ current_user.nom_complet }}" name="nom_complet">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Email</label>
+                        <input type="email" class="form-control" value="{{ current_user.email }}" name="email">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Téléphone</label>
+                        <input type="tel" class="form-control" value="{{ current_user.telephone }}" name="telephone">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Service/Unité</label>
+                        <input type="text" class="form-control" value="{{ current_user.service or '' }}" name="service">
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                <button type="button" class="btn btn-primary" onclick="updateProfile()">Enregistrer</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Changement de Mot de Passe -->
+<div class="modal fade" id="changePasswordModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Changer le Mot de Passe</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="changePasswordForm">
+                    <div class="mb-3">
+                        <label class="form-label">Mot de passe actuel</label>
+                        <input type="password" class="form-control" name="current_password" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Nouveau mot de passe</label>
+                        <input type="password" class="form-control" name="new_password" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Confirmer le nouveau mot de passe</label>
+                        <input type="password" class="form-control" name="confirm_password" required>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                <button type="button" class="btn btn-primary" onclick="changePassword()">Changer le mot de passe</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+// Mise à jour du profil
+function updateProfile() {
+    const formData = new FormData(document.getElementById('editProfileForm'));
+    
+    fetch('{{ url_for("api_user_profile") }}', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(Object.fromEntries(formData))
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.message) {
+            showAlert('success', 'Profil mis à jour avec succès');
+            $('#editProfileModal').modal('hide');
+            setTimeout(() => location.reload(), 1000);
+        } else {
+            showAlert('error', data.error || 'Erreur lors de la mise à jour');
+        }
+    })
+    .catch(error => {
+        showAlert('error', 'Erreur réseau');
+    });
+}
+
+// Changement de mot de passe
+function changePassword() {
+    const formData = new FormData(document.getElementById('changePasswordForm'));
+    const data = Object.fromEntries(formData);
+    
+    if (data.new_password !== data.confirm_password) {
+        showAlert('error', 'Les mots de passe ne correspondent pas');
+        return;
+    }
+    
+    fetch('{{ url_for("api_change_password") }}', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data)
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            showAlert('success', 'Mot de passe changé avec succès');
+            $('#changePasswordModal').modal('hide');
+            document.getElementById('changePasswordForm').reset();
+        } else {
+            showAlert('error', data.error || 'Erreur lors du changement');
+        }
+    });
+}
+
+// Fonction d'affichage des alertes
+function showAlert(type, message) {
+    const alertClass = type === 'success' ? 'alert-success' : 'alert-danger';
+    const alertHtml = `
+        <div class="alert ${alertClass} alert-dismissible fade show position-fixed" 
+             style="top: 20px; right: 20px; z-index: 1060; min-width: 300px;">
+            <i class="fas fa-${type === 'success' ? 'check' : 'exclamation'}-circle me-2"></i>
+            ${message}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    `;
+    
+    document.body.insertAdjacentHTML('beforeend', alertHtml);
+    
+    setTimeout(() => {
+        const alert = document.querySelector('.alert');
+        if (alert) alert.remove();
+    }, 5000);
+}
+
+// Initialisation
+document.addEventListener('DOMContentLoaded', function() {
+    // Animation des éléments
+    const animatedElements = document.querySelectorAll('.profile-card, .timeline-item');
+    animatedElements.forEach((el, index) => {
+        setTimeout(() => {
+            el.style.opacity = '0';
+            el.style.transform = 'translateY(20px)';
+            el.style.transition = 'all 0.6s ease';
+            
+            setTimeout(() => {
+                el.style.opacity = '1';
+                el.style.transform = 'translateY(0)';
+            }, 50);
+        }, index * 100);
+    });
+});
+</script>
 {% endblock %}

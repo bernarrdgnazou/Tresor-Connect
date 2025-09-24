@@ -1,19 +1,607 @@
 {% extends "base.html" %}
 
-{% block title %}Mandat Detail Fournisseur{% endblock %}
+{% block title %}Mandat {{ mandat.reference }} - Détail Fournisseur{% endblock %}
 
 {% block content %}
-<div class="container">
+<div class="container-fluid">
+    <!-- En-tête avec navigation -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="{{ url_for('dashboard') }}">Dashboard</a></li>
+                    <li class="breadcrumb-item"><a href="{{ url_for('liste_mandats') }}">Mes Mandats</a></li>
+                    <li class="breadcrumb-item active">Détail {{ mandat.reference }}</li>
+                </ol>
+            </nav>
+            <h2 class="mb-0">
+                <i class="fas fa-file-invoice me-2"></i>Mandat {{ mandat.reference }}
+                {% if mandat.urgence %}
+                <span class="badge bg-danger ms-2">Urgent</span>
+                {% endif %}
+            </h2>
+        </div>
+        <div class="btn-group">
+            <a href="{{ url_for('liste_mandats') }}" class="btn btn-outline-secondary">
+                <i class="fas fa-arrow-left me-1"></i>Retour à la liste
+            </a>
+            <button class="btn btn-outline-primary" onclick="window.print()">
+                <i class="fas fa-print me-1"></i>Imprimer
+            </button>
+            {% if mandat.statut.name in ['VALIDE', 'PRET_A_PAYER'] %}
+            <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#modalFacture">
+                <i class="fas fa-file-invoice-dollar me-1"></i>Déposer facture
+            </button>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Alertes importantes -->
+    {% if mandat.correction_requise %}
+    <div class="alert alert-warning alert-dismissible fade show">
+        <div class="d-flex align-items-center">
+            <i class="fas fa-exclamation-triangle fa-2x me-3"></i>
+            <div>
+                <h5 class="alert-heading mb-1">Correction requise</h5>
+                <p class="mb-0">Ce mandat nécessite des corrections de votre part. Veuillez contacter l'agent pour plus d'informations.</p>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
     <div class="row">
-        <div class="col-12">
-            <h1>Mandat Detail Fournisseur</h1>
-            <p>Template mandat_detail_fournisseur.html - En cours de développement</p>
-            
-            <div class="alert alert-info">
-                <i class="fas fa-info-circle"></i> 
-                Cette page est en cours de construction. Contenu à compléter.
+        <!-- Colonne principale -->
+        <div class="col-lg-8">
+            <!-- Carte Informations générales -->
+            <div class="card shadow mb-4">
+                <div class="card-header bg-light d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0"><i class="fas fa-info-circle me-2"></i>Informations générales</h5>
+                    <span class="badge bg-{{ mandat.statut.color }} fs-6">
+                        {{ mandat.statut.value }}
+                    </span>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <table class="table table-borderless">
+                                <tr>
+                                    <td class="fw-bold text-muted" width="40%">Référence:</td>
+                                    <td class="fs-5">{{ mandat.reference }}</td>
+                                </tr>
+                                <tr>
+                                    <td class="fw-bold text-muted">Date création:</td>
+                                    <td>{{ mandat.date_depot.strftime('%d/%m/%Y à %H:%M') }}</td>
+                                </tr>
+                                <tr>
+                                    <td class="fw-bold text-muted">Date échéance:</td>
+                                    <td>
+                                        {{ mandat.date_echeance.strftime('%d/%m/%Y') }}
+                                        {% set jours_restants = (mandat.date_echeance - now).days %}
+                                        {% if jours_restants < 0 %}
+                                        <span class="badge bg-danger ms-2">Dépassée</span>
+                                        {% elif jours_restants <= 3 %}
+                                        <span class="badge bg-warning ms-2">J-{{ jours_restants }}</span>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="fw-bold text-muted">Agent:</td>
+                                    <td>{{ mandat.agent.nom }} {{ mandat.agent.prenom }}</td>
+                                </tr>
+                            </table>
+                        </div>
+                        <div class="col-md-6">
+                            <table class="table table-borderless">
+                                <tr>
+                                    <td class="fw-bold text-muted" width="40%">Montant TTC:</td>
+                                    <td class="fs-4 text-primary fw-bold">{{ "{:,.2f} €".format(mandat.montant) }}</td>
+                                </tr>
+                                {% if mandat.montant_ht %}
+                                <tr>
+                                    <td class="fw-bold text-muted">Montant HT:</td>
+                                    <td class="fs-6">{{ "{:,.2f} €".format(mandat.montant_ht) }}</td>
+                                </tr>
+                                {% endif %}
+                                <tr>
+                                    <td class="fw-bold text-muted">Service:</td>
+                                    <td>{{ mandat.agent.service or 'Non spécifié' }}</td>
+                                </tr>
+                                <tr>
+                                    <td class="fw-bold text-muted">Téléphone:</td>
+                                    <td>{{ mandat.agent.telephone or 'Non renseigné' }}</td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+                    
+                    <!-- Description -->
+                    {% if mandat.description %}
+                    <div class="mt-4">
+                        <label class="fw-bold text-muted">Description du mandat:</label>
+                        <div class="border rounded p-3 bg-light">
+                            {{ mandat.description|nl2br }}
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Carte Informations de paiement -->
+            <div class="card shadow mb-4">
+                <div class="card-header bg-light">
+                    <h5 class="mb-0"><i class="fas fa-money-check me-2"></i>Informations de paiement</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h6 class="text-muted mb-3">Dates importantes</h6>
+                            <table class="table table-sm table-borderless">
+                                <tr>
+                                    <td><i class="fas fa-upload me-2 text-primary"></i>Dépôt:</td>
+                                    <td class="text-end">{{ mandat.date_depot.strftime('%d/%m/%Y') }}</td>
+                                </tr>
+                                {% if mandat.date_validation %}
+                                <tr>
+                                    <td><i class="fas fa-check me-2 text-success"></i>Validation:</td>
+                                    <td class="text-end">{{ mandat.date_validation.strftime('%d/%m/%Y') }}</td>
+                                </tr>
+                                {% endif %}
+                                {% if mandat.date_paiement %}
+                                <tr class="table-success">
+                                    <td><i class="fas fa-money-bill-wave me-2 text-success"></i>Paiement effectué:</td>
+                                    <td class="text-end fw-bold">{{ mandat.date_paiement.strftime('%d/%m/%Y') }}</td>
+                                </tr>
+                                {% endif %}
+                                <tr class="{% if (mandat.date_echeance - now).days <= 3 %}table-warning{% endif %}">
+                                    <td><i class="fas fa-clock me-2 text-warning"></i>Échéance prévue:</td>
+                                    <td class="text-end">{{ mandat.date_echeance.strftime('%d/%m/%Y') }}</td>
+                                </tr>
+                            </table>
+                        </div>
+                        <div class="col-md-6">
+                            <h6 class="text-muted mb-3">Statut du paiement</h6>
+                            <div class="text-center py-3">
+                                <div class="mb-3">
+                                    <i class="fas fa-{{ get_paiement_icon(mandat.statut) }} fa-3x text-{{ mandat.statut.color }}"></i>
+                                </div>
+                                <h5 class="text-{{ mandat.statut.color }}">{{ mandat.statut.value }}</h5>
+                                {% if mandat.statut.name == 'PAYE' %}
+                                <p class="text-success mb-0">
+                                    <i class="fas fa-check-circle me-1"></i>
+                                    Paiement effectué le {{ mandat.date_paiement.strftime('%d/%m/%Y') }}
+                                </p>
+                                {% elif mandat.statut.name == 'PRET_A_PAYER' %}
+                                <p class="text-info mb-0">
+                                    <i class="fas fa-info-circle me-1"></i>
+                                    Paiement programmé
+                                </p>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Carte Historique -->
+            <div class="card shadow mb-4">
+                <div class="card-header bg-light">
+                    <h5 class="mb-0"><i class="fas fa-history me-2"></i>Historique du mandat</h5>
+                </div>
+                <div class="card-body">
+                    {% if mandat.historique %}
+                    <div class="timeline">
+                        {% for historique in mandat.historique|sort(attribute='date_action', reverse=true) %}
+                        <div class="timeline-item {% if loop.first %}timeline-item-current{% endif %}">
+                            <div class="timeline-marker bg-{{ historique.action_type }}"></div>
+                            <div class="timeline-content">
+                                <div class="d-flex justify-content-between align-items-start">
+                                    <div>
+                                        <h6 class="mb-1">{{ historique.action }}</h6>
+                                        <p class="mb-1 small text-muted">
+                                            <i class="fas fa-user me-1"></i>{{ historique.user.nom }} {{ historique.user.prenom }}
+                                            <span class="mx-2">•</span>
+                                            <i class="fas fa-building me-1"></i>{{ historique.service }}
+                                        </p>
+                                        {% if historique.commentaire %}
+                                        <div class="alert alert-light border small mb-0 mt-2">
+                                            <i class="fas fa-comment me-1"></i>{{ historique.commentaire }}
+                                        </div>
+                                        {% endif %}
+                                    </div>
+                                    <small class="text-muted">{{ historique.date_action }}</small>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    <p class="text-muted text-center py-3">Aucun historique disponible</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Colonne latérale -->
+        <div class="col-lg-4">
+            <!-- Carte Contact Agent -->
+            <div class="card shadow mb-4">
+                <div class="card-header bg-light">
+                    <h5 class="mb-0"><i class="fas fa-user-tie me-2"></i>Contact Agent</h5>
+                </div>
+                <div class="card-body">
+                    <div class="text-center mb-3">
+                        <div class="avatar-lg bg-primary rounded-circle d-inline-flex align-items-center justify-content-center">
+                            <i class="fas fa-user text-white fa-2x"></i>
+                        </div>
+                        <h5 class="mt-2 mb-1">{{ mandat.agent.nom }} {{ mandat.agent.prenom }}</h5>
+                        <p class="text-muted mb-2">{{ mandat.agent.service or 'Service non spécifié' }}</p>
+                    </div>
+                    
+                    <div class="list-group list-group-flush">
+                        {% if mandat.agent.email %}
+                        <div class="list-group-item d-flex justify-content-between align-items-center">
+                            <span><i class="fas fa-envelope me-2 text-muted"></i>Email</span>
+                            <a href="mailto:{{ mandat.agent.email }}" class="text-decoration-none">
+                                {{ mandat.agent.email|truncate(20) }}
+                            </a>
+                        </div>
+                        {% endif %}
+                        
+                        {% if mandat.agent.telephone %}
+                        <div class="list-group-item d-flex justify-content-between align-items-center">
+                            <span><i class="fas fa-phone me-2 text-muted"></i>Téléphone</span>
+                            <a href="tel:{{ mandat.agent.telephone }}" class="text-decoration-none">
+                                {{ mandat.agent.telephone }}
+                            </a>
+                        </div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="mt-3">
+                        <button class="btn btn-outline-primary w-100" data-bs-toggle="modal" data-bs-target="#modalContact">
+                            <i class="fas fa-comment me-1"></i>Envoyer un message
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Carte Pièces jointes -->
+            <div class="card shadow mb-4">
+                <div class="card-header bg-light d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0"><i class="fas fa-paperclip me-2"></i>Pièces jointes</h5>
+                    <span class="badge bg-primary">{{ mandat.pieces_jointes|length }}</span>
+                </div>
+                <div class="card-body">
+                    {% if mandat.pieces_jointes %}
+                    <div class="list-group list-group-flush">
+                        {% for piece in mandat.pieces_jointes %}
+                        <div class="list-group-item d-flex justify-content-between align-items-center">
+                            <div class="d-flex align-items-center">
+                                <i class="fas fa-file-{{ piece.type_fichier }} me-2 text-primary"></i>
+                                <div>
+                                    <div class="small fw-bold">{{ piece.nom_fichier|truncate(25) }}</div>
+                                    <div class="text-muted">{{ piece.date_ajout.strftime('%d/%m/%Y') }}</div>
+                                </div>
+                            </div>
+                            <a href="{{ url_for('download_piece', piece_id=piece.id) }}" 
+                               class="btn btn-sm btn-outline-primary" data-bs-toggle="tooltip" title="Télécharger">
+                                <i class="fas fa-download"></i>
+                            </a>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    <p class="text-muted text-center py-3">Aucune pièce jointe</p>
+                    {% endif %}
+                    
+                    {% if mandat.statut.name in ['VALIDE', 'PRET_A_PAYER'] %}
+                    <div class="mt-3">
+                        <button class="btn btn-sm btn-outline-success w-100" data-bs-toggle="modal" data-bs-target="#modalAjoutPiece">
+                            <i class="fas fa-plus me-1"></i>Ajouter une pièce
+                        </button>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Carte Actions rapides -->
+            <div class="card shadow">
+                <div class="card-header bg-light">
+                    <h5 class="mb-0"><i class="fas fa-bolt me-2"></i>Actions rapides</h5>
+                </div>
+                <div class="card-body">
+                    <div class="d-grid gap-2">
+                        <a href="{{ url_for('liste_mandats_fournisseur') }}" class="btn btn-outline-primary">
+                            <i class="fas fa-list me-1"></i>Retour à la liste
+                        </a>
+                        
+                        <button class="btn btn-outline-info" onclick="window.print()">
+                            <i class="fas fa-print me-1"></i>Imprimer ce mandat
+                        </button>
+                        
+                        {% if mandat.statut.name in ['VALIDE', 'PRET_A_PAYER'] %}
+                        <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#modalFacture">
+                            <i class="fas fa-file-invoice-dollar me-1"></i>Déposer facture
+                        </button>
+                        {% endif %}
+                        
+                        <button class="btn btn-outline-warning" data-bs-toggle="modal" data-bs-target="#modalContact">
+                            <i class="fas fa-question-circle me-1"></i>Demande d'information
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Carte Informations légales -->
+            <div class="card shadow mt-4">
+                <div class="card-header bg-light">
+                    <h5 class="mb-0"><i class="fas fa-gavel me-2"></i>Informations légales</h5>
+                </div>
+                <div class="card-body">
+                    <div class="small text-muted">
+                        <p><strong>Référence mandat:</strong> {{ mandat.reference }}</p>
+                        <p><strong>Date d'émission:</strong> {{ mandat.date_depot.strftime('%d/%m/%Y') }}</p>
+                        <p><strong>Montant engagé:</strong> {{ "{:,.2f} €".format(mandat.montant) }} TTC</p>
+                        <p class="mb-0"><strong>Statut contractuel:</strong> Mandat validé</p>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
 </div>
+
+<!-- Modal Contact Agent -->
+<div class="modal fade" id="modalContact" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Contacter l'agent</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form method="post" action="{{ url_for('contacter_agent', mandat_id=mandat.id) }}">
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">Sujet</label>
+                        <input type="text" name="sujet" class="form-control" 
+                               value="Question concernant le mandat {{ mandat.reference }}" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Message</label>
+                        <textarea name="message" class="form-control" rows="5" 
+                                  placeholder="Votre message à l'agent..." required></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Pièce jointe (optionnelle)</label>
+                        <input type="file" name="piece_jointe" class="form-control">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-paper-plane me-1"></i>Envoyer
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Déposer Facture -->
+<div class="modal fade" id="modalFacture" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Déposer une facture</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form method="post" action="{{ url_for('deposer_facture', mandat_id=mandat.id) }}" enctype="multipart/form-data">
+                <div class="modal-body">
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle me-1"></i>
+                        Déposez votre facture pour le mandat <strong>{{ mandat.reference }}</strong>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">Numéro de facture *</label>
+                                <input type="text" name="numero_facture" class="form-control" required>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">Date de facture *</label>
+                                <input type="date" name="date_facture" class="form-control" required>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">Montant TTC *</label>
+                                <input type="number" step="0.01" name="montant" class="form-control" 
+                                       value="{{ mandat.montant }}" required>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">Montant HT</label>
+                                <input type="number" step="0.01" name="montant_ht" class="form-control"
+                                       value="{{ mandat.montant_ht or '' }}">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Fichier facture (PDF) *</label>
+                        <input type="file" name="fichier_facture" class="form-control" accept=".pdf" required>
+                        <div class="form-text">Format PDF uniquement, taille max. 10MB</div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Commentaire (optionnel)</label>
+                        <textarea name="commentaire" class="form-control" rows="3" 
+                                  placeholder="Informations complémentaires..."></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                    <button type="submit" class="btn btn-success">
+                        <i class="fas fa-file-upload me-1"></i>Déposer la facture
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Ajouter Pièce -->
+<div class="modal fade" id="modalAjoutPiece" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Ajouter une pièce jointe</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form method="post" action="{{ url_for('ajouter_piece_fournisseur', mandat_id=mandat.id) }}" enctype="multipart/form-data">
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">Type de document</label>
+                        <select name="type_document" class="form-select">
+                            <option value="facture">Facture</option>
+                            <option value="bon_livraison">Bon de livraison</option>
+                            <option value="devis">Devis</option>
+                            <option value="autre">Autre</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Fichier</label>
+                        <input type="file" name="piece_jointe" class="form-control" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Description</label>
+                        <textarea name="description" class="form-control" rows="3"></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                    <button type="submit" class="btn btn-primary">Ajouter</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+// Mise à jour automatique du statut
+function updateStatut() {
+    fetch(`/api/mandat/{{ mandat.id }}/statut`)
+        .then(response => response.json())
+        .then(data => {
+            if (!data.error) {
+                // Mettre à jour le badge de statut
+                const badge = document.querySelector('.badge.bg-{{ mandat.statut.color }}');
+                if (badge) {
+                    badge.textContent = data.statut;
+                    badge.className = `badge bg-${data.color} fs-6`;
+                }
+                
+                // Mettre à jour l'icône de statut
+                const icon = document.querySelector('.fa-3x.text-{{ mandat.statut.color }}');
+                if (icon) {
+                    icon.className = `fas fa-${getPaiementIcon(data.statut)} fa-3x text-${data.color}`;
+                }
+            }
+        });
+}
+
+// Actualiser toutes les 30 secondes si le mandat n'est pas payé
+{% if mandat.statut.name != 'PAYE' %}
+setInterval(updateStatut, 30000);
+{% endif %}
+
+// Fonction utilitaire pour obtenir l'icône de paiement
+function getPaiementIcon(statut) {
+    const icons = {
+        'EN_ATTENTE': 'clock',
+        'EN_COURS': 'cog',
+        'VALIDE': 'check-circle',
+        'REJETE': 'times-circle',
+        'PRET_A_PAYER': 'hourglass-half',
+        'PAYE': 'money-check'
+    };
+    return icons[statut] || 'file';
+}
+
+// Gestion des modales
+document.addEventListener('DOMContentLoaded', function() {
+    // Tooltips Bootstrap
+    const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+    const tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+        return new bootstrap.Tooltip(tooltipTriggerEl);
+    });
+});
+</script>
+
+<style>
+.avatar-lg {
+    width: 80px;
+    height: 80px;
+}
+
+.timeline {
+    position: relative;
+    padding-left: 30px;
+}
+
+.timeline-item {
+    position: relative;
+    margin-bottom: 25px;
+}
+
+.timeline-marker {
+    position: absolute;
+    left: -30px;
+    top: 5px;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+}
+
+.timeline-item-current .timeline-marker {
+    width: 14px;
+    height: 14px;
+}
+
+.timeline-content {
+    background: white;
+    padding: 15px;
+    border-radius: 8px;
+    border: 1px solid #e9ecef;
+}
+
+.bg-validation { background-color: #198754; }
+.bg-rejet { background-color: #dc3545; }
+.bg-info { background-color: #0dcaf0; }
+.bg-warning { background-color: #ffc107; }
+
+/* Styles d'impression */
+@media print {
+    .btn, .modal, .alert {
+        display: none !important;
+    }
+    
+    .card {
+        border: 1px solid #000 !important;
+        break-inside: avoid;
+    }
+    
+    .timeline-content {
+        border: 1px solid #000 !important;
+    }
+}
+</style>
 {% endblock %}

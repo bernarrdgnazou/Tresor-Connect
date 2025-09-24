@@ -1,57 +1,378 @@
-{{% extends "base.html" %}}
+{% extends "base.html" %}
 
-{{% block title %}}Tableau de Bord Fournisseur{{% endblock %}}
+{% block title %}Tableau de Bord Fournisseur - TRÉSOR CONNECT{% endblock %}
 
-{{% block content %}}
-<div class="container-fluid">
-    <h1 class="mb-4">🏢 Tableau de Bord Fournisseur</h1>
+{% block style %}
+<style>
+    .stat-card {
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        border: none;
+        border-radius: 15px;
+        overflow: hidden;
+    }
     
-    <div class="row">
-        <div class="col-md-3">
-            <div class="card text-white bg-primary">
-                <div class="card-body">
-                    <h5 class="card-title">📄 Mandats Reçus</h5>
-                    <h2>{{ stats.mandats_total }}</h2>
-                    <small>Total des mandats</small>
+    .stat-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+    }
+    
+    .stat-card .card-body {
+        padding: 25px;
+    }
+    
+    .stat-icon {
+        font-size: 2.5rem;
+        opacity: 0.8;
+    }
+    
+    .recent-mandats {
+        max-height: 400px;
+        overflow-y: auto;
+    }
+    
+    .status-badge {
+        padding: 6px 12px;
+        border-radius: 20px;
+        font-size: 0.85em;
+        font-weight: 600;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <!-- En-tête -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h1 class="h2 mb-1">
+                        <i class="fas fa-building me-2 text-primary"></i>Tableau de Bord Fournisseur
+                    </h1>
+                    <p class="text-muted mb-0">Bienvenue, {{ current_user.nom_complet }}</p>
                 </div>
-            </div>
-        </div>
-        <div class="col-md-3">
-            <div class="card text-white bg-warning">
-                <div class="card-body">
-                    <h5 class="card-title">⏳ En Attente</h5>
-                    <h2>{{ stats.mandats_attente }}</h2>
-                    <small>En cours de traitement</small>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-3">
-            <div class="card text-white bg-success">
-                <div class="card-body">
-                    <h5 class="card-title">💰 Payés</h5>
-                    <h2>{{ stats.mandats_payes }}</h2>
-                    <small>Mandats réglés</small>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-3">
-            <div class="card text-white bg-info">
-                <div class="card-body">
-                    <h5 class="card-title">📈 Montant Total</h5>
-                    <h2>{{ stats.montant_total }} FCFA</h2>
-                    <small>Chiffre d'affaires</small>
+                <div class="text-end">
+                    <span class="badge bg-primary fs-6 p-2">
+                        <i class="fas fa-user-tie me-1"></i>{{ current_user.role.value|title }}
+                    </span>
+                    {% if current_user.entreprise %}
+                    <span class="badge bg-secondary fs-6 p-2 ms-2">
+                        <i class="fas fa-building me-1"></i>{{ current_user.entreprise }}
+                    </span>
+                    {% endif %}
                 </div>
             </div>
         </div>
     </div>
-    
-    <div class="mt-4">
-        <a href="{{ url_for('mandats_bp.mes_mandats') }}" class="btn btn-primary">
-            <i class="fas fa-file-invoice"></i> Mes Mandats
-        </a>
-        <a href="#" class="btn btn-outline-success">
-            <i class="fas fa-chart-line"></i> Statistiques
-        </a>
+
+    <!-- Cartes de statistiques -->
+    <div class="row mb-4">
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card stat-card text-white bg-primary">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div>
+                            <h5 class="card-title mb-3">
+                                <i class="fas fa-file-invoice me-2"></i>Mandats Reçus
+                            </h5>
+                            <h2 class="display-6 fw-bold">{{ mandats_total }}</h2>
+                            <small class="opacity-75">Total des mandats attribués</small>
+                        </div>
+                        <div class="stat-icon">
+                            <i class="fas fa-file-contract"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card stat-card text-white bg-warning">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div>
+                            <h5 class="card-title mb-3">
+                                <i class="fas fa-clock me-2"></i>En Attente
+                            </h5>
+                            <h2 class="display-6 fw-bold">{{ mandats_attente }}</h2>
+                            <small class="opacity-75">En cours de traitement</small>
+                        </div>
+                        <div class="stat-icon">
+                            <i class="fas fa-hourglass-half"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card stat-card text-white bg-success">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div>
+                            <h5 class="card-title mb-3">
+                                <i class="fas fa-check-circle me-2"></i>Payés
+                            </h5>
+                            <h2 class="display-6 fw-bold">{{ mandats_payes }}</h2>
+                            <small class="opacity-75">Mandats réglés</small>
+                        </div>
+                        <div class="stat-icon">
+                            <i class="fas fa-money-bill-wave"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card stat-card text-white bg-info">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div>
+                            <h5 class="card-title mb-3">
+                                <i class="fas fa-chart-line me-2"></i>Montant Total
+                            </h5>
+                            <h2 class="display-6 fw-bold">{{ "{:,.0f}".format(montant_total) }} FCFA</h2>
+                            <small class="opacity-75">Chiffre d'affaires</small>
+                        </div>
+                        <div class="stat-icon">
+                            <i class="fas fa-coins"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Actions rapides -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header bg-light">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-bolt me-2 text-warning"></i>Actions Rapides
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row g-3">
+                        <div class="col-xl-2 col-md-4 col-6">
+                            <a href="{{ url_for('mes_mandats') }}" class="btn btn-primary w-100 h-100 py-3">
+                                <i class="fas fa-file-invoice fa-2x mb-2 d-block"></i>
+                                Mes Mandats
+                            </a>
+                        </div>
+                        <div class="col-xl-2 col-md-4 col-6">
+                            <a href="{{ url_for('historique_paiements') }}" class="btn btn-success w-100 h-100 py-3">
+                                <i class="fas fa-history fa-2x mb-2 d-block"></i>
+                                Historique Paiements
+                            </a>
+                        </div>
+                        <div class="col-xl-2 col-md-4 col-6">
+                            <a href="{{ url_for('statistiques') }}" class="btn btn-info w-100 h-100 py-3">
+                                <i class="fas fa-chart-bar fa-2x mb-2 d-block"></i>
+                                Statistiques
+                            </a>
+                        </div>
+                        <div class="col-xl-2 col-md-4 col-6">
+                            <a href="{{ url_for('profil') }}" class="btn btn-warning w-100 h-100 py-3">
+                                <i class="fas fa-user-edit fa-2x mb-2 d-block"></i>
+                                Mon Profil
+                            </a>
+                        </div>
+                        <div class="col-xl-2 col-md-4 col-6">
+                            <a href="#" class="btn btn-outline-dark w-100 h-100 py-3">
+                                <i class="fas fa-download fa-2x mb-2 d-block"></i>
+                                Exporter Données
+                            </a>
+                        </div>
+                        <div class="col-xl-2 col-md-4 col-6">
+                            <a href="{{ url_for('notifications') }}" class="btn btn-outline-primary w-100 h-100 py-3 position-relative">
+                                <i class="fas fa-bell fa-2x mb-2 d-block"></i>
+                                Notifications
+                                {% if notifications_non_lues > 0 %}
+                                <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                                    {{ notifications_non_lues }}+
+                                </span>
+                                {% endif %}
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Mandats récents et graphique -->
+    <div class="row">
+        <!-- Mandats récents -->
+        <div class="col-lg-8 mb-4">
+            <div class="card h-100">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-clock me-2 text-warning"></i>Mandats Récents
+                    </h5>
+                    <a href="{{ url_for('mes_mandats') }}" class="btn btn-sm btn-outline-primary">
+                        Voir tout <i class="fas fa-arrow-right ms-1"></i>
+                    </a>
+                </div>
+                <div class="card-body recent-mandats">
+                    {% if mandats_recents %}
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Référence</th>
+                                    <th>Montant</th>
+                                    <th>Statut</th>
+                                    <th>Date dépôt</th>
+                                    <th>Agent</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for mandat in mandats_recents %}
+                                <tr>
+                                    <td>
+                                        <strong class="text-primary">{{ mandat.reference }}</strong>
+                                        {% if mandat.date_paiement %}
+                                        <br><small class="text-success">Payé le {{ mandat.date_paiement.strftime('%d/%m/%Y') }}</small>
+                                        {% endif %}
+                                    </td>
+                                    <td class="fw-bold">{{ "{:,.0f}".format(mandat.montant) }} FCFA</td>
+                                    <td>
+                                        <span class="status-badge 
+                                            {% if mandat.statut.value == 'payé' %}bg-success
+                                            {% elif mandat.statut.value == 'validé' %}bg-info
+                                            {% elif mandat.statut.value == 'en_cours' %}bg-warning
+                                            {% elif mandat.statut.value == 'rejeté' %}bg-danger
+                                            {% else %}bg-secondary{% endif %}">
+                                            <i class="fas 
+                                                {% if mandat.statut.value == 'payé' %}fa-check-circle
+                                                {% elif mandat.statut.value == 'validé' %}fa-thumbs-up
+                                                {% elif mandat.statut.value == 'en_cours' %}fa-clock
+                                                {% elif mandat.statut.value == 'rejeté' %}fa-times-circle
+                                                {% else %}fa-question{% endif %} me-1"></i>
+                                            {{ mandat.statut.value|title }}
+                                        </span>
+                                    </td>
+                                    <td>{{ mandat.date_depot.strftime('%d/%m/%Y') }}</td>
+                                    <td>
+                                        <small>{{ mandat.agent.nom_complet if mandat.agent else 'N/A' }}</small>
+                                    </td>
+                                    <td>
+                                        <div class="btn-group btn-group-sm">
+                                            <a href="{{ url_for('suivi_mandat', mandat_id=mandat.id) }}" 
+                                               class="btn btn-outline-info" title="Voir le détail">
+                                                <i class="fas fa-eye"></i>
+                                            </a>
+                                            <a href="{{ url_for('mandat_detail', mandat_id=mandat.id) }}" 
+                                               class="btn btn-outline-primary" title="Détails complets">
+                                                <i class="fas fa-info-circle"></i>
+                                            </a>
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% else %}
+                    <div class="text-center py-5">
+                        <i class="fas fa-inbox fa-4x text-muted mb-3"></i>
+                        <h5 class="text-muted">Aucun mandat pour le moment</h5>
+                        <p class="text-muted">Les mandats qui vous sont attribués apparaîtront ici.</p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Statistiques rapides -->
+        <div class="col-lg-4 mb-4">
+            <div class="card h-100">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-chart-pie me-2 text-info"></i>Répartition par Statut
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <canvas id="statutChart" width="400" height="300"></canvas>
+                    
+                    <div class="mt-4">
+                        <h6 class="text-muted mb-3">Prochain paiement estimé</h6>
+                        {% if prochain_paiement %}
+                        <div class="alert alert-success">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <strong>{{ prochain_paiement.reference }}</strong>
+                                    <br>
+                                    <small>{{ "{:,.0f}".format(prochain_paiement.montant) }} FCFA</small>
+                                </div>
+                                <span class="badge bg-warning">
+                                    {{ prochain_paiement.date_validation.strftime('%d/%m') if prochain_paiement.date_validation else 'Bientôt' }}
+                                </span>
+                            </div>
+                        </div>
+                        {% else %}
+                        <div class="alert alert-secondary">
+                            <i class="fas fa-info-circle me-2"></i>
+                            Aucun paiement en attente
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
-{{% endblock %}}
+{% endblock %}
+
+{% block scripts %}
+<!-- Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Animation des cartes
+    const statCards = document.querySelectorAll('.stat-card');
+    statCards.forEach((card, index) => {
+        setTimeout(() => {
+            card.style.opacity = '0';
+            card.style.transform = 'translateY(20px)';
+            card.style.transition = 'all 0.6s ease';
+            
+            setTimeout(() => {
+                card.style.opacity = '1';
+                card.style.transform = 'translateY(0)';
+            }, 100);
+        }, index * 100);
+    });
+
+    
+
+    // Mise à jour en temps réel des notifications
+    function updateNotificationCount() {
+        fetch('{{ url_for("api_notifications_non_lues") }}')
+            .then(response => response.json())
+            .then(notifications => {
+                const badge = document.querySelector('.badge.bg-danger');
+                if (notifications.length > 0) {
+                    badge.textContent = notifications.length + '+';
+                    badge.style.display = 'block';
+                } else {
+                    badge.style.display = 'none';
+                }
+            });
+    }
+
+    // Actualiser toutes les 30 secondes
+    setInterval(updateNotificationCount, 30000);
+    
+    // Tooltips Bootstrap
+    const tooltipTriggerList = [].slice.call(document.querySelectorAll('[title]'));
+    const tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+        return new bootstrap.Tooltip(tooltipTriggerEl);
+    });
+});
+</script>
+{% endblock %}

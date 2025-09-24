@@ -1,48 +1,193 @@
-{{% extends "base.html" %}}
+{% extends "base.html" %}
+{% block title %}Tableau de Bord Agent - TRÉSOR CONNECT{% endblock %}
 
-{{% block title %}}Tableau de Bord Agent{{% endblock %}}
-
-{{% block content %}}
+{% block content %}
 <div class="container-fluid">
-    <h1 class="mb-4">👨‍💼 Tableau de Bord Agent</h1>
-    
     <div class="row">
-        <div class="col-md-4">
-            <div class="card text-white bg-primary">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1><i class="fas fa-tachometer-alt me-2"></i>Tableau de Bord</h1>
+                <span class="badge bg-primary fs-6">Agent</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Cartes de statistiques -->
+    <div class="row mb-4">
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card stat-card primary">
                 <div class="card-body">
-                    <h5 class="card-title">📤 Mandats Déposés</h5>
-                    <h2>{{ stats.mandats_deposes }}</h2>
-                    <small>Total de vos mandats</small>
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h5 class="card-title">Mandats Total</h5>
+                            <h2 class="mb-0">{{ mandats_total }}</h2>
+                        </div>
+                        <div class="align-self-center">
+                            <i class="fas fa-file-invoice fa-3x opacity-50"></i>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
-        <div class="col-md-4">
-            <div class="card text-white bg-success">
+
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card stat-card warning">
                 <div class="card-body">
-                    <h5 class="card-title">📋 En Cours</h5>
-                    <h2>{{ stats.mandats_en_cours }}</h2>
-                    <small>Mandats en traitement</small>
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h5 class="card-title">En Cours</h5>
+                            <h2 class="mb-0">{{ mandats_en_cours }}</h2>
+                        </div>
+                        <div class="align-self-center">
+                            <i class="fas fa-clock fa-3x opacity-50"></i>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
-        <div class="col-md-4">
-            <div class="card text-white bg-info">
+
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card stat-card success">
                 <div class="card-body">
-                    <h5 class="card-title">✅ Validés</h5>
-                    <h2>{{ stats.mandats_valides }}</h2>
-                    <small>Mandats approuvés</small>
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h5 class="card-title">Validés</h5>
+                            <h2 class="mb-0">{{ mandats_valides }}</h2>
+                        </div>
+                        <div class="align-self-center">
+                            <i class="fas fa-check-circle fa-3x opacity-50"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card stat-card info">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h5 class="card-title">Payés</h5>
+                            <h2 class="mb-0">{{ mandats_payes if mandats_payes is defined else 0 }}</h2>
+                        </div>
+                        <div class="align-self-center">
+                            <i class="fas fa-money-bill-wave fa-3x opacity-50"></i>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
-    
-    <div class="mt-4">
-        <a href="{{ url_for('mandats_bp.deposer_mandat') }}" class="btn btn-success">
-            <i class="fas fa-plus"></i> Déposer un Nouveau Mandat
-        </a>
-        <a href="{{ url_for('mandats_bp.mes_mandats') }}" class="btn btn-outline-primary">
-            <i class="fas fa-list"></i> Voir Mes Mandats
-        </a>
+
+    <!-- Actions rapides -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0"><i class="fas fa-bolt me-2"></i>Actions Rapides</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-3 mb-3">
+                            <a href="{{ url_for('deposer_mandat') }}" class="btn btn-primary w-100">
+                                <i class="fas fa-plus-circle me-2"></i>Déposer un Mandat
+                            </a>
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <a href="{{ url_for('mes_mandats') }}" class="btn btn-outline-primary w-100">
+                                <i class="fas fa-list me-2"></i>Voir mes Mandats
+                            </a>
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <a href="{{ url_for('statistiques') }}" class="btn btn-outline-info w-100">
+                                <i class="fas fa-chart-bar me-2"></i>Statistiques
+                            </a>
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <a href="{{ url_for('profil') }}" class="btn btn-outline-secondary w-100">
+                                <i class="fas fa-user me-2"></i>Mon Profil
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Mandats récents -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="card-title mb-0"><i class="fas fa-history me-2"></i>Mandats Récents</h5>
+                    <a href="{{ url_for('mes_mandats') }}" class="btn btn-sm btn-outline-primary">
+                        Voir tout <i class="fas fa-arrow-right ms-1"></i>
+                    </a>
+                </div>
+                <div class="card-body">
+                    {% if mandats_recents %}
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Référence</th>
+                                    <th>Montant</th>
+                                    <th>Statut</th>
+                                    <th>Date</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for mandat in mandats_recents %}
+                                <tr>
+                                    <td><strong>{{ mandat.reference }}</strong></td>
+                                    <td>{{ mandat.montant }} FCFA</td>
+                                    <td>
+                                        <span class="badge 
+                                            {% if mandat.statut.value == 'validé' %}bg-success
+                                            {% elif mandat.statut.value == 'en_cours' %}bg-warning
+                                            {% elif mandat.statut.value == 'rejeté' %}bg-danger
+                                            {% else %}bg-secondary{% endif %}">
+                                            {{ mandat.statut.value }}
+                                        </span>
+                                    </td>
+                                    <td>{{ mandat.date_depot.strftime('%d/%m/%Y') }}</td>
+                                    <td>
+                                        <a href="{{ url_for('suivi_mandat', mandat_id=mandat.id) }}" 
+                                           class="btn btn-sm btn-outline-info">
+                                            <i class="fas fa-eye"></i>
+                                        </a>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% else %}
+                    <div class="text-center py-4">
+                        <i class="fas fa-inbox fa-3x text-muted mb-3"></i>
+                        <p class="text-muted">Aucun mandat pour le moment</p>
+                        <a href="{{ url_for('deposer_mandat') }}" class="btn btn-primary">
+                            <i class="fas fa-plus me-2"></i>Déposer votre premier mandat
+                        </a>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
     </div>
 </div>
-{{% endblock %}}
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Animation des cartes de statistiques
+    const statCards = document.querySelectorAll('.stat-card');
+    statCards.forEach((card, index) => {
+        card.style.animationDelay = `${index * 0.1}s`;
+        card.classList.add('animate__animated', 'animate__fadeInUp');
+    });
+});
+</script>
+{% endblock %}

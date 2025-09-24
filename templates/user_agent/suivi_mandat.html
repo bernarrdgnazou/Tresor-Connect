@@ -1,19 +1,645 @@
 {% extends "base.html" %}
 
-{% block title %}Suivi Mandat{% endblock %}
+{% block title %}Suivi Détaillé - Mandat {{ mandat.reference }} | TRÉSOR CONNECT{% endblock %}
+
+{% block style %}
+<style>
+    .timeline {
+        position: relative;
+        padding-left: 30px;
+    }
+    
+    .timeline::before {
+        content: '';
+        position: absolute;
+        left: 15px;
+        top: 0;
+        bottom: 0;
+        width: 2px;
+        background: #e9ecef;
+    }
+    
+    .timeline-item {
+        position: relative;
+        margin-bottom: 30px;
+    }
+    
+    .timeline-item::before {
+        content: '';
+        position: absolute;
+        left: -23px;
+        top: 5px;
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        background: #6c757d;
+        border: 3px solid white;
+        box-shadow: 0 0 0 3px #e9ecef;
+    }
+    
+    .timeline-item.active::before {
+        background: #28a745;
+        box-shadow: 0 0 0 3px #28a74520;
+    }
+    
+    .timeline-item.completed::before {
+        background: #17a2b8;
+        box-shadow: 0 0 0 3px #17a2b820;
+    }
+    
+    .document-card {
+        border-left: 4px solid #667eea;
+        transition: all 0.3s ease;
+    }
+    
+    .document-card:hover {
+        transform: translateX(5px);
+        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    }
+    
+    .statut-badge {
+        padding: 8px 16px;
+        border-radius: 20px;
+        font-weight: 600;
+        font-size: 0.9em;
+    }
+    
+    .info-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 20px;
+        margin-bottom: 30px;
+    }
+    
+    .info-card {
+        background: #f8f9fa;
+        border-radius: 10px;
+        padding: 20px;
+        border-left: 4px solid #667eea;
+    }
+    
+    .action-btn {
+        min-width: 120px;
+        margin: 2px;
+    }
+    
+    .commentaire-bubble {
+        background: #f1f3f4;
+        border-radius: 15px;
+        padding: 15px;
+        margin: 10px 0;
+        position: relative;
+    }
+    
+    .commentaire-bubble::before {
+        content: '';
+        position: absolute;
+        left: -10px;
+        top: 15px;
+        width: 0;
+        height: 0;
+        border-top: 10px solid transparent;
+        border-bottom: 10px solid transparent;
+        border-right: 10px solid #f1f3f4;
+    }
+    
+    .urgence-high {
+        border-left: 4px solid #dc3545 !important;
+    }
+    
+    .urgence-medium {
+        border-left: 4px solid #ffc107 !important;
+    }
+    
+    .progress-container {
+        height: 8px;
+        background: #e9ecef;
+        border-radius: 10px;
+        overflow: hidden;
+        margin: 20px 0;
+    }
+    
+    .progress-bar {
+        height: 100%;
+        background: linear-gradient(90deg, #667eea, #764ba2);
+        transition: width 0.5s ease;
+    }
+    
+    .historique-item {
+        border-left: 3px solid #667eea;
+        padding-left: 15px;
+        margin-bottom: 20px;
+    }
+</style>
+{% endblock %}
 
 {% block content %}
-<div class="container">
-    <div class="row">
+<div class="container-fluid py-4">
+    <!-- En-tête avec navigation -->
+    <div class="row mb-4">
         <div class="col-12">
-            <h1>Suivi Mandat</h1>
-            <p>Template suivi_mandat.html - En cours de développement</p>
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item">
+                        <a href="{{ url_for('mes_mandats') }}">
+                            <i class="fas fa-arrow-left me-2"></i>Mes Mandats
+                        </a>
+                    </li>
+                    <li class="breadcrumb-item active">Suivi Mandat {{ mandat.reference }}</li>
+                </ol>
+            </nav>
             
-            <div class="alert alert-info">
-                <i class="fas fa-info-circle"></i> 
-                Cette page est en cours de construction. Contenu à compléter.
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h1 class="h2 mb-1">
+                        <i class="fas fa-file-invoice-dollar me-2 text-primary"></i>
+                        Suivi du Mandat
+                    </h1>
+                    <p class="text-muted mb-0">Reference: <strong class="text-primary">{{ mandat.reference }}</strong></p>
+                </div>
+                <div class="btn-group">
+                    <a href="{{ url_for('mandat_detail', mandat_id=mandat.id) }}" 
+                       class="btn btn-outline-primary">
+                        <i class="fas fa-eye me-2"></i>Voir Détail
+                    </a>
+                    <button class="btn btn-outline-secondary" onclick="window.print()">
+                        <i class="fas fa-print me-2"></i>Imprimer
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bannière d'information -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card {% if mandat.urgence == 'haute' %}urgence-high{% elif mandat.urgence == 'moyenne' %}urgence-medium{% endif %}">
+                <div class="card-body">
+                    <div class="row align-items-center">
+                        <div class="col-md-6">
+                            <div class="d-flex align-items-center">
+                                <div class="me-4">
+                                    <span class="statut-badge bg-{{ 
+                                        'success' if mandat.statut.value == 'payé' 
+                                        else 'info' if mandat.statut.value == 'validé' 
+                                        else 'warning' if mandat.statut.value == 'en_cours'
+                                        else 'danger' if mandat.statut.value == 'rejeté'
+                                        else 'secondary'
+                                    }}">
+                                        <i class="fas 
+                                            {% if mandat.statut.value == 'payé' %}fa-check-circle
+                                            {% elif mandat.statut.value == 'validé' %}fa-thumbs-up
+                                            {% elif mandat.statut.value == 'en_cours' %}fa-clock
+                                            {% elif mandat.statut.value == 'rejeté' %}fa-times-circle
+                                            {% else %}fa-question{% endif %} me-1">
+                                        </i>
+                                        {{ mandat.statut.value|title }}
+                                    </span>
+                                </div>
+                                <div>
+                                    <h4 class="mb-1 text-success">{{ "{:,.0f}".format(mandat.montant) }} FCFA</h4>
+                                    <small class="text-muted">Montant du mandat</small>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="row text-center">
+                                <div class="col-4">
+                                    <small class="text-muted">Déposé le</small>
+                                    <p class="mb-0 fw-bold">{{ mandat.date_depot.strftime('%d/%m/%Y') }}</p>
+                                </div>
+                                {% if mandat.date_echeance %}
+                                <div class="col-4">
+                                    <small class="text-muted">Échéance</small>
+                                    <p class="mb-0 fw-bold {% if mandat.date_echeance < today %}text-danger{% endif %}">
+                                        {{ mandat.date_echeance.strftime('%d/%m/%Y') }}
+                                    </p>
+                                </div>
+                                <div class="col-4">
+                                    <small class="text-muted">Jours restants</small>
+                                    <p class="mb-0 fw-bold {% if jours_restants is defined and jours_restants < 0 %}text-danger{% elif jours_restants is defined and jours_restants < 5 %}text-warning{% endif %}">
+                                        {% if jours_restants is defined %}
+                                            {{ jours_restants }} jours
+                                        {% else %}
+                                            N/A
+                                        {% endif %}
+                                    </p>
+                                </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Barre de progression -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="progress-container">
+                <div class="progress-bar" style="width: {{ progress_percentage }}%;"></div>
+            </div>
+            <div class="d-flex justify-content-between">
+                <small>Dépôt</small>
+                <small>Validation</small>
+                <small>Prêt à payer</small>
+                <small>Payé</small>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Colonne principale - Timeline -->
+        <div class="col-lg-8">
+            <!-- Timeline du processus -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-road me-2 text-primary"></i>Processus de Traitement
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="timeline">
+                        <!-- Étape 1: Dépôt -->
+                        <div class="timeline-item {% if mandat.statut.value != 'en_attente' %}completed{% endif %} {% if mandat.statut.value == 'en_cours' %}active{% endif %}">
+                            <div class="card">
+                                <div class="card-body">
+                                    <div class="d-flex justify-content-between align-items-start">
+                                        <div>
+                                            <h6 class="mb-1">Dépôt du Mandat</h6>
+                                            <p class="text-muted mb-2">Mandat déposé par l'agent</p>
+                                            <small class="text-muted">
+                                                <i class="fas fa-calendar me-1"></i>
+                                                {{ mandat.date_depot.strftime('%d/%m/%Y à %H:%M') }}
+                                            </small>
+                                        </div>
+                                        <span class="badge bg-success">Complété</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Étape 2: Vérification -->
+                        <div class="timeline-item {% if mandat.statut.value in ['validé', 'pret_a_payer', 'payé'] %}completed{% endif %} {% if mandat.statut.value == 'en_verification' %}active{% endif %}">
+                            <div class="card">
+                                <div class="card-body">
+                                    <div class="d-flex justify-content-between align-items-start">
+                                        <div>
+                                            <h6 class="mb-1">Vérification Administrative</h6>
+                                            <p class="text-muted mb-2">Contrôle de la conformité du dossier</p>
+                                            {% if mandat.date_verification %}
+                                            <small class="text-muted">
+                                                <i class="fas fa-calendar me-1"></i>
+                                                Vérifié le {{ mandat.date_verification.strftime('%d/%m/%Y') }}
+                                            </small>
+                                            {% endif %}
+                                        </div>
+                                        <span class="badge bg-{{ 'success' if mandat.statut.value in ['validé', 'pret_a_payer', 'payé'] else 'secondary' }}">
+                                            {{ 'Complété' if mandat.statut.value in ['validé', 'pret_a_payer', 'payé'] else 'En attente' }}
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Étape 3: Validation -->
+                        <div class="timeline-item {% if mandat.statut.value in ['pret_a_payer', 'payé'] %}completed{% endif %} {% if mandat.statut.value == 'validé' %}active{% endif %}">
+                            <div class="card">
+                                <div class="card-body">
+                                    <div class="d-flex justify-content-between align-items-start">
+                                        <div>
+                                            <h6 class="mb-1">Validation Financière</h6>
+                                            <p class="text-muted mb-2">Approbation par le service financier</p>
+                                            {% if mandat.date_validation %}
+                                            <small class="text-muted">
+                                                <i class="fas fa-calendar me-1"></i>
+                                                Validé le {{ mandat.date_validation.strftime('%d/%m/%Y') }}
+                                            </small>
+                                            {% endif %}
+                                        </div>
+                                        <span class="badge bg-{{ 'success' if mandat.statut.value in ['pret_a_payer', 'payé'] else 'warning' if mandat.statut.value == 'validé' else 'secondary' }}">
+                                            {{ 'Complété' if mandat.statut.value in ['pret_a_payer', 'payé'] else 'En cours' if mandat.statut.value == 'validé' else 'En attente' }}
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Étape 4: Paiement -->
+                        <div class="timeline-item {% if mandat.statut.value == 'payé' %}completed{% endif %} {% if mandat.statut.value == 'pret_a_payer' %}active{% endif %}">
+                            <div class="card">
+                                <div class="card-body">
+                                    <div class="d-flex justify-content-between align-items-start">
+                                        <div>
+                                            <h6 class="mb-1">Paiement</h6>
+                                            <p class="text-muted mb-2">Règlement au fournisseur</p>
+                                            {% if mandat.date_paiement %}
+                                            <small class="text-muted">
+                                                <i class="fas fa-calendar me-1"></i>
+                                                Payé le {{ mandat.date_paiement.strftime('%d/%m/%Y') }}
+                                            </small>
+                                            {% endif %}
+                                        </div>
+                                        <span class="badge bg-{{ 'success' if mandat.statut.value == 'payé' else 'info' if mandat.statut.value == 'pret_a_payer' else 'secondary' }}">
+                                            {{ 'Complété' if mandat.statut.value == 'payé' else 'Prêt à payer' if mandat.statut.value == 'pret_a_payer' else 'En attente' }}
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Historique des actions -->
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-history me-2 text-primary"></i>Historique des Événements
+                    </h5>
+                </div>
+                <div class="card-body">
+                    {% if historique %}
+                    <div class="historique-list">
+                        {% for event in historique %}
+                        <div class="historique-item">
+                            <div class="d-flex justify-content-between align-items-start">
+                                <div>
+                                    <h6 class="mb-1">{{ event.action }}</h6>
+                                    <p class="text-muted mb-1">{{ event.description }}</p>
+                                    <small class="text-muted">
+                                        <i class="fas fa-user me-1"></i>{{ event.utilisateur }}
+                                        <i class="fas fa-clock ms-2 me-1"></i>{{ event.date.strftime('%d/%m/%Y à %H:%M') }}
+                                    </small>
+                                </div>
+                                <span class="badge bg-{{ event.type }}">{{ event.type|title }}</span>
+                            </div>
+                            {% if event.commentaire %}
+                            <div class="commentaire-bubble mt-2">
+                                <small class="text-muted">{{ event.commentaire }}</small>
+                            </div>
+                            {% endif %}
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    <div class="text-center py-4">
+                        <i class="fas fa-history fa-3x text-muted mb-3"></i>
+                        <p class="text-muted">Aucun événement enregistré pour ce mandat</p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Colonne latérale - Informations -->
+        <div class="col-lg-4">
+            <!-- Informations principales -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-info-circle me-2 text-primary"></i>Informations
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="info-grid">
+                        <div class="info-card">
+                            <small class="text-muted">Agent</small>
+                            <p class="mb-0 fw-bold">{{ mandat.agent.nom_complet if mandat.agent else 'N/A' }}</p>
+                        </div>
+                        <div class="info-card">
+                            <small class="text-muted">Fournisseur</small>
+                            <p class="mb-0 fw-bold">{{ mandat.fournisseur.nom_complet if mandat.fournisseur else 'N/A' }}</p>
+                        </div>
+                        <div class="info-card">
+                            <small class="text-muted">Service</small>
+                            <p class="mb-0 fw-bold">{{ mandat.service or 'N/A' }}</p>
+                        </div>
+                        <div class="info-card">
+                            <small class="text-muted">N° de Bordereau</small>
+                            <p class="mb-0 fw-bold">{{ mandat.numero_bordereau or 'N/A' }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Documents associés -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-file-alt me-2 text-primary"></i>Documents
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="document-card card mb-3">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <h6 class="mb-1">Mandat Original</h6>
+                                    <small class="text-muted">Document déposé</small>
+                                </div>
+                                {% if mandat.fichier_original %}
+                                <a href="{{ url_for('uploaded_file', filename=mandat.fichier_original) }}" 
+                                   class="btn btn-sm btn-outline-primary" target="_blank">
+                                    <i class="fas fa-download"></i>
+                                </a>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    
+                    {% if mandat.fichier_validation %}
+                    <div class="document-card card mb-3">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <h6 class="mb-1">Fiche de Validation</h6>
+                                    <small class="text-muted">Document approuvé</small>
+                                </div>
+                                <a href="{{ url_for('uploaded_file', filename=mandat.fichier_validation) }}" 
+                                   class="btn btn-sm btn-outline-success" target="_blank">
+                                    <i class="fas fa-download"></i>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Actions rapides -->
+            {% if current_user.role.value in ['admin', 'tresorier'] %}
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-bolt me-2 text-primary"></i>Actions Rapides
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="d-grid gap-2">
+                        {% if mandat.statut.value == 'en_cours' %}
+                        <button class="btn btn-success action-btn" data-bs-toggle="modal" data-bs-target="#validationModal">
+                            <i class="fas fa-check me-2"></i>Valider
+                        </button>
+                        <button class="btn btn-warning action-btn" data-bs-toggle="modal" data-bs-target="#rejetModal">
+                            <i class="fas fa-times me-2"></i>Rejeter
+                        </button>
+                        {% elif mandat.statut.value == 'validé' %}
+                        <button class="btn btn-info action-btn" data-bs-toggle="modal" data-bs-target="#paiementModal">
+                            <i class="fas fa-money-bill-wave me-2"></i>Marquer comme Payé
+                        </button>
+                        {% endif %}
+                        
+                        <a href="{{ url_for('modifier_mandat', mandat_id=mandat.id) }}" 
+                           class="btn btn-outline-primary action-btn">
+                            <i class="fas fa-edit me-2"></i>Modifier
+                        </a>
+                        
+                        <button class="btn btn-outline-secondary action-btn" onclick="genererRapport()">
+                            <i class="fas fa-chart-bar me-2"></i>Générer Rapport
+                        </button>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- Modals pour les actions -->
+{% if current_user.role.value in ['admin', 'tresorier'] %}
+<!-- Modal Validation -->
+<div class="modal fade" id="validationModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Valider le Mandat</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="validationForm">
+                    <div class="mb-3">
+                        <label class="form-label">Commentaire (optionnel)</label>
+                        <textarea class="form-control" rows="3" placeholder="Ajouter un commentaire..."></textarea>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                <button type="button" class="btn btn-success" onclick="validerMandat()">Confirmer la Validation</button>
             </div>
         </div>
     </div>
 </div>
+{% endif %}
+{% endblock %}
+
+{% block scripts %}
+<script>
+// Variables globales
+let mandatId = {{ mandat.id }};
+
+// Initialisation
+document.addEventListener('DOMContentLoaded', function() {
+    // Animation de la barre de progression
+    animateProgressBar();
+    
+    // Initialiser les tooltips
+    var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+    var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+        return new bootstrap.Tooltip(tooltipTriggerEl);
+    });
+});
+
+// Animation de la barre de progression
+function animateProgressBar() {
+    const progressBar = document.querySelector('.progress-bar');
+    const targetWidth = progressBar.style.width;
+    progressBar.style.width = '0%';
+    
+    setTimeout(() => {
+        progressBar.style.width = targetWidth;
+    }, 500);
+}
+
+// Fonctions d'action
+function validerMandat() {
+    const commentaire = document.querySelector('#validationForm textarea').value;
+    
+    // Simulation d'appel API
+    fetch(`/api/mandats/${mandatId}/valider`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ commentaire: commentaire })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            location.reload();
+        } else {
+            alert('Erreur: ' + data.message);
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Erreur lors de la validation');
+    });
+}
+
+function genererRapport() {
+    // Génération du rapport
+    const params = new URLSearchParams({
+        mandat_id: mandatId,
+        format: 'pdf',
+        type: 'suivi'
+    });
+    
+    window.open(`/rapports/mandat?${params.toString()}`, '_blank');
+}
+
+// Raccourcis clavier
+document.addEventListener('keydown', function(e) {
+    // Ctrl + P pour imprimer
+    if (e.ctrlKey && e.key === 'p') {
+        e.preventDefault();
+        window.print();
+    }
+    
+    // Échap pour fermer les modals
+    if (e.key === 'Escape') {
+        const modal = bootstrap.Modal.getInstance(document.querySelector('.modal.show'));
+        if (modal) {
+            modal.hide();
+        }
+    }
+});
+
+// Mise à jour en temps réel (simulation)
+function startLiveUpdates() {
+    setInterval(() => {
+        fetch(`/api/mandats/${mandatId}/status`)
+            .then(response => response.json())
+            .then(data => {
+                if (data.statut !== '{{ mandat.statut.value }}') {
+                    // Recharger si le statut a changé
+                    location.reload();
+                }
+            });
+    }, 30000); // Toutes les 30 secondes
+}
+
+// Démarrer les mises à jour si le mandat est en cours
+{% if mandat.statut.value in ['en_cours', 'validé'] %}
+startLiveUpdates();
+{% endif %}
+
+// Export des données
+function exporterSuivi(format) {
+    const url = `/api/mandats/${mandatId}/export/${format}`;
+    window.open(url, '_blank');
+}
+</script>
 {% endblock %}

@@ -1,19 +1,343 @@
 {% extends "base.html" %}
 
-{% block title %}Historique Paiements{% endblock %}
+{% block title %}Historique des Paiements - TRÉSOR CONNECT{% endblock %}
+
+{% block style %}
+<style>
+    /* Styles généraux */
+    .page-header {
+        background: linear-gradient(to right, #4CAF50, #8BC34A);
+        padding: 40px 0;
+        color: white;
+        border-radius: 15px;
+        margin-bottom: 2rem;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+    }
+    .page-header h1 {
+        font-weight: 300;
+        font-size: 2.5rem;
+    }
+    .page-header .lead {
+        font-size: 1.2rem;
+        opacity: 0.9;
+    }
+
+    /* Style du conteneur principal */
+    .table-responsive-container {
+        box-shadow: 0 5px 25px rgba(0,0,0,0.08);
+        border-radius: 15px;
+        overflow: hidden;
+        background: #fff;
+    }
+
+    /* Style du tableau */
+    .table thead th {
+        background-color: #f8f9fa;
+        color: #6c757d;
+        border-bottom: 2px solid #dee2e6;
+        font-weight: 600;
+        text-transform: uppercase;
+        font-size: 0.85rem;
+        letter-spacing: 0.05rem;
+    }
+    .table tbody tr:hover {
+        background-color: #e9ecef;
+        transition: background-color 0.2s;
+    }
+    .table td, .table th {
+        padding: 1rem;
+        vertical-align: middle;
+    }
+
+    /* Badges de statut */
+    .badge-paid {
+        background-color: #28a745;
+        color: white;
+    }
+    .badge-validated {
+        background-color: #ffc107;
+        color: #212529;
+    }
+    .badge-rejected {
+        background-color: #dc3545;
+        color: white;
+    }
+    .badge-pending {
+        background-color: #6c757d;
+        color: white;
+    }
+
+    /* Style des filtres */
+    .filter-container {
+        background: #f8f9fa;
+        padding: 1.5rem;
+        border-radius: 10px;
+        margin-bottom: 1.5rem;
+    }
+    .filter-container .form-control, .filter-container .form-select {
+        border-radius: 8px;
+    }
+
+    /* Pagination */
+    .pagination .page-item.active .page-link {
+        background-color: #4CAF50;
+        border-color: #4CAF50;
+        color: white;
+    }
+    .pagination .page-link {
+        color: #4CAF50;
+    }
+    .pagination .page-link:hover {
+        background-color: #e9ecef;
+    }
+
+    /* Bouton d'exportation */
+    .export-btn {
+        background-color: #007bff;
+        color: white;
+        border-radius: 8px;
+        transition: background-color 0.2s;
+    }
+    .export-btn:hover {
+        background-color: #0056b3;
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+        .table-responsive-container {
+            margin: 0 0.5rem;
+        }
+        .filter-container {
+            padding: 1rem;
+        }
+    }
+</style>
+{% endblock %}
 
 {% block content %}
-<div class="container">
+<div class="container-fluid py-4">
+    <!-- En-tête de la page -->
     <div class="row">
         <div class="col-12">
-            <h1>Historique Paiements</h1>
-            <p>Template historique_paiements.html - En cours de développement</p>
-            
-            <div class="alert alert-info">
-                <i class="fas fa-info-circle"></i> 
-                Cette page est en cours de construction. Contenu à compléter.
+            <div class="page-header text-center">
+                <div class="container">
+                    <h1>Historique des Paiements</h1>
+                    <p class="lead opacity-75">Consultez et gérez l'historique de vos paiements reçus de l'administration.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filtres -->
+    <div class="row">
+        <div class="col-12">
+            <div class="filter-container">
+                <form id="filter-form" method="GET" action="{{ url_for('historique_paiements') }}">
+                    <div class="row g-3">
+                        <div class="col-md-3">
+                            <label for="reference" class="form-label">Référence</label>
+                            <input type="text" class="form-control" id="reference" name="reference" value="{{ request.args.get('reference', '') }}" placeholder="Rechercher par référence">
+                        </div>
+                        <div class="col-md-3">
+                            <label for="statut" class="form-label">Statut</label>
+                            <select class="form-select" id="statut" name="statut">
+                                <option value="">Tous les statuts</option>
+                                {% for statut in tous_statuts %}
+                                <option value="{{ statut.value }}" {% if request.args.get('statut') == statut.value %}selected{% endif %}>{{ statut.value.replace('_', ' ').capitalize() }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-2">
+                            <label for="date_debut" class="form-label">Date de début</label>
+                            <input type="date" class="form-control" id="date_debut" name="date_debut" value="{{ request.args.get('date_debut', '') }}">
+                        </div>
+                        <div class="col-md-2">
+                            <label for="date_fin" class="form-label">Date de fin</label>
+                            <input type="date" class="form-control" id="date_fin" name="date_fin" value="{{ request.args.get('date_fin', '') }}">
+                        </div>
+                        <div class="col-md-2 d-flex align-items-end">
+                            <button type="submit" class="btn btn-primary w-100">Filtrer</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tableau des mandats -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card p-4 table-responsive-container">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <h5 class="card-title mb-0">
+                            <i class="fas fa-list-alt me-2 text-primary"></i> Liste des Mandats
+                        </h5>
+                        <button class="btn export-btn" onclick="exportToCSV()">
+                            <i class="fas fa-download me-1"></i> Exporter en CSV
+                        </button>
+                    </div>
+
+                    {% if mandats.items %}
+                    <div class="table-responsive">
+                        <table class="table table-borderless table-hover align-middle mb-0">
+                            <thead>
+                                <tr>
+                                    <th scope="col">Référence</th>
+                                    <th scope="col">Montant</th>
+                                    <th scope="col">Description</th>
+                                    <th scope="col">Date de Dépôt</th>
+                                    <th scope="col">Date de Paiement</th>
+                                    <th scope="col">Statut</th>
+                                    <th scope="col">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for mandat in mandats.items %}
+                                <tr>
+                                    <td>
+                                        <a href="{{ url_for('mandat_detail', mandat_id=mandat.id) }}" class="text-decoration-none fw-bold text-dark">
+                                            {{ mandat.reference }}
+                                        </a>
+                                    </td>
+                                    <td>
+                                        <span class="fw-bold text-success">{{ "{:,.0f}".format(mandat.montant) | replace(",", " ") }}</span> <small class="text-muted">XOF</small>
+                                    </td>
+                                    <td>
+                                        <span class="d-inline-block text-truncate" style="max-width: 250px;" title="{{ mandat.description }}">
+                                            {{ mandat.description }}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <i class="far fa-calendar-alt me-1 text-muted"></i>
+                                        {{ mandat.date_depot.strftime('%d/%m/%Y') if mandat.date_depot else 'N/A' }}
+                                    </td>
+                                    <td>
+                                        {% if mandat.date_paiement %}
+                                            <i class="far fa-calendar-check me-1 text-muted"></i>
+                                            {{ mandat.date_paiement.strftime('%d/%m/%Y') }}
+                                        {% else %}
+                                            <i class="fas fa-hourglass-half me-1 text-muted"></i>
+                                            En attente
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if mandat.statut == 'payé' %}
+                                            <span class="badge badge-paid">
+                                                <i class="fas fa-check-circle me-1"></i> Payé
+                                            </span>
+                                        {% elif mandat.statut == 'validé' %}
+                                            <span class="badge badge-validated">
+                                                <i class="fas fa-exclamation-triangle me-1"></i> Validé
+                                            </span>
+                                        {% elif mandat.statut == 'rejeté' %}
+                                            <span class="badge badge-rejected">
+                                                <i class="fas fa-times-circle me-1"></i> Rejeté
+                                            </span>
+                                        {% else %}
+                                            <span class="badge badge-pending">
+                                                <i class="fas fa-clock me-1"></i> {{ mandat.statut.replace('_', ' ').capitalize() }}
+                                            </span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <a href="{{ url_for('mandat_detail', mandat_id=mandat.id) }}" class="btn btn-sm btn-outline-primary" title="Voir les détails">
+                                            <i class="fas fa-eye"></i>
+                                        </a>
+                                        {% if mandat.fichier_original %}
+                                        <a href="{{ url_for('uploaded_file', filename=mandat.fichier_original) }}" class="btn btn-sm btn-outline-secondary" title="Télécharger le fichier">
+                                            <i class="fas fa-download"></i>
+                                        </a>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Pagination -->
+                    {% if mandats.pages > 1 %}
+                    <nav aria-label="Navigation des pages" class="mt-4">
+                        <ul class="pagination justify-content-center">
+                            {% if mandats.has_prev %}
+                            <li class="page-item">
+                                <a class="page-link" href="{{ url_for('historique_paiements', page=mandats.prev_num, **request.args) }}">Précédent</a>
+                            </li>
+                            {% endif %}
+                            {% for page in mandats.iter_pages(left_edge=2, right_edge=2, left_current=2, right_current=3) %}
+                            {% if page %}
+                            <li class="page-item {% if page == mandats.page %}active{% endif %}">
+                                <a class="page-link" href="{{ url_for('historique_paiements', page=page, **request.args) }}">{{ page }}</a>
+                            </li>
+                            {% else %}
+                            <li class="page-item disabled"><span class="page-link">...</span></li>
+                            {% endif %}
+                            {% endfor %}
+                            {% if mandats.has_next %}
+                            <li class="page-item">
+                                <a class="page-link" href="{{ url_for('historique_paiements', page=mandats.next_num, **request.args) }}">Suivant</a>
+                            </li>
+                            {% endif %}
+                        </ul>
+                    </nav>
+                    {% endif %}
+
+                    {% else %}
+                    <div class="text-center py-5 my-4">
+                        <i class="fas fa-file-invoice-dollar fa-4x text-muted mb-3"></i>
+                        <p class="text-muted fs-5">Aucun paiement trouvé.</p>
+                        <p class="text-muted">Vérifiez vos filtres ou attendez que des paiements soient validés par l'administration.</p>
+                    </div>
+                    {% endif %}
+                </div>
             </div>
         </div>
     </div>
 </div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // Fonction pour exporter le tableau en CSV
+    function exportToCSV() {
+        const headers = ["Référence", "Montant", "Description", "Date de Dépôt", "Date de Paiement", "Statut"];
+        const rows = [
+            {% for mandat in mandats.items %}
+            [
+                "{{ mandat.reference }}",
+                "{{ '{:,.0f}'.format(mandat.montant) | replace(',', ' ') }} XOF",
+                "{{ mandat.description | replace('\n', ' ') }}",
+                "{{ mandat.date_depot.strftime('%d/%m/%Y') if mandat.date_depot else 'N/A' }}",
+                "{{ mandat.date_paiement.strftime('%d/%m/%Y') if mandat.date_paiement else 'En attente' }}",
+                "{{ mandat.statut.replace('_', ' ').capitalize() }}"
+            ],
+            {% endfor %}
+        ];
+
+        let csvContent = "data:text/csv;charset=utf-8,";
+        csvContent += headers.join(",") + "\r\n";
+        rows.forEach(row => {
+            csvContent += row.map(cell => `"${cell}"`).join(",") + "\r\n";
+        });
+
+        const encodedUri = encodeURI(csvContent);
+        const link = document.createElement("a");
+        link.setAttribute("href", encodedUri);
+        link.setAttribute("download", "historique_paiements.csv");
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    }
+
+    // Recherche dynamique (optionnel, nécessite une API pour filtrage côté serveur)
+    document.getElementById('reference').addEventListener('input', function(e) {
+        const searchTerm = e.target.value.toLowerCase();
+        const rows = document.querySelectorAll('table tbody tr');
+        rows.forEach(row => {
+            const reference = row.cells[0].textContent.toLowerCase();
+            row.style.display = reference.includes(searchTerm) ? '' : 'none';
+        });
+    });
+</script>
 {% endblock %}

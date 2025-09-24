@@ -1,19 +1,575 @@
 {% extends "base.html" %}
 
-{% block title %}Agent Statistiques{% endblock %}
+{% block title %}Statistiques Agent - TRÉSOR CONNECT{% endblock %}
+
+{% block style %}
+<style>
+    .stat-card {
+        border: none;
+        border-radius: 15px;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        overflow: hidden;
+    }
+    
+    .stat-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+    }
+    
+    .stat-icon {
+        font-size: 2.5rem;
+        opacity: 0.8;
+    }
+    
+    .kpi-badge {
+        font-size: 0.75em;
+        padding: 4px 8px;
+        border-radius: 10px;
+    }
+    
+    .progress-agent {
+        height: 10px;
+        border-radius: 5px;
+    }
+    
+    .chart-container {
+        background: white;
+        border-radius: 15px;
+        padding: 25px;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+        height: 100%;
+    }
+    
+    .performance-meter {
+        width: 120px;
+        height: 120px;
+        position: relative;
+    }
+    
+    .performance-value {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        font-size: 1.5rem;
+        font-weight: bold;
+    }
+    
+    .timeline-agent {
+        border-left: 3px solid #667eea;
+        padding-left: 20px;
+        margin-left: 15px;
+    }
+    
+    .timeline-point {
+        position: absolute;
+        left: -8px;
+        width: 14px;
+        height: 14px;
+        border-radius: 50%;
+        background: #667eea;
+        border: 3px solid white;
+    }
+    
+    .table-agent th {
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        color: white;
+        border: none;
+    }
+</style>
+{% endblock %}
 
 {% block content %}
-<div class="container">
-    <div class="row">
+<div class="container-fluid py-4">
+    <!-- En-tête -->
+    <div class="row mb-4">
         <div class="col-12">
-            <h1>Agent Statistiques</h1>
-            <p>Template agent_statistiques.html - En cours de développement</p>
-            
-            <div class="alert alert-info">
-                <i class="fas fa-info-circle"></i> 
-                Cette page est en cours de construction. Contenu à compléter.
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h1 class="h2 mb-1">
+                        <i class="fas fa-chart-bar me-2 text-primary"></i>Tableau de Bord Statistiques
+                    </h1>
+                    <p class="text-muted mb-0">Analyse de votre performance en tant qu'Agent</p>
+                </div>
+                <div class="dropdown">
+                    <button class="btn btn-outline-primary dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                        <i class="fas fa-calendar me-2"></i>
+                        {{ periode|default("Ce mois-ci") }}
+                    </button>
+                    <ul class="dropdown-menu">
+                        <li><a class="dropdown-item" href="?periode=aujourdhui">Aujourd'hui</a></li>
+                        <li><a class="dropdown-item" href="?periode=semaine">Cette semaine</a></li>
+                        <li><a class="dropdown-item" href="?periode=mois">Ce mois-ci</a></li>
+                        <li><a class="dropdown-item" href="?periode=trimestre">Ce trimestre</a></li>
+                        <li><a class="dropdown-item" href="?periode=annee">Cette année</a></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li><a class="dropdown-item" href="?periode=tout">Toute la période</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- KPI Principaux -->
+    <div class="row mb-4">
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card stat-card text-white bg-primary">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div>
+                            <h5 class="card-title mb-3">
+                                <i class="fas fa-file-contract me-2"></i>Mandats Dépôts
+                            </h5>
+                            <h2 class="display-6 fw-bold">{{ stats.mandats_total }}</h2>
+                            <small class="opacity-75">
+                                <i class="fas fa-arrow-{{ 'haut' if stats.evolution_depots >= 0 else 'bas' }} me-1"></i>
+                                {{ stats.evolution_depots|abs }}% vs période précédente
+                            </small>
+                        </div>
+                        <div class="stat-icon">
+                            <i class="fas fa-upload"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card stat-card text-white bg-success">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div>
+                            <h5 class="card-title mb-3">
+                                <i class="fas fa-check-circle me-2"></i>Taux de Validation
+                            </h5>
+                            <h2 class="display-6 fw-bold">{{ stats.taux_validation }}%</h2>
+                            <small class="opacity-75">
+                                {{ stats.mandats_valides }} sur {{ stats.mandats_total }} mandats
+                            </small>
+                        </div>
+                        <div class="stat-icon">
+                            <i class="fas fa-chart-pie"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card stat-card text-white bg-warning">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div>
+                            <h5 class="card-title mb-3">
+                                <i class="fas fa-money-bill-wave me-2"></i>Montant Total
+                            </h5>
+                            <h2 class="display-6 fw-bold">{{ "{:,.0f}".format(stats.montant_total) }} FCFA</h2>
+                            <small class="opacity-75">
+                                Moyenne: {{ "{:,.0f}".format(stats.moyenne_mandat) }} FCFA/mandat
+                            </small>
+                        </div>
+                        <div class="stat-icon">
+                            <i class="fas fa-coins"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card stat-card text-white bg-info">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div>
+                            <h5 class="card-title mb-3">
+                                <i class="fas fa-bolt me-2"></i>Performance
+                            </h5>
+                            <h2 class="display-6 fw-bold">{{ stats.score_performance }}/10</h2>
+                            <small class="opacity-75">
+                                Classement: {{ stats.classement }}/{{ stats.total_agents }}
+                            </small>
+                        </div>
+                        <div class="stat-icon">
+                            <i class="fas fa-trophy"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Graphiques et analyses -->
+    <div class="row mb-4">
+        <!-- Évolution des dépôts -->
+        <div class="col-lg-8 mb-4">
+            <div class="chart-container">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h5 class="mb-0">
+                        <i class="fas fa-chart-line me-2 text-primary"></i>Évolution des Dépôts de Mandats
+                    </h5>
+                    <div class="btn-group btn-group-sm">
+                        <button class="btn btn-outline-primary active" onclick="changeChartType('depots', 'line')">Ligne</button>
+                        <button class="btn btn-outline-primary" onclick="changeChartType('depots', 'bar')">Barre</button>
+                    </div>
+                </div>
+                <canvas id="depotsChart" height="250"></canvas>
+            </div>
+        </div>
+        
+        <!-- Répartition par fournisseur -->
+        <div class="col-lg-4 mb-4">
+            <div class="chart-container">
+                <h5 class="mb-4">
+                    <i class="fas fa-building me-2 text-success"></i>Répartition par Fournisseur
+                </h5>
+                <canvas id="fournisseursChart" height="250"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- Analyse détaillée -->
+    <div class="row">
+        <!-- Performance par statut -->
+        <div class="col-lg-6 mb-4">
+            <div class="card h-100">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-tasks me-2 text-warning"></i>Performance par Statut
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row g-3">
+                        {% for statut in performance_statuts %}
+                        <div class="col-12">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <span class="fw-bold">
+                                    <i class="fas fa-{{ statut.icon }} me-2 text-{{ statut.color }}"></i>
+                                    {{ statut.nom }}
+                                </span>
+                                <span class="badge bg-{{ statut.color }}">{{ statut.nombre }}</span>
+                            </div>
+                            <div class="progress progress-agent">
+                                <div class="progress-bar bg-{{ statut.color }}" 
+                                     style="width: {{ statut.pourcentage }}%">
+                                </div>
+                            </div>
+                            <small class="text-muted">{{ statut.pourcentage }}% du total</small>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Top 5 des mandats -->
+        <div class="col-lg-6 mb-4">
+            <div class="card h-100">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-trophy me-2 text-info"></i>Top 5 des Mandats
+                    </h5>
+                    <span class="badge bg-primary">Par montant</span>
+                </div>
+                <div class="card-body">
+                    {% if top_mandats %}
+                    <div class="table-responsive">
+                        <table class="table table-hover table-agent">
+                            <thead>
+                                <tr>
+                                    <th>Référence</th>
+                                    <th>Fournisseur</th>
+                                    <th>Montant</th>
+                                    <th>Statut</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for mandat in top_mandats %}
+                                <tr>
+                                    <td>
+                                        <strong class="text-primary">{{ mandat.reference }}</strong>
+                                        <br>
+                                        <small class="text-muted">{{ mandat.date_depot.strftime('%d/%m/%Y') }}</small>
+                                    </td>
+                                    <td>
+                                        <small>{{ mandat.fournisseur.nom_complet if mandat.fournisseur else 'N/A' }}</small>
+                                    </td>
+                                    <td class="fw-bold text-success">{{ "{:,.0f}".format(mandat.montant) }} FCFA</td>
+                                    <td>
+                                        <span class="kpi-badge bg-{{ 
+                                            'success' if mandat.statut.value == 'payé' 
+                                            else 'info' if mandat.statut.value == 'validé'
+                                            else 'warning' if mandat.statut.value == 'en_cours'
+                                            else 'secondary'
+                                        }}">
+                                            {{ mandat.statut.value|title }}
+                                        </span>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% else %}
+                    <div class="text-center py-4">
+                        <i class="fas fa-inbox fa-3x text-muted mb-3"></i>
+                        <p class="text-muted">Aucun mandat trouvé</p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Timeline d'activité récente -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-history me-2 text-secondary"></i>Activité Récente
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="timeline-agent">
+                        {% for activite in activites_recentes %}
+                        <div class="mb-4 position-relative">
+                            <div class="timeline-point"></div>
+                            <div class="ms-4">
+                                <div class="d-flex justify-content-between align-items-start">
+                                    <h6 class="mb-1">{{ activite.titre }}</h6>
+                                    <small class="text-muted">{{ activite.date }}</small>
+                                </div>
+                                <p class="text-muted mb-1">{{ activite.description }}</p>
+                                {% if activite.montant %}
+                                <span class="badge bg-success">{{ "{:,.0f}".format(activite.montant) }} FCFA</span>
+                                {% endif %}
+                            </div>
+                        </div>
+                        {% else %}
+                        <div class="text-center py-4">
+                            <i class="fas fa-stream fa-3x text-muted mb-3"></i>
+                            <p class="text-muted">Aucune activité récente</p>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Objectifs et métriques -->
+    <div class="row">
+        <div class="col-lg-8">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-bullseye me-2 text-danger"></i>Objectifs du Mois
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row text-center">
+                        <div class="col-md-4 mb-3">
+                            <div class="performance-meter mx-auto mb-2">
+                                <canvas id="objectifMandatsChart" width="120" height="120"></canvas>
+                                <div class="performance-value">{{ stats.objectif_mandats_progress }}%</div>
+                            </div>
+                            <h6>Mandats Dépôts</h6>
+                            <small class="text-muted">{{ stats.mandats_total }} / {{ stats.objectif_mandats }}</small>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <div class="performance-meter mx-auto mb-2">
+                                <canvas id="objectifMontantChart" width="120" height="120"></canvas>
+                                <div class="performance-value">{{ stats.objectif_montant_progress }}%</div>
+                            </div>
+                            <h6>Montant Total</h6>
+                            <small class="text-muted">{{ "{:,.0f}".format(stats.montant_total) }} / {{ "{:,.0f}".format(stats.objectif_montant) }} FCFA</small>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <div class="performance-meter mx-auto mb-2">
+                                <canvas id="objectifValidationChart" width="120" height="120"></canvas>
+                                <div class="performance-value">{{ stats.taux_validation }}%</div>
+                            </div>
+                            <h6>Taux Validation</h6>
+                            <small class="text-muted">Objectif: {{ stats.objectif_validation }}%</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-4">
+            <div class="card h-100">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-rocket me-2 text-success"></i>Actions Rapides
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="d-grid gap-2">
+                        <a href="{{ url_for('deposer_mandat') }}" class="btn btn-primary">
+                            <i class="fas fa-plus-circle me-2"></i>Nouveau Mandat
+                        </a>
+                        <a href="{{ url_for('mes_mandats') }}" class="btn btn-outline-primary">
+                            <i class="fas fa-list me-2"></i>Voir mes Mandats
+                        </a>
+                        <a href="{{ url_for('profil') }}" class="btn btn-outline-secondary">
+                            <i class="fas fa-user-edit me-2"></i>Mon Profil
+                        </a>
+                        <button class="btn btn-outline-info" onclick="exportReport()">
+                            <i class="fas fa-download me-2"></i>Exporter Rapport
+                        </button>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
 </div>
+{% endblock %}
+
+{% block scripts %}
+<!-- Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+// Données pour les graphiques
+const depotsData = {
+    labels: {{ dates_depots|tojson }},
+    datasets: [{
+        label: 'Mandats Dépôts',
+        data: {{ valeurs_depots|tojson }},
+        borderColor: '#667eea',
+        backgroundColor: 'rgba(102, 126, 234, 0.1)',
+        borderWidth: 3,
+        fill: true,
+        tension: 0.4
+    }]
+};
+
+const fournisseursData = {
+    labels: {{ labels_fournisseurs|tojson }},
+    datasets: [{
+        data: {{ valeurs_fournisseurs|tojson }},
+        backgroundColor: [
+            '#667eea', '#764ba2', '#28a745', '#ffc107', '#dc3545',
+            '#17a2b8', '#6f42c1', '#e83e8c', '#fd7e14', '#20c997'
+        ],
+        borderWidth: 2,
+        borderColor: '#fff'
+    }]
+};
+
+let depotsChart, fournisseursChart;
+let objectifCharts = [];
+
+document.addEventListener('DOMContentLoaded', function() {
+    initCharts();
+    initGoalCharts();
+    animateElements();
+});
+
+function initCharts() {
+    // Graphique des dépôts
+    const depotsCtx = document.getElementById('depotsChart').getContext('2d');
+    depotsChart = new Chart(depotsCtx, {
+        type: 'line',
+        data: depotsData,
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { display: false },
+                tooltip: {
+                    callbacks: {
+                        label: (context) => `${context.parsed.y} mandats déposés`
+                    }
+                }
+            },
+            scales: {
+                y: { beginAtZero: true }
+            }
+        }
+    });
+
+    // Graphique des fournisseurs
+    const fournisseursCtx = document.getElementById('fournisseursChart').getContext('2d');
+    fournisseursChart = new Chart(fournisseursCtx, {
+        type: 'doughnut',
+        data: fournisseursData,
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { position: 'bottom' }
+            },
+            cutout: '60%'
+        }
+    });
+}
+
+function initGoalCharts() {
+    const goals = [
+        { id: 'objectifMandatsChart', progress: {{ stats.objectif_mandats_progress }} },
+        { id: 'objectifMontantChart', progress: {{ stats.objectif_montant_progress }} },
+        { id: 'objectifValidationChart', progress: {{ stats.taux_validation }} }
+    ];
+
+    goals.forEach(goal => {
+        const ctx = document.getElementById(goal.id).getContext('2d');
+        const chart = new Chart(ctx, {
+            type: 'doughnut',
+            data: {
+                datasets: [{
+                    data: [goal.progress, 100 - goal.progress],
+                    backgroundColor: [goal.progress >= 100 ? '#28a745' : '#667eea', '#e9ecef'],
+                    borderWidth: 0
+                }]
+            },
+            options: {
+                cutout: '70%',
+                plugins: { legend: { display: false } },
+                animation: { animateRotate: true }
+            }
+        });
+        objectifCharts.push(chart);
+    });
+}
+
+function changeChartType(chartName, type) {
+    if (chartName === 'depots') {
+        depotsChart.config.type = type;
+        depotsChart.update();
+    }
+    
+    // Mise à jour des boutons actifs
+    document.querySelectorAll('#depotsChart').parentElement.querySelectorAll('.btn').forEach(btn => {
+        btn.classList.remove('active');
+    });
+    event.target.classList.add('active');
+}
+
+function animateElements() {
+    const elements = document.querySelectorAll('.stat-card, .chart-container, .card');
+    elements.forEach((el, index) => {
+        setTimeout(() => {
+            el.style.opacity = '0';
+            el.style.transform = 'translateY(20px)';
+            el.style.transition = 'all 0.6s ease';
+            
+            setTimeout(() => {
+                el.style.opacity = '1';
+                el.style.transform = 'translateY(0)';
+            }, 50);
+        }, index * 100);
+    });
+}
+
+function exportReport() {
+    // Simulation d'export
+    const format = prompt('Choisissez le format (PDF/Excel/CSV):', 'PDF');
+    if (format) {
+        alert(`Export ${format} en cours de génération...`);
+        // Implémentation réelle de l'export ici
+    }
+}
+</script>
 {% endblock %}

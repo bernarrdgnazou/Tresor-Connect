@@ -1,26 +1,26 @@
 {% extends "base.html" %}
 
-{% block title %}Mes Mandats - Espace Fournisseur{% endblock %}
-
 {% block content %}
 <div class="container-fluid">
-    <!-- En-tête avec statistiques -->
+    <!-- En-tête avec titre et boutons -->
     <div class="d-flex justify-content-between align-items-center mb-4">
         <div>
-            <nav aria-label="breadcrumb">
-                <ol class="breadcrumb">
-                    <li class="breadcrumb-item"><a href="{{ url_for('dashboard_fournisseur') }}">Dashboard</a></li>
-                    <li class="breadcrumb-item active">Mes Mandats</li>
-                </ol>
-            </nav>
             <h2 class="mb-1">
                 <i class="fas fa-file-invoice me-2"></i>Mes Mandats
             </h2>
-            <p class="text-muted mb-0">Gestion de vos mandats et suivis de paiement</p>
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb mb-0">
+                    <li class="breadcrumb-item"><a href="{{ url_for('dashboard') }}">Dashboard</a></li>
+                    <li class="breadcrumb-item active">Mes Mandats</li>
+                </ol>
+            </nav>
         </div>
         <div class="btn-group">
+            <a href="{{ url_for('deposer_mandat') }}" class="btn btn-success">
+                <i class="fas fa-plus-circle me-1"></i>Nouveau Mandat
+            </a>
             <button class="btn btn-outline-secondary" type="button" data-bs-toggle="collapse" 
-                    data-bs-target="#filtersCollapse">
+                    data-bs-target="#filtersCollapse" aria-expanded="false">
                 <i class="fas fa-filter me-1"></i>Filtres
                 {% if filtres_actifs %}
                 <span class="badge bg-primary ms-1">{{ filtres_actifs|length }}</span>
@@ -39,106 +39,7 @@
         </div>
     </div>
 
-    <!-- Cartes de statistiques -->
-    <div class="row mb-4">
-        <div class="col-xl-2 col-md-4 col-sm-6 mb-3">
-            <div class="card bg-primary text-white shadow-sm">
-                <div class="card-body py-3">
-                    <div class="d-flex justify-content-between">
-                        <div>
-                            <h5 class="fw-bold">{{ stats.total_mandats }}</h5>
-                            <p class="small mb-0">Total Mandats</p>
-                        </div>
-                        <div class="align-self-center">
-                            <i class="fas fa-file-invoice fa-2x opacity-50"></i>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-xl-2 col-md-4 col-sm-6 mb-3">
-            <div class="card bg-success text-white shadow-sm">
-                <div class="card-body py-3">
-                    <div class="d-flex justify-content-between">
-                        <div>
-                            <h5 class="fw-bold">{{ stats.mandats_payes }}</h5>
-                            <p class="small mb-0">Payés</p>
-                        </div>
-                        <div class="align-self-center">
-                            <i class="fas fa-check-circle fa-2x opacity-50"></i>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-xl-2 col-md-4 col-sm-6 mb-3">
-            <div class="card bg-warning text-dark shadow-sm">
-                <div class="card-body py-3">
-                    <div class="d-flex justify-content-between">
-                        <div>
-                            <h5 class="fw-bold">{{ stats.mandats_encours }}</h5>
-                            <p class="small mb-0">En Cours</p>
-                        </div>
-                        <div class="align-self-center">
-                            <i class="fas fa-cog fa-2x opacity-50"></i>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-xl-2 col-md-4 col-sm-6 mb-3">
-            <div class="card bg-info text-white shadow-sm">
-                <div class="card-body py-3">
-                    <div class="d-flex justify-content-between">
-                        <div>
-                            <h5 class="fw-bold">{{ stats.mandats_valides }}</h5>
-                            <p class="small mb-0">Validés</p>
-                        </div>
-                        <div class="align-self-center">
-                            <i class="fas fa-thumbs-up fa-2x opacity-50"></i>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-xl-2 col-md-4 col-sm-6 mb-3">
-            <div class="card bg-secondary text-white shadow-sm">
-                <div class="card-body py-3">
-                    <div class="d-flex justify-content-between">
-                        <div>
-                            <h5 class="fw-bold">{{ "{:,.2f} €".format(stats.montant_total) }}</h5>
-                            <p class="small mb-0">Montant Total</p>
-                        </div>
-                        <div class="align-self-center">
-                            <i class="fas fa-euro-sign fa-2x opacity-50"></i>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-xl-2 col-md-4 col-sm-6 mb-3">
-            <div class="card bg-danger text-white shadow-sm">
-                <div class="card-body py-3">
-                    <div class="d-flex justify-content-between">
-                        <div>
-                            <h5 class="fw-bold">{{ stats.mandats_rejetes }}</h5>
-                            <p class="small mb-0">Rejetés</p>
-                        </div>
-                        <div class="align-self-center">
-                            <i class="fas fa-times-circle fa-2x opacity-50"></i>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Panneau de filtres -->
+    <!-- Panneau de filtres avancés -->
     <div class="collapse mb-4" id="filtersCollapse">
         <div class="card card-body">
             <form method="get" class="row g-3" id="filterForm">
@@ -156,13 +57,13 @@
                 </div>
                 
                 <div class="col-md-3">
-                    <label for="agent_id" class="form-label">Agent</label>
-                    <select name="agent_id" id="agent_id" class="form-select">
-                        <option value="">Tous les agents</option>
-                        {% for agent in agents %}
-                        <option value="{{ agent.id }}" 
-                                {% if request.args.get('agent_id')|int == agent.id %}selected{% endif %}>
-                            {{ agent.nom }} {{ agent.prenom }}
+                    <label for="fournisseur_id" class="form-label">Fournisseur</label>
+                    <select name="fournisseur_id" id="fournisseur_id" class="form-select">
+                        <option value="">Tous les fournisseurs</option>
+                        {% for fournisseur in fournisseurs %}
+                        <option value="{{ fournisseur.id }}" 
+                                {% if request.args.get('fournisseur_id')|int == fournisseur.id %}selected{% endif %}>
+                            {{ fournisseur.nom }}
                         </option>
                         {% endfor %}
                     </select>
@@ -190,22 +91,22 @@
                 <div class="col-md-2">
                     <label for="montant_max" class="form-label">Montant max</label>
                     <input type="number" name="montant_max" id="montant_max" 
-                           value="{{ request.args.get('montant_max') }}" placeholder="100000" 
+                           value="{{ request.args.get('montant_max') }}" placeholder="10000" 
                            class="form-control" step="0.01">
                 </div>
                 
-                <div class="col-md-3">
+                <div class="col-md-2">
                     <label for="tri" class="form-label">Trier par</label>
                     <select name="tri" id="tri" class="form-select">
-                        <option value="date_desc" {% if request.args.get('tri') == 'date_desc' %}selected{% endif %}>Date récente</option>
-                        <option value="date_asc" {% if request.args.get('tri') == 'date_asc' %}selected{% endif %}>Date ancienne</option>
-                        <option value="montant_desc" {% if request.args.get('tri') == 'montant_desc' %}selected{% endif %}>Montant élevé</option>
-                        <option value="montant_asc" {% if request.args.get('tri') == 'montant_asc' %}selected{% endif %}>Montant faible</option>
-                        <option value="echeance" {% if request.args.get('tri') == 'echeance' %}selected{% endif %}>Échéance</option>
+                        <option value="date_desc" {% if request.args.get('tri') == 'date_desc' %}selected{% endif %}>Date ↓</option>
+                        <option value="date_asc" {% if request.args.get('tri') == 'date_asc' %}selected{% endif %}>Date ↑</option>
+                        <option value="montant_desc" {% if request.args.get('tri') == 'montant_desc' %}selected{% endif %}>Montant ↓</option>
+                        <option value="montant_asc" {% if request.args.get('tri') == 'montant_asc' %}selected{% endif %}>Montant ↑</option>
+                        <option value="reference" {% if request.args.get('tri') == 'reference' %}selected{% endif %}>Référence</option>
                     </select>
                 </div>
                 
-                <div class="col-md-3">
+                <div class="col-md-2">
                     <label class="form-label">Options</label>
                     <div class="form-check">
                         <input type="checkbox" name="urgence_only" id="urgence_only" 
@@ -213,9 +114,9 @@
                         <label for="urgence_only" class="form-check-label">Urgents seulement</label>
                     </div>
                     <div class="form-check">
-                        <input type="checkbox" name="facture_manquante" id="facture_manquante" 
-                               class="form-check-input" {% if request.args.get('facture_manquante') %}checked{% endif %}>
-                        <label for="facture_manquante" class="form-check-label">Facture à déposer</label>
+                        <input type="checkbox" name="correction_requise" id="correction_requise" 
+                               class="form-check-input" {% if request.args.get('correction_requise') %}checked{% endif %}>
+                        <label for="correction_requise" class="form-check-label">Corrections requises</label>
                     </div>
                 </div>
                 
@@ -224,7 +125,7 @@
                         <button type="submit" class="btn btn-primary">
                             <i class="fas fa-search me-1"></i>Appliquer les filtres
                         </button>
-                        <a href="{{ url_for('liste_mandats_fournisseur') }}" class="btn btn-outline-secondary">
+                        <a href="{{ url_for('liste_mandats') }}" class="btn btn-outline-secondary">
                             <i class="fas fa-times me-1"></i>Réinitialiser
                         </a>
                         <div class="form-check form-switch">
@@ -247,17 +148,41 @@
             {% endfor %}
             <small class="text-muted ms-2">({{ mandats.total }} résultat(s))</small>
         </div>
-        <a href="{{ url_for('liste_mandats_fournisseur') }}" class="btn btn-sm btn-outline-info">
+        <a href="{{ url_for('liste_mandats') }}" class="btn btn-sm btn-outline-info">
             <i class="fas fa-times me-1"></i>Tout effacer
         </a>
     </div>
     {% endif %}
 
+    <!-- Cartes de statistiques rapides -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex flex-wrap gap-3">
+                <div class="stat-card">
+                    <span class="stat-number">{{ mandats.total }}</span>
+                    <span class="stat-label">Total</span>
+                </div>
+                {% for stat in stats_filtrees %}
+                <div class="stat-card stat-{{ stat.color }}">
+                    <span class="stat-number">{{ stat.count }}</span>
+                    <span class="stat-label">{{ stat.nom }}</span>
+                </div>
+                {% endfor %}
+                {% if mandats.total > 0 %}
+                <div class="stat-card stat-light">
+                    <span class="stat-number">{{ f"{montant_total} €" }}</span>
+                    <span class="stat-label">Montant total</span>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
     <!-- Tableau des mandats -->
     <div class="card shadow">
         <div class="card-header bg-light d-flex justify-content-between align-items-center">
             <h5 class="mb-0">
-                <i class="fas fa-list me-2"></i>Liste de vos mandats
+                <i class="fas fa-list me-2"></i>Liste des mandats
                 <small class="text-muted">(Page {{ mandats.page }}/{{ mandats.pages }})</small>
             </h5>
             <div class="d-flex align-items-center">
@@ -270,6 +195,7 @@
                     <option value="10" {% if mandats.per_page == 10 %}selected{% endif %}>10/page</option>
                     <option value="25" {% if mandats.per_page == 25 %}selected{% endif %}>25/page</option>
                     <option value="50" {% if mandats.per_page == 50 %}selected{% endif %}>50/page</option>
+                    <option value="100" {% if mandats.per_page == 100 %}selected{% endif %}>100/page</option>
                 </select>
             </div>
         </div>
@@ -279,13 +205,16 @@
                 <table class="table table-hover mb-0" id="tableMandats">
                     <thead class="table-light">
                         <tr>
+                            <th width="30">
+                                <input type="checkbox" id="selectAll" class="form-check-input">
+                            </th>
                             <th width="120">Référence</th>
-                            <th>Agent</th>
+                            <th>Fournisseur</th>
                             <th width="120">Montant TTC</th>
                             <th width="140">Statut</th>
-                            <th width="110">Date création</th>
+                            <th width="110">Date dépôt</th>
                             <th width="110">Échéance</th>
-                            <th width="120">Facture</th>
+                            <th width="150">Dernière action</th>
                             <th width="100" class="text-center">Actions</th>
                         </tr>
                     </thead>
@@ -294,6 +223,10 @@
                         <tr class="mandat-row {% if mandat.urgence %}table-warning{% endif %} 
                             {% if mandat.correction_requise %}table-danger{% endif %}" 
                             data-mandat-id="{{ mandat.id }}">
+                            <td>
+                                <input type="checkbox" name="mandat_ids" value="{{ mandat.id }}" 
+                                       class="form-check-input mandat-checkbox">
+                            </td>
                             <td>
                                 <div class="d-flex align-items-center">
                                     <strong class="mandat-reference">{{ mandat.reference }}</strong>
@@ -310,17 +243,23 @@
                                             <i class="fas fa-paperclip"></i>
                                         </span>
                                         {% endif %}
+                                        {% if mandat.correction_requise %}
+                                        <span class="badge bg-warning badge-sm" data-bs-toggle="tooltip" 
+                                              title="Correction requise">
+                                            <i class="fas fa-exclamation-triangle"></i>
+                                        </span>
+                                        {% endif %}
                                     </div>
                                 </div>
                             </td>
                             <td>
                                 <div class="d-flex align-items-center">
                                     <div class="avatar-sm bg-light rounded me-2">
-                                        <i class="fas fa-user-tie text-muted"></i>
+                                        <i class="fas fa-building text-muted"></i>
                                     </div>
                                     <div>
-                                        <strong class="d-block">{{ mandat.agent.nom }} {{ mandat.agent.prenom }}</strong>
-                                        <small class="text-muted">{{ mandat.agent.service|truncate(20) }}</small>
+                                        <strong class="d-block">{{ mandat.fournisseur.nom }}</strong>
+                                        <small class="text-muted">{{ mandat.fournisseur.email|truncate(25) }}</small>
                                     </div>
                                 </div>
                             </td>
@@ -339,7 +278,7 @@
                                 {% if mandat.correction_requise %}
                                 <div class="mt-1">
                                     <small class="text-danger">
-                                        <i class="fas fa-exclamation-triangle"></i> Correction
+                                        <i class="fas fa-exclamation-triangle"></i> Correction requise
                                     </small>
                                 </div>
                                 {% endif %}
@@ -364,40 +303,42 @@
                                 </div>
                             </td>
                             <td>
-                                {% if mandat.facture_deposee %}
-                                <span class="badge bg-success badge-sm">
-                                    <i class="fas fa-check me-1"></i>Déposée
-                                </span>
-                                {% elif mandat.statut.name in ['VALIDE', 'PRET_A_PAYER'] %}
-                                <span class="badge bg-warning badge-sm">
-                                    <i class="fas fa-clock me-1"></i>À déposer
-                                </span>
+                                {% if mandat.historique %}
+                                <div class="small">
+                                    <div class="text-truncate" style="max-width: 150px;" 
+                                         data-bs-toggle="tooltip" title="{{ mandat.historique[-1].action }}">
+                                        {{ mandat.historique[-1].action|truncate(20) }}
+                                    </div>
+                                    <div class="text-muted">{{ mandat.historique[-1].date_action|time_ago }}</div>
+                                </div>
                                 {% else %}
-                                <span class="badge bg-secondary badge-sm">En attente</span>
+                                <span class="text-muted">-</span>
                                 {% endif %}
                             </td>
                             <td>
                                 <div class="btn-group btn-group-sm" role="group">
-                                    <a href="{{ url_for('detail_mandat_fournisseur', mandat_id=mandat.id) }}" 
+                                    <a href="{{ url_for('detail_mandat', mandat_id=mandat.id) }}" 
                                        class="btn btn-outline-primary" data-bs-toggle="tooltip" title="Voir détails">
                                         <i class="fas fa-eye"></i>
                                     </a>
-                                    {% if mandat.statut.name in ['VALIDE', 'PRET_A_PAYER'] and not mandat.facture_deposee %}
-                                    <a href="{{ url_for('deposer_facture', mandat_id=mandat.id) }}" 
-                                       class="btn btn-outline-success" data-bs-toggle="tooltip" title="Déposer facture">
-                                        <i class="fas fa-file-upload"></i>
+                                    {% if mandat.statut.name in ['EN_ATTENTE', 'EN_COURS'] %}
+                                    <a href="{{ url_for('modifier_mandat', mandat_id=mandat.id) }}" 
+                                       class="btn btn-outline-warning" data-bs-toggle="tooltip" title="Modifier">
+                                        <i class="fas fa-edit"></i>
                                     </a>
                                     {% endif %}
-                                    <a href="mailto:{{ mandat.agent.email }}?subject=Mandat {{ mandat.reference }}" 
-                                       class="btn btn-outline-info" data-bs-toggle="tooltip" title="Contacter l'agent">
-                                        <i class="fas fa-envelope"></i>
+                                    {% if mandat.correction_requise %}
+                                    <a href="{{ url_for('corriger_mandat', mandat_id=mandat.id) }}" 
+                                       class="btn btn-outline-danger" data-bs-toggle="tooltip" title="Corriger">
+                                        <i class="fas fa-wrench"></i>
                                     </a>
+                                    {% endif %}
                                 </div>
                             </td>
                         </tr>
                         {% else %}
                         <tr>
-                            <td colspan="8" class="text-center py-5">
+                            <td colspan="9" class="text-center py-5">
                                 <div class="empty-state">
                                     <i class="fas fa-inbox fa-3x text-muted mb-3"></i>
                                     <h5 class="text-muted">Aucun mandat trouvé</h5>
@@ -405,11 +346,14 @@
                                         {% if filtres_actifs %}
                                         Aucun mandat ne correspond à vos critères de recherche.
                                         {% else %}
-                                        Aucun mandat ne vous a été attribué pour le moment.
+                                        Vous n'avez pas encore déposé de mandat.
                                         {% endif %}
                                     </p>
+                                    <a href="{{ url_for('deposer_mandat') }}" class="btn btn-primary">
+                                        <i class="fas fa-plus me-1"></i>Déposer votre premier mandat
+                                    </a>
                                     {% if filtres_actifs %}
-                                    <a href="{{ url_for('liste_mandats_fournisseur') }}" class="btn btn-outline-secondary">
+                                    <a href="{{ url_for('liste_mandats') }}" class="btn btn-outline-secondary ms-2">
                                         <i class="fas fa-times me-1"></i>Effacer les filtres
                                     </a>
                                     {% endif %}
@@ -435,14 +379,14 @@
                     <ul class="pagination justify-content-center mb-0">
                         <!-- Premier -->
                         <li class="page-item {% if not mandats.has_prev %}disabled{% endif %}">
-                            <a class="page-link" href="{{ url_for('liste_mandats_fournisseur', page=1, **request_args) }}">
+                            <a class="page-link" href="{{ url_for('liste_mandats', page=1, **request_args) }}">
                                 <i class="fas fa-angle-double-left"></i>
                             </a>
                         </li>
                         
                         <!-- Précédent -->
                         <li class="page-item {% if not mandats.has_prev %}disabled{% endif %}">
-                            <a class="page-link" href="{{ url_for('liste_mandats_fournisseur', page=mandats.prev_num, **request_args) }}">
+                            <a class="page-link" href="{{ url_for('liste_mandats', page=mandats.prev_num, **request_args) }}">
                                 <i class="fas fa-angle-left"></i>
                             </a>
                         </li>
@@ -451,7 +395,7 @@
                         {% for page_num in mandats.iter_pages(left_edge=1, right_edge=1, left_current=2, right_current=2) %}
                             {% if page_num %}
                                 <li class="page-item {% if page_num == mandats.page %}active{% endif %}">
-                                    <a class="page-link" href="{{ url_for('liste_mandats_fournisseur', page=page_num, **request_args) }}">
+                                    <a class="page-link" href="{{ url_for('liste_mandats', page=page_num, **request_args) }}">
                                         {{ page_num }}
                                     </a>
                                 </li>
@@ -464,14 +408,14 @@
 
                         <!-- Suivant -->
                         <li class="page-item {% if not mandats.has_next %}disabled{% endif %}">
-                            <a class="page-link" href="{{ url_for('liste_mandats_fournisseur', page=mandats.next_num, **request_args) }}">
+                            <a class="page-link" href="{{ url_for('liste_mandats', page=mandats.next_num, **request_args) }}">
                                 <i class="fas fa-angle-right"></i>
                             </a>
                         </li>
 
                         <!-- Dernier -->
                         <li class="page-item {% if not mandats.has_next %}disabled{% endif %}">
-                            <a class="page-link" href="{{ url_for('liste_mandats_fournisseur', page=mandats.pages, **request_args) }}">
+                            <a class="page-link" href="{{ url_for('liste_mandats', page=mandats.pages, **request_args) }}">
                                 <i class="fas fa-angle-double-right"></i>
                             </a>
                         </li>
@@ -480,7 +424,7 @@
                 
                 <div class="small text-muted">
                     <select class="form-select form-select-sm d-inline-block w-auto" 
-                            onchange="window.location.href = '{{ url_for('liste_mandats_fournisseur', **request_args) }}&page=' + this.value">
+                            onchange="window.location.href = '{{ url_for('liste_mandats', **request_args) }}&page=' + this.value">
                         {% for p in range(1, mandats.pages + 1) %}
                         <option value="{{ p }}" {% if p == mandats.page %}selected{% endif %}>{{ p }}</option>
                         {% endfor %}
@@ -491,37 +435,30 @@
         {% endif %}
     </div>
 
-    <!-- Section Informations -->
-    <div class="row mt-4">
-        <div class="col-lg-6">
-            <div class="card bg-light">
-                <div class="card-body">
-                    <h5><i class="fas fa-info-circle me-2"></i>Informations importantes</h5>
-                    <ul class="small">
-                        <li>Les mandats apparaissent ici dès qu'ils sont créés par un agent</li>
-                        <li>Vous pouvez déposer votre facture lorsque le mandat est <span class="badge bg-success">Validé</span></li>
-                        <li>Le paiement intervient généralement sous 30 jours après dépôt de facture</li>
-                        <li>Contactez l'agent en cas de question sur un mandat spécifique</li>
-                    </ul>
-                </div>
+    <!-- Actions groupées -->
+    <div class="mt-3 p-3 bg-light rounded d-none" id="actionsGroupees">
+        <div class="d-flex justify-content-between align-items-center">
+            <div>
+                <span id="nbSelectionnes" class="fw-bold">0 mandat(s) sélectionné(s)</span>
+                <small class="text-muted ms-2" id="montantTotalSelection"></small>
             </div>
-        </div>
-        <div class="col-lg-6">
-            <div class="card bg-light">
-                <div class="card-body">
-                    <h5><i class="fas fa-question-circle me-2"></i>Statuts des mandats</h5>
-                    <div class="small">
-                        <span class="badge bg-secondary me-1">En attente</span> - En cours de traitement
-                        <br>
-                        <span class="badge bg-info me-1">En cours</span> - En validation interne
-                        <br>
-                        <span class="badge bg-success me-1">Validé</span> - Prêt pour facturation
-                        <br>
-                        <span class="badge bg-warning me-1">Prêt à payer</span> - Paiement programmé
-                        <br>
-                        <span class="badge bg-primary me-1">Payé</span> - Paiement effectué
-                    </div>
-                </div>
+            <div class="btn-group">
+                <button type="button" class="btn btn-outline-secondary btn-sm" 
+                        onclick="exporterSelection()">
+                    <i class="fas fa-download me-1"></i>Exporter la sélection
+                </button>
+                <button type="button" class="btn btn-outline-info btn-sm" 
+                        onclick="dupliquerSelection()">
+                    <i class="fas fa-copy me-1"></i>Dupliquer
+                </button>
+                <button type="button" class="btn btn-outline-danger btn-sm" 
+                        onclick="supprimerSelection()">
+                    <i class="fas fa-trash me-1"></i>Supprimer
+                </button>
+                <button type="button" class="btn btn-outline-secondary btn-sm" 
+                        onclick="deselectionnerTout()">
+                    <i class="fas fa-times me-1"></i>Annuler
+                </button>
             </div>
         </div>
     </div>
@@ -557,19 +494,80 @@
 {% block scripts %}
 <script>
 // Variables globales
+let selectedMandats = new Set();
 let autoRefreshInterval;
 
 // Initialisation au chargement
 document.addEventListener('DOMContentLoaded', function() {
+    initSelection();
     initTooltips();
     initAutoRefresh();
     initTableInteractions();
 });
 
+// Gestion de la sélection multiple
+function initSelection() {
+    const selectAll = document.getElementById('selectAll');
+    const checkboxes = document.querySelectorAll('.mandat-checkbox');
+    const actionsGroupees = document.getElementById('actionsGroupees');
+
+    // Sélection/désélection globale
+    selectAll.addEventListener('change', function() {
+        checkboxes.forEach(checkbox => {
+            checkbox.checked = selectAll.checked;
+            updateSelection(checkbox);
+        });
+        toggleActionsGroupees();
+    });
+
+    // Gestion individuelle
+    checkboxes.forEach(checkbox => {
+        checkbox.addEventListener('change', function() {
+            updateSelection(this);
+            // Met à jour la case "Tout sélectionner"
+            selectAll.checked = [...checkboxes].every(cb => cb.checked);
+            toggleActionsGroupees();
+        });
+    });
+
+    function updateSelection(checkbox) {
+        const mandatId = checkbox.value;
+        if (checkbox.checked) {
+            selectedMandats.add(mandatId);
+        } else {
+            selectedMandats.delete(mandatId);
+        }
+    }
+
+    function toggleActionsGroupees() {
+        const nbSelectionnes = selectedMandats.size;
+        const nbSpan = document.getElementById('nbSelectionnes');
+        const montantSpan = document.getElementById('montantTotalSelection');
+        
+        nbSpan.textContent = `${nbSelectionnes} mandat(s) sélectionné(s)`;
+        
+        // Calcul du montant total sélectionné
+        let total = 0;
+        selectedMandats.forEach(id => {
+            const montantText = document.querySelector(`tr[data-mandat-id="${id}"] td:nth-child(4)`).textContent;
+            const montant = parseFloat(montantText.replace(/[^\d,]/g, '').replace(',', '.'));
+            if (!isNaN(montant)) total += montant;
+        });
+        
+        montantSpan.textContent = total > 0 ? `Total: ${total.toLocaleString('fr-FR', {style: 'currency', currency: 'EUR'})}` : '';
+        
+        if (nbSelectionnes > 0) {
+            actionsGroupees.classList.remove('d-none');
+        } else {
+            actionsGroupees.classList.add('d-none');
+        }
+    }
+}
+
 // Tooltips Bootstrap
 function initTooltips() {
     const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
-    const tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+    tooltipTriggerList.map(function (tooltipTriggerEl) {
         return new bootstrap.Tooltip(tooltipTriggerEl);
     });
 }
@@ -591,6 +589,7 @@ function initAutoRefresh() {
 
 function startAutoRefresh() {
     autoRefreshInterval = setInterval(() => {
+        // Vérifier les changements de statut
         updateStatuts();
     }, 30000); // Toutes les 30 secondes
 }
@@ -615,12 +614,6 @@ async function updateStatuts() {
                 if (badge) {
                     badge.textContent = data.statut;
                     badge.className = `badge bg-${data.color} badge-lg`;
-                    
-                    // Mettre à jour l'icône
-                    const icon = badge.querySelector('i');
-                    if (icon) {
-                        icon.className = `fas fa-${getStatutIcon(data.statut)} me-1`;
-                    }
                 }
             }
         } catch (error) {
@@ -631,12 +624,12 @@ async function updateStatuts() {
 
 // Interactions table
 function initTableInteractions() {
-    // Clic sur une ligne (sauf boutons)
+    // Clic sur une ligne (sauf cases à cocher)
     document.querySelectorAll('.mandat-row').forEach(row => {
         row.addEventListener('click', (e) => {
-            if (!e.target.closest('.btn')) {
+            if (!e.target.closest('input[type="checkbox"]') && !e.target.closest('.btn')) {
                 const mandatId = row.dataset.mandatId;
-                window.location.href = `/fournisseur/mandat/${mandatId}`;
+                window.location.href = `/agent/mandat/${mandatId}`;
             }
         });
     });
@@ -646,7 +639,21 @@ function initTableInteractions() {
 function exporterDonnees(format) {
     const params = new URLSearchParams(window.location.search);
     params.set('format', format);
-    window.open(`{{ url_for('liste_mandats_fournisseur') }}?${params.toString()}`, '_blank');
+    window.open(`{{ url_for('liste_mandats') }}?${params.toString()}`, '_blank');
+}
+
+function exporterSelection() {
+    if (selectedMandats.size === 0) {
+        alert('Veuillez sélectionner au moins un mandat');
+        return;
+    }
+    
+    const mandatIds = Array.from(selectedMandats).join(',');
+    const format = prompt('Format d\'export (csv/excel/pdf):', 'csv');
+    
+    if (format && ['csv', 'excel', 'pdf'].includes(format)) {
+        window.open(`/agent/export/mandats?ids=${mandatIds}&format=${format}`, '_blank');
+    }
 }
 
 function exporterFormat(format) {
@@ -654,24 +661,54 @@ function exporterFormat(format) {
     bootstrap.Modal.getInstance(document.getElementById('exportModal')).hide();
 }
 
+function dupliquerSelection() {
+    if (selectedMandats.size === 0) {
+        alert('Veuillez sélectionner au moins un mandat');
+        return;
+    }
+    
+    if (confirm(`Dupliquer ${selectedMandats.size} mandat(s) ?`)) {
+        // Implémenter la duplication
+        alert('Fonction de duplication à implémenter');
+    }
+}
+
+function supprimerSelection() {
+    if (selectedMandats.size === 0) {
+        alert('Veuillez sélectionner au moins un mandat');
+        return;
+    }
+    
+    if (confirm(`Supprimer définitivement ${selectedMandats.size} mandat(s) ? Cette action est irréversible.`)) {
+        // Implémenter la suppression
+        fetch('/agent/mandats/supprimer', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ mandat_ids: Array.from(selectedMandats) })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                location.reload();
+            } else {
+                alert('Erreur lors de la suppression');
+            }
+        });
+    }
+}
+
+function deselectionnerTout() {
+    selectedMandats.clear();
+    document.querySelectorAll('.mandat-checkbox').forEach(cb => cb.checked = false);
+    document.getElementById('selectAll').checked = false;
+    document.getElementById('actionsGroupees').classList.add('d-none');
+}
+
 function changePerPage(perPage) {
     const url = new URL(window.location);
     url.searchParams.set('per_page', perPage);
     url.searchParams.set('page', '1');
     window.location.href = url.toString();
-}
-
-// Fonction utilitaire pour obtenir l'icône de statut
-function getStatutIcon(statut) {
-    const icons = {
-        'EN_ATTENTE': 'clock',
-        'EN_COURS': 'cog',
-        'VALIDE': 'check-circle',
-        'REJETE': 'times-circle',
-        'PRET_A_PAYER': 'hourglass-half',
-        'PAYE': 'money-check'
-    };
-    return icons[statut] || 'file';
 }
 
 // Recherche en temps réel
@@ -685,19 +722,36 @@ document.getElementById('searchInput')?.addEventListener('input', function(e) {
 </script>
 
 <style>
-.avatar-sm {
-    width: 32px;
-    height: 32px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+.stat-card {
+    background: white;
+    border: 1px solid #dee2e6;
+    border-radius: 8px;
+    padding: 15px 20px;
+    text-align: center;
+    min-width: 100px;
 }
+.stat-number {
+    display: block;
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: #495057;
+}
+.stat-label {
+    font-size: 0.8rem;
+    color: #6c757d;
+    text-transform: uppercase;
+}
+.stat-primary { border-left: 4px solid #0d6efd; }
+.stat-success { border-left: 4px solid #198754; }
+.stat-warning { border-left: 4px solid #ffc107; }
+.stat-danger { border-left: 4px solid #dc3545; }
+.stat-info { border-left: 4px solid #0dcaf0; }
+.stat-light { border-left: 4px solid #f8f9fa; }
 
 .badge-sm {
     font-size: 0.7em;
     padding: 0.2em 0.4em;
 }
-
 .badge-lg {
     font-size: 0.85em;
     padding: 0.35em 0.65em;
@@ -707,9 +761,16 @@ document.getElementById('searchInput')?.addEventListener('input', function(e) {
     cursor: pointer;
     transition: background-color 0.15s ease;
 }
-
 .mandat-row:hover {
     background-color: #f8f9fa !important;
+}
+
+.avatar-sm {
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .empty-state {
@@ -721,14 +782,12 @@ document.getElementById('searchInput')?.addEventListener('input', function(e) {
     border-top: none;
     font-weight: 600;
     font-size: 0.9rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
 }
 
-.card {
-    transition: transform 0.2s ease;
-}
-
-.card:hover {
-    transform: translateY(-2px);
+.pagination {
+    margin-bottom: 0;
 }
 
 /* Responsive */
@@ -736,13 +795,8 @@ document.getElementById('searchInput')?.addEventListener('input', function(e) {
     .table-responsive {
         font-size: 0.85rem;
     }
-    
     .btn-group-sm .btn {
         padding: 0.25rem 0.5rem;
-    }
-    
-    .card-body.py-3 {
-        padding: 1rem !important;
     }
 }
 </style>
