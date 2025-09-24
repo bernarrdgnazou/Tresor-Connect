@@ -22,10 +22,13 @@
       {% endif %}
     {% endwith %}
 
-    <p class="text-center text-muted">
-      <i class="fas fa-mobile-alt me-2"></i>
-      Un code de vérification a été envoyé à votre téléphone
-    </p>
+    {% if config['DEBUG'] %}
+      <p class="text-center text-muted">
+        <i class="fas fa-bug me-2"></i>
+        (DEBUG) Code OTP : <strong>{{ otp_code }}</strong>
+      </p>
+    {% endif %}
+
 
     <form action="{{ url_for('verify_otp', user_id=user.id) }}" method="post">
       {{ form.hidden_tag() }}

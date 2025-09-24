@@ -203,6 +203,10 @@ def connexion():
 def verify_otp(user_id):
     """Vérification OTP"""
     user = User.query.get_or_404(user_id)
+
+    # 🔎 Récupérer le dernier OTP généré pour ce user
+    latest_otp = OTP.query.filter_by(user_id=user_id).order_by(OTP.id.desc()).first()
+    otp_code = latest_otp.code if latest_otp else None
     
     if current_user.is_authenticated:
         return redirect(url_for('dashboard'))
@@ -226,7 +230,7 @@ def verify_otp(user_id):
         else:
             flash('Code OTP invalide ou expiré', 'danger')
     
-    return render_template('default/verification_otp.html', form=form, user=user)
+    return render_template('default/verification_otp.html', form=form, user=user, otp_code=otp_code)
 
 @app.route('/inscription', methods=['GET', 'POST'])
 def inscription():
